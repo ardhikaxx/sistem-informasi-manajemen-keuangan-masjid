@@ -42,6 +42,7 @@
             justify-content: center;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             position: relative;
+            padding-top: 80px;
         }
 
         body::before {
@@ -55,6 +56,7 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+            filter: blur(5px);
             z-index: -2;
         }
 
@@ -68,6 +70,166 @@
             background: linear-gradient(to top, var(--primary-color) 10%, rgba(1, 116, 123, 0) 70%);
             z-index: -1;
         }
+
+        /* =================== MENU BAR STYLES =================== */
+        .menu-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .menu-toggle {
+            width: 50px;
+            height: 50px;
+            background-color: var(--secondary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            border: none;
+            position: relative;
+            z-index: 1001;
+        }
+
+        .menu-toggle:hover {
+            background-color: var(--primary-dark);
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .menu-toggle.active {
+            background-color: var(--primary-color);
+            transform: rotate(90deg);
+        }
+
+        .menu-toggle i {
+            color: white;
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .menu-items {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            padding: 10px;
+            min-width: 220px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px) scale(0.95);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+
+        .menu-items.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .menu-items::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 20px;
+            width: 16px;
+            height: 16px;
+            background-color: white;
+            transform: rotate(45deg);
+            border-radius: 3px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            margin: 5px 0;
+            border-radius: 50px;
+            text-decoration: none;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+            background-color: white;
+            border: 1px solid transparent;
+        }
+
+        .menu-item i {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 1rem;
+            color: var(--primary-dark);
+            transition: all 0.3s ease;
+        }
+
+        .menu-item:hover i {
+            transform: scale(1.2);
+        }
+
+        .menu-item span {
+            font-weight: 500;
+            font-size: 0.95rem;
+            flex-grow: 1;
+        }
+
+        .menu-item .badge {
+            background-color: var(--light-color);
+            color: var(--primary-color);
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        /* Animasi untuk item menu */
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .menu-item:nth-child(1) {
+            animation: slideInRight 0.3s ease 0.1s both;
+        }
+
+        .menu-item:nth-child(2) {
+            animation: slideInRight 0.3s ease 0.2s both;
+        }
+
+        /* Overlay untuk menutup menu saat klik di luar */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0);
+            z-index: 999;
+            visibility: hidden;
+            transition: background-color 0.3s ease;
+        }
+
+        .menu-overlay.active {
+            background-color: rgba(0, 0, 0, 0.1);
+            visibility: visible;
+        }
+
+        /* =================== END MENU BAR STYLES =================== */
 
         .background-animation {
             position: fixed;
@@ -157,9 +319,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 80vh;
             text-align: center;
-            padding: 40px 0;
         }
 
         .logo-container {
@@ -202,7 +362,7 @@
 
         .title {
             color: white;
-            font-weight: 700;
+            font-weight: 800;
             margin-bottom: 15px;
             font-size: 2.8rem;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
@@ -223,10 +383,10 @@
         }
 
         .subtitle {
-            color: rgba(255, 255, 255, 0.9);
+            color: #fafafa;
             font-size: 1.3rem;
             margin-bottom: 40px;
-            font-weight: 400;
+            font-weight: 600;
             max-width: 600px;
             text-align: center;
         }
@@ -295,7 +455,6 @@
         }
 
         .financial-card:hover {
-            transform: translateY(-5px);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
         }
 
@@ -469,6 +628,16 @@
                 max-width: 300px;
                 justify-content: center;
             }
+            
+            /* Responsive menu */
+            .menu-container {
+                top: 15px;
+                right: 15px;
+            }
+            
+            .menu-items {
+                min-width: 200px;
+            }
         }
 
         @media (max-width: 576px) {
@@ -487,11 +656,42 @@
             .total-balance {
                 padding: 20px;
             }
+            
+            .menu-toggle {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .menu-items {
+                top: 55px;
+                right: -5px;
+            }
         }
     </style>
 </head>
 
 <body>
+    <!-- Menu Bar Container -->
+    <div class="menu-container">
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <div class="menu-items" id="menuItems">
+            <a href="#" class="menu-item" id="loginAdmin">
+                <i class="fas fa-user-shield"></i>
+                <span>Login Admin</span>
+            </a>
+            
+            <a href="#" class="menu-item" id="qrcodeAmal">
+                <i class="fas fa-qrcode"></i>
+                <span>Amal QR Code</span>
+            </a>
+        </div>
+        
+        <div class="menu-overlay" id="menuOverlay"></div>
+    </div>
+
     <div class="background-animation">
         <div class="floating-shapes">
             <div class="shape"></div>
@@ -553,6 +753,68 @@
                 maximumFractionDigits: 0
             }).format(number);
         }
+
+        // Menu Toggle Functionality
+        const menuToggle = document.getElementById('menuToggle');
+        const menuItems = document.getElementById('menuItems');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const loginAdmin = document.getElementById('loginAdmin');
+        const qrcodeAmal = document.getElementById('qrcodeAmal');
+
+        // Toggle menu open/close
+        function toggleMenu() {
+            const isOpen = menuItems.classList.contains('show');
+            
+            if (!isOpen) {
+                menuToggle.classList.add('active');
+                menuItems.classList.add('show');
+                menuOverlay.classList.add('active');
+                menuToggle.innerHTML = '<i class="fas fa-times"></i>';
+            } else {
+                menuToggle.classList.remove('active');
+                menuItems.classList.remove('show');
+                menuOverlay.classList.remove('active');
+                menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+            }
+        }
+
+        // Close menu when clicking outside
+        function closeMenu() {
+            menuToggle.classList.remove('active');
+            menuItems.classList.remove('show');
+            menuOverlay.classList.remove('active');
+            menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+        }
+
+        // Event listeners for menu
+        menuToggle.addEventListener('click', toggleMenu);
+        menuOverlay.addEventListener('click', closeMenu);
+
+        // Menu item click handlers
+        loginAdmin.addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Fitur Login Admin akan diarahkan ke halaman login');
+            closeMenu();
+            
+            // Simulate redirect (in real app, use window.location.href)
+            console.log('Redirect to admin login page');
+        });
+
+        qrcodeAmal.addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Fitur Amal QR Code akan membuka QR code untuk donasi');
+            closeMenu();
+            
+            // Simulate QR code display (in real app, show modal with QR)
+            console.log('Show QR code for donations');
+        });
+
+        // Close menu on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeMenu();
+            }
+        });
 
         // Update totals with animation
         document.addEventListener('DOMContentLoaded', function() {
