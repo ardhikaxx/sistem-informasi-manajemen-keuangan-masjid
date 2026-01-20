@@ -14,20 +14,13 @@
     <style>
         :root {
             --primary-color: #1D8A4E;
-            /* Hijau terang islami */
             --primary-dark: #146C43;
             --secondary-color: #28A745;
-            /* Hijau cerah */
             --accent-color: #2ECC71;
-            /* Hijau mint */
             --light-color: #E8F5E9;
-            /* Hijau sangat muda */
             --dark-color: #0F5132;
-            /* Hijau tua */
             --success-color: #27AE60;
-            /* Hijau sukses */
             --warning-color: #F39C12;
-            /* Oranye */
             --card-bg: rgba(255, 255, 255, 0.98);
             --text-dark: #1C2833;
             --text-light: #566573;
@@ -290,7 +283,6 @@
             color: white;
             position: relative;
             flex-shrink: 0;
-            /* Header tidak mengecil */
         }
 
         .modal-header::before {
@@ -345,9 +337,7 @@
         .modal-content {
             padding: 30px;
             overflow-y: auto;
-            /* Scroll vertikal jika konten melebihi tinggi */
             flex: 1;
-            /* Mengisi sisa ruang yang tersedia */
             display: flex;
             flex-direction: column;
         }
@@ -381,7 +371,6 @@
             position: relative;
             overflow: hidden;
             flex-shrink: 0;
-            /* Container tidak mengecil */
         }
 
         .qris-image-container::before {
@@ -429,7 +418,6 @@
             margin-top: 10px;
             text-align: left;
             flex-shrink: 0;
-            /* Instruksi tidak mengecil */
         }
 
         .qris-instructions h4 {
@@ -639,6 +627,7 @@
             max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
+            width: 100%;
         }
 
         .hero-section {
@@ -647,6 +636,7 @@
             align-items: center;
             justify-content: center;
             text-align: center;
+            width: 100%;
         }
 
         .logo-container {
@@ -655,6 +645,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            width: 100%;
         }
 
         .logo-wrapper {
@@ -667,24 +658,6 @@
         .logo-image {
             max-height: 150px;
             width: auto;
-        }
-
-        @media (max-width: 576px) {
-            .logo-image {
-                max-height: 80px;
-            }
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.05);
-            }
         }
 
         .title {
@@ -716,10 +689,11 @@
             font-weight: 600;
             max-width: 600px;
             text-align: center;
+            line-height: 1.5;
         }
 
         .financial-summary {
-            width: 100%;
+            width: fit-content;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 20px;
@@ -780,8 +754,8 @@
             display: flex;
             gap: 20px;
             justify-content: center;
-            flex-wrap: row;
             margin-top: 20px;
+            width: 100%;
         }
 
         .financial-card {
@@ -936,18 +910,159 @@
             }
         }
 
-        @media (max-width: 768px) {
+        /* =================== RESPONSIVE STYLES =================== */
+
+        /* Desktop Large (≥1200px) */
+        @media (min-width: 1200px) {
+            .container-main {
+                padding: 30px;
+            }
+
             .title {
+                font-size: 3.2rem;
+            }
+
+            .subtitle {
                 font-size: 1.5rem;
+                max-width: 800px;
+            }
+
+            .financial-summary {
+                padding: 35px;
+            }
+
+            .total-balance .amount {
+                font-size: 3rem;
+            }
+        }
+
+        /* Desktop (≥992px) */
+        @media (min-width: 992px) {
+            .financial-details {
+                flex-direction: row;
+            }
+
+            .financial-card {
+                flex: 1;
+                min-width: 0;
+            }
+        }
+
+        /* Tablet (768px - 991px) */
+        @media (max-width: 991px) and (min-width: 768px) {
+            .title {
+                font-size: 2.5rem;
+            }
+
+            .title::after {
+                width: 280px;
             }
 
             .subtitle {
                 font-size: 1.2rem;
+                max-width: 550px;
+                margin-bottom: 30px;
             }
 
             .financial-summary {
-                padding: 20px;
-                margin: 20px 15px;
+                padding: 25px 20px;
+            }
+
+            .financial-summary h3 {
+                font-size: 1.6rem;
+            }
+
+            .total-balance .amount {
+                font-size: 2.2rem;
+            }
+
+            .financial-details {
+                flex-direction: row;
+                gap: 15px;
+            }
+
+            .financial-card {
+                padding: 18px;
+            }
+
+            .financial-card .value {
+                font-size: 1.3rem;
+            }
+
+            .menu-container {
+                top: 15px;
+                right: 15px;
+            }
+
+            .modal-container {
+                max-width: 90%;
+            }
+
+            .modal-header h2 {
+                font-size: 1.6rem;
+            }
+
+            .modal-content {
+                padding: 25px 20px;
+            }
+
+            .modal-actions {
+                gap: 10px;
+            }
+
+            .modal-btn {
+                padding: 10px 20px;
+            }
+        }
+
+        /* Mobile Large (576px - 767px) */
+        @media (max-width: 767px) and (min-width: 576px) {
+            body {
+                padding-top: 70px;
+            }
+
+            .title {
+                font-size: 2rem;
+            }
+
+            .title::after {
+                width: 220px;
+                bottom: -8px;
+                height: 3px;
+            }
+
+            .subtitle {
+                font-size: 1.1rem;
+                padding: 0 15px;
+                margin-bottom: 25px;
+            }
+
+            .container-main {
+                padding: 15px;
+            }
+
+            .financial-summary {
+                padding: 20px 15px;
+                border-radius: 15px;
+            }
+
+            .financial-summary h3 {
+                font-size: 1.5rem;
+                padding-bottom: 10px;
+            }
+
+            .financial-summary h3::after {
+                width: 80px;
+            }
+
+            .total-balance {
+                padding: 20px 15px;
+                margin-bottom: 20px;
+                border-radius: 12px;
+            }
+
+            .total-balance h4 {
+                font-size: 1.1rem;
             }
 
             .total-balance .amount {
@@ -955,80 +1070,22 @@
             }
 
             .financial-details {
-                grid-template-columns: 1fr;
-            }
-
-            .access-buttons {
                 flex-direction: column;
-                align-items: center;
+                gap: 15px;
+                margin-top: 15px;
             }
 
-            .btn-access {
-                width: 100%;
-                max-width: 300px;
-                justify-content: center;
+            .financial-card {
+                padding: 18px 15px;
             }
 
-            /* Responsive menu */
+            .financial-card .value {
+                font-size: 1.4rem;
+            }
+
             .menu-container {
                 top: 15px;
                 right: 15px;
-            }
-
-            .menu-items {
-                min-width: 200px;
-            }
-
-            /* Responsive modal */
-            .modal-container {
-                width: 95%;
-                margin: 20px;
-                max-height: 90vh;
-                /* Lebih tinggi di mobile */
-            }
-
-            .modal-header {
-                padding: 20px 15px;
-            }
-
-            .modal-header h2 {
-                font-size: 1.5rem;
-            }
-
-            .modal-content {
-                padding: 20px 15px;
-            }
-
-            .donation-info {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .modal-actions {
-                flex-direction: column;
-            }
-
-            .modal-btn {
-                width: 100%;
-                justify-content: center;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .title {
-                font-size: 1.8rem;
-            }
-
-            .title::after {
-                width: 200px;
-            }
-
-            .financial-summary h3 {
-                font-size: 1.5rem;
-            }
-
-            .total-balance {
-                padding: 20px;
             }
 
             .menu-toggle {
@@ -1038,20 +1095,388 @@
 
             .menu-items {
                 top: 55px;
-                right: -5px;
+                min-width: 200px;
+            }
+
+            .modal-container {
+                max-width: 95%;
+                max-height: 90vh;
+            }
+
+            .modal-header {
+                padding: 20px 15px;
+            }
+
+            .modal-header h2 {
+                font-size: 1.4rem;
+            }
+
+            .modal-header p {
+                font-size: 0.9rem;
+            }
+
+            .modal-content {
+                padding: 20px 15px;
             }
 
             .qris-image-container {
-                padding: 10px;
+                padding: 12px;
+                margin-bottom: 20px;
+            }
+
+            .qris-instructions {
+                padding: 15px;
+            }
+
+            .qris-instructions h4 {
+                font-size: 1.1rem;
+            }
+
+            .instructions-list li {
+                font-size: 0.9rem;
             }
 
             .modal-footer {
                 padding: 15px 20px;
             }
 
+            .donation-info {
+                justify-content: center;
+                margin-bottom: 12px;
+            }
+
             .donation-item {
-                font-size: 0.8rem;
                 padding: 8px 15px;
+                font-size: 0.85rem;
+            }
+
+            .modal-actions {
+                flex-direction: row;
+                gap: 10px;
+            }
+
+            .modal-btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Mobile Small (<576px) */
+        @media (max-width: 575px) {
+            body {
+                padding-top: 60px;
+                padding-bottom: 20px;
+            }
+
+            .title {
+                font-size: 1.8rem;
+                line-height: 1.2;
+            }
+
+            .title::after {
+                width: 180px;
+                bottom: -6px;
+                height: 3px;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+                padding: 0 10px;
+                margin-bottom: 20px;
+                line-height: 1.4;
+            }
+
+            .container-main {
+                padding: 10px;
+            }
+
+            .financial-summary {
+                padding: 18px 12px;
+                border-radius: 12px;
+            }
+
+            .financial-summary h3 {
+                font-size: 1.3rem;
+                padding-bottom: 8px;
+            }
+
+            .financial-summary h3::after {
+                width: 70px;
+                height: 2px;
+            }
+
+            .total-balance {
+                padding: 18px 12px;
+                margin-bottom: 18px;
+                border-radius: 10px;
+            }
+
+            .total-balance h4 {
+                font-size: 1rem;
+            }
+
+            .total-balance .amount {
+                font-size: 1.8rem;
+            }
+
+            .total-balance .subtext {
+                font-size: 0.8rem;
+            }
+
+            .financial-details {
+                flex-direction: column;
+                gap: 12px;
+                margin-top: 12px;
+            }
+
+            .financial-card {
+                padding: 16px 12px;
+                border-radius: 12px;
+            }
+
+            .financial-card .label {
+                font-size: 0.8rem;
+            }
+
+            .financial-card .value {
+                font-size: 1.3rem;
+            }
+
+            .financial-card .subtext {
+                font-size: 0.75rem;
+            }
+
+            .access-buttons {
+                flex-direction: column;
+                gap: 12px;
+                margin-top: 20px;
+            }
+
+            .btn-access {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+                padding: 12px 20px;
+            }
+
+            .footer {
+                margin-top: 30px;
+                padding: 15px 0;
+                font-size: 0.8rem;
+            }
+
+            .menu-container {
+                top: 10px;
+                right: 10px;
+            }
+
+            .menu-toggle {
+                width: 40px;
+                height: 40px;
+            }
+
+            .menu-toggle i {
+                font-size: 1.2rem;
+            }
+
+            .menu-items {
+                top: 50px;
+                min-width: 180px;
+                right: -5px;
+            }
+
+            .menu-item {
+                padding: 10px 14px;
+            }
+
+            .menu-item i {
+                width: 25px;
+                height: 25px;
+                font-size: 0.9rem;
+                margin-right: 10px;
+            }
+
+            .menu-item span {
+                font-size: 0.9rem;
+            }
+
+            .modal-overlay {
+                padding: 10px;
+            }
+
+            .modal-container {
+                max-width: 100%;
+                max-height: 95vh;
+                border-radius: 20px;
+            }
+
+            .modal-header {
+                padding: 15px 12px;
+            }
+
+            .modal-header h2 {
+                font-size: 1.3rem;
+            }
+
+            .modal-header p {
+                font-size: 0.85rem;
+                width: 90% !important;
+            }
+
+            .modal-close {
+                top: 12px;
+                right: 12px;
+                width: 35px;
+                height: 35px;
+            }
+
+            .modal-content {
+                padding: 15px 12px;
+            }
+
+            .qris-image-container {
+                padding: 10px;
+                margin-bottom: 15px;
+            }
+
+            .qris-instructions {
+                padding: 12px;
+            }
+
+            .qris-instructions h4 {
+                font-size: 1rem;
+                margin-bottom: 12px;
+            }
+
+            .instructions-list li {
+                font-size: 0.85rem;
+                padding: 6px 0;
+            }
+
+            .instructions-list li i {
+                margin-top: 2px;
+            }
+
+            .modal-footer {
+                padding: 12px 15px;
+            }
+
+            .donation-info {
+                justify-content: center;
+                margin-bottom: 10px;
+            }
+
+            .donation-item {
+                padding: 7px 12px;
+                font-size: 0.8rem;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .modal-btn {
+                width: 100%;
+                padding: 10px 15px;
+                font-size: 0.9rem;
+                justify-content: center;
+            }
+
+            .shape:nth-child(2),
+            .shape:nth-child(3),
+            .shape:nth-child(4),
+            .shape:nth-child(5) {
+                display: none; /* Hide some shapes on mobile for better performance */
+            }
+        }
+
+        /* Very Small Mobile (≤360px) */
+        @media (max-width: 360px) {
+            .title {
+                font-size: 1.6rem;
+            }
+
+            .title::after {
+                width: 150px;
+            }
+
+            .subtitle {
+                font-size: 0.95rem;
+            }
+
+            .financial-summary h3 {
+                font-size: 1.2rem;
+            }
+
+            .total-balance .amount {
+                font-size: 1.6rem;
+            }
+
+            .financial-card .value {
+                font-size: 1.2rem;
+            }
+
+            .menu-items {
+                min-width: 160px;
+            }
+
+            .modal-header h2 {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Landscape Mode for Mobile */
+        @media (max-height: 600px) and (orientation: landscape) {
+            body {
+                padding-top: 60px;
+                padding-bottom: 10px;
+            }
+
+            .hero-section {
+                padding: 10px 0;
+            }
+
+            .title {
+                font-size: 1.8rem;
+                margin-bottom: 10px;
+            }
+
+            .subtitle {
+                margin-bottom: 15px;
+                font-size: 1rem;
+            }
+
+            .financial-summary {
+                padding: 15px;
+            }
+
+            .total-balance {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+
+            .total-balance .amount {
+                font-size: 1.8rem;
+            }
+
+            .financial-details {
+                margin-top: 15px;
+                flex-direction: row;
+                gap: 10px;
+            }
+
+            .financial-card {
+                padding: 12px;
+            }
+
+            .footer {
+                margin-top: 20px;
+                padding: 10px 0;
+            }
+
+            .modal-container {
+                max-height: 85vh;
             }
         }
     </style>
@@ -1368,6 +1793,30 @@
                 dateElements[0].textContent = `Terakhir diperbarui: ${now.toLocaleDateString('id-ID', options)}`;
             }
         });
+
+        // Handle responsive adjustments
+        function handleResponsiveAdjustments() {
+            const isMobile = window.innerWidth <= 767;
+            const financialDetails = document.querySelector('.financial-details');
+            
+            if (isMobile) {
+                // Adjust layout for mobile
+                if (financialDetails) {
+                    financialDetails.style.flexDirection = 'column';
+                }
+            } else {
+                // Adjust layout for tablet/desktop
+                if (financialDetails) {
+                    financialDetails.style.flexDirection = 'row';
+                }
+            }
+        }
+
+        // Initial call
+        handleResponsiveAdjustments();
+
+        // Listen for window resize
+        window.addEventListener('resize', handleResponsiveAdjustments);
     </script>
 </body>
 
