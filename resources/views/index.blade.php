@@ -13,14 +13,21 @@
     <link rel="shortcut icon" href="{{ asset('assets/logo-side.png') }}" type="image/x-icon">
     <style>
         :root {
-            --primary-color: #1D8A4E; /* Hijau terang islami */
+            --primary-color: #1D8A4E;
+            /* Hijau terang islami */
             --primary-dark: #146C43;
-            --secondary-color: #28A745; /* Hijau cerah */
-            --accent-color: #2ECC71; /* Hijau mint */
-            --light-color: #E8F5E9; /* Hijau sangat muda */
-            --dark-color: #0F5132; /* Hijau tua */
-            --success-color: #27AE60; /* Hijau sukses */
-            --warning-color: #F39C12; /* Oranye */
+            --secondary-color: #28A745;
+            /* Hijau cerah */
+            --accent-color: #2ECC71;
+            /* Hijau mint */
+            --light-color: #E8F5E9;
+            /* Hijau sangat muda */
+            --dark-color: #0F5132;
+            /* Hijau tua */
+            --success-color: #27AE60;
+            /* Hijau sukses */
+            --warning-color: #F39C12;
+            /* Oranye */
             --card-bg: rgba(255, 255, 255, 0.98);
             --text-dark: #1C2833;
             --text-light: #566573;
@@ -197,6 +204,7 @@
                 opacity: 0;
                 transform: translateX(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateX(0);
@@ -230,6 +238,320 @@
         }
 
         /* =================== END MENU BAR STYLES =================== */
+
+        /* =================== MODAL QRIS STYLES - IMPROVED =================== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(15, 81, 50, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(8px);
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-container {
+            background: white;
+            border-radius: 25px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 95vh;
+            overflow: hidden;
+            transform: scale(0.8) translateY(30px);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-overlay.active .modal-container {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 25px 30px;
+            text-align: center;
+            color: white;
+            position: relative;
+            flex-shrink: 0;
+            /* Header tidak mengecil */
+        }
+
+        .modal-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+            opacity: 0.2;
+        }
+
+        .modal-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .modal-header p {
+            font-size: 1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .modal-content {
+            padding: 30px;
+            overflow-y: auto;
+            /* Scroll vertikal jika konten melebihi tinggi */
+            flex: 1;
+            /* Mengisi sisa ruang yang tersedia */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 3px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+
+        .qris-image-container {
+            margin: 0 auto 25px;
+            padding: 15px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 2px dashed var(--light-color);
+            max-width: 300px;
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+            /* Container tidak mengecil */
+        }
+
+        .qris-image-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 40%, rgba(232, 245, 233, 0.3) 50%, transparent 60%);
+            background-size: 200% 200%;
+            animation: shine 3s infinite linear;
+        }
+
+        @keyframes shine {
+            0% {
+                background-position: -100% -100%;
+            }
+
+            100% {
+                background-position: 200% 200%;
+            }
+        }
+
+        .qris-image {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            display: block;
+            position: relative;
+            z-index: 1;
+            transition: transform 0.5s ease;
+            max-height: 380px;
+            object-fit: contain;
+        }
+
+        .qris-image:hover {
+            transform: scale(1.02);
+        }
+
+        .qris-instructions {
+            background: var(--light-color);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 10px;
+            text-align: left;
+            flex-shrink: 0;
+            /* Instruksi tidak mengecil */
+        }
+
+        .qris-instructions h4 {
+            color: var(--primary-dark);
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .qris-instructions h4 i {
+            color: var(--primary-color);
+        }
+
+        .instructions-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .instructions-list li {
+            padding: 8px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            color: var(--text-light);
+        }
+
+        .instructions-list li i {
+            color: var(--success-color);
+            margin-top: 3px;
+            flex-shrink: 0;
+        }
+
+        .modal-footer {
+            padding: 20px 30px;
+            text-align: center;
+            border-top: 1px solid #eee;
+            background: white;
+        }
+
+        .donation-info {
+            display: flex;
+            justify-content: start;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .donation-item {
+            background: var(--light-color);
+            padding: 10px 18px;
+            border-radius: 50px;
+            font-weight: 500;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .donation-item i {
+            color: var(--primary-color);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+
+        .modal-btn.download {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .modal-btn.download:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(29, 138, 78, 0.3);
+        }
+
+        .modal-btn.close {
+            background: transparent;
+            color: var(--text-light);
+            border: 2px solid #ddd;
+        }
+
+        .modal-btn.close:hover {
+            background: #f8f9fa;
+            color: var(--text-dark);
+        }
+
+        /* Animation for QRIS loading */
+        @keyframes pulseQR {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(29, 138, 78, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 0 0 15px rgba(29, 138, 78, 0);
+            }
+        }
+
+        .qris-loading {
+            animation: pulseQR 2s infinite;
+        }
+
+        /* =================== END MODAL QRIS STYLES =================== */
 
         .background-animation {
             position: fixed;
@@ -646,15 +968,49 @@
                 max-width: 300px;
                 justify-content: center;
             }
-            
+
             /* Responsive menu */
             .menu-container {
                 top: 15px;
                 right: 15px;
             }
-            
+
             .menu-items {
                 min-width: 200px;
+            }
+
+            /* Responsive modal */
+            .modal-container {
+                width: 95%;
+                margin: 20px;
+                max-height: 90vh;
+                /* Lebih tinggi di mobile */
+            }
+
+            .modal-header {
+                padding: 20px 15px;
+            }
+
+            .modal-header h2 {
+                font-size: 1.5rem;
+            }
+
+            .modal-content {
+                padding: 20px 15px;
+            }
+
+            .donation-info {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+
+            .modal-btn {
+                width: 100%;
+                justify-content: center;
             }
         }
 
@@ -674,15 +1030,28 @@
             .total-balance {
                 padding: 20px;
             }
-            
+
             .menu-toggle {
                 width: 45px;
                 height: 45px;
             }
-            
+
             .menu-items {
                 top: 55px;
                 right: -5px;
+            }
+
+            .qris-image-container {
+                padding: 10px;
+            }
+
+            .modal-footer {
+                padding: 15px 20px;
+            }
+
+            .donation-item {
+                font-size: 0.8rem;
+                padding: 8px 15px;
             }
         }
     </style>
@@ -694,20 +1063,83 @@
         <button class="menu-toggle" id="menuToggle">
             <i class="fas fa-bars"></i>
         </button>
-        
+
         <div class="menu-items" id="menuItems">
             <a href="#" class="menu-item" id="loginAdmin">
                 <i class="fas fa-user-shield"></i>
                 <span>Login Admin</span>
             </a>
-            
+
             <a href="#" class="menu-item" id="qrcodeAmal">
                 <i class="fas fa-qrcode"></i>
                 <span>Amal QR Code</span>
             </a>
         </div>
-        
+
         <div class="menu-overlay" id="menuOverlay"></div>
+    </div>
+
+    <!-- QRIS Modal -->
+    <div class="modal-overlay" id="qrisModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <button class="modal-close" id="modalClose">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="d-flex flex-column justify-content-center align-items-center">
+                    <h2><i class="fas fa-donate"></i> Donasi via QRIS</h2>
+                    <p class="w-75">Scan QR Code dibawah berikut untuk berdonasi ke Masjid Jami' Al-Muttaqiin</p>
+                </div>
+            </div>
+
+            <div class="modal-content">
+                <div class="qris-image-container qris-loading">
+                    <img src="{{ asset('assets/qris.jpg') }}" alt="QRIS Donation" class="qris-image" id="qrisImage">
+                </div>
+
+                <div class="qris-instructions">
+                    <h4><i class="fas fa-info-circle"></i> Cara Donasi:</h4>
+                    <ul class="instructions-list">
+                        <li>
+                            <i class="fas fa-mobile-alt"></i>
+                            <span>Buka aplikasi e-wallet atau mobile banking yang mendukung QRIS</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-camera"></i>
+                            <span>Pindai QR Code di atas menggunakan fitur scan di aplikasi Anda</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-money-bill-wave"></i>
+                            <span>Masukkan nominal donasi yang ingin Anda berikan</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Konfirmasi pembayaran dan donasi Anda akan langsung tercatat</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <div class="donation-info">
+                    <div class="donation-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Transaksi Aman & Terjamin</span>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="modal-btn download" id="downloadQR">
+                        <i class="fas fa-download"></i>
+                        <span>Download QR</span>
+                    </button>
+                    <button class="modal-btn close" id="closeModalBtn">
+                        <i class="fas fa-times"></i>
+                        <span>Tutup</span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="background-animation">
@@ -731,7 +1163,7 @@
 
             <div class="financial-summary slide-up">
                 <h3>Total Keuangan Masjid</h3>
-                
+
                 <div class="total-balance">
                     <h4>Saldo Saat Ini</h4>
                     <div class="amount">Rp 125.450.750</div>
@@ -744,7 +1176,7 @@
                         <div class="value income">Rp 189.250.500</div>
                         <div class="subtext">Tahun {{ date('Y') }}</div>
                     </div>
-                    
+
                     <div class="financial-card expense">
                         <div class="label">Total Pengeluaran</div>
                         <div class="value expense">Rp 63.799.750</div>
@@ -779,10 +1211,17 @@
         const loginAdmin = document.getElementById('loginAdmin');
         const qrcodeAmal = document.getElementById('qrcodeAmal');
 
+        // QRIS Modal Elements
+        const qrisModal = document.getElementById('qrisModal');
+        const modalClose = document.getElementById('modalClose');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const downloadQR = document.getElementById('downloadQR');
+        const qrisImage = document.getElementById('qrisImage');
+
         // Toggle menu open/close
         function toggleMenu() {
             const isOpen = menuItems.classList.contains('show');
-            
+
             if (!isOpen) {
                 menuToggle.classList.add('active');
                 menuItems.classList.add('show');
@@ -804,6 +1243,32 @@
             menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
         }
 
+        // Open QRIS Modal
+        function openQRISModal() {
+            qrisModal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        }
+
+        // Close QRIS Modal
+        function closeQRISModal() {
+            qrisModal.classList.remove('active');
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+
+        // Download QR Image
+        function downloadQRImage() {
+            const imageUrl = qrisImage.src;
+            const link = document.createElement('a');
+            link.href = imageUrl;
+            link.download = 'QRIS_Donasi_Masjid_Jami_Al-Muttaqiin.jpg';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Show success message
+            alert('QR Code berhasil diunduh!');
+        }
+
         // Event listeners for menu
         menuToggle.addEventListener('click', toggleMenu);
         menuOverlay.addEventListener('click', closeMenu);
@@ -813,25 +1278,63 @@
             e.preventDefault();
             alert('Fitur Login Admin akan diarahkan ke halaman login');
             closeMenu();
-            
+
             // Simulate redirect (in real app, use window.location.href)
             console.log('Redirect to admin login page');
         });
 
         qrcodeAmal.addEventListener('click', function(e) {
             e.preventDefault();
-            alert('Fitur Amal QR Code akan membuka QR code untuk donasi');
+            openQRISModal();
             closeMenu();
-            
-            // Simulate QR code display (in real app, show modal with QR)
-            console.log('Show QR code for donations');
         });
 
-        // Close menu on escape key
+        // QRIS Modal event listeners
+        modalClose.addEventListener('click', closeQRISModal);
+        closeModalBtn.addEventListener('click', closeQRISModal);
+        downloadQR.addEventListener('click', downloadQRImage);
+
+        // Close modal when clicking outside
+        qrisModal.addEventListener('click', function(e) {
+            if (e.target === qrisModal) {
+                closeQRISModal();
+            }
+        });
+
+        // Close menu and modal on escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeMenu();
+                closeQRISModal();
             }
+        });
+
+        // Handle image loading and error
+        qrisImage.addEventListener('load', function() {
+            console.log('QRIS image loaded successfully');
+            // Remove loading animation after image loads
+            setTimeout(() => {
+                document.querySelector('.qris-image-container').classList.remove('qris-loading');
+            }, 500);
+        });
+
+        qrisImage.addEventListener('error', function() {
+            console.error('Failed to load QRIS image');
+            // Show placeholder if image fails to load
+            qrisImage.src = 'https://via.placeholder.com/300x300/1D8A4E/FFFFFF?text=QRIS+Donasi';
+            qrisImage.alt = 'QRIS placeholder - image not found';
+
+            // Show error message
+            const content = document.querySelector('.modal-content');
+            const errorMsg = document.createElement('div');
+            errorMsg.style.background = '#FFE5E5';
+            errorMsg.style.color = '#D32F2F';
+            errorMsg.style.padding = '10px';
+            errorMsg.style.borderRadius = '5px';
+            errorMsg.style.marginTop = '10px';
+            errorMsg.innerHTML =
+                '<i class="fas fa-exclamation-triangle"></i> Gambar QRIS tidak ditemukan. Pastikan file qris.jpg ada di folder assets.';
+            content.appendChild(errorMsg);
         });
 
         // Update totals with animation
@@ -839,7 +1342,7 @@
             const balanceElement = document.querySelector('.total-balance .amount');
             const incomeElement = document.querySelector('.financial-card.income .value');
             const expenseElement = document.querySelector('.financial-card.expense .value');
-            
+
             // These values should come from your backend
             const totals = {
                 balance: 125450750,
@@ -855,7 +1358,11 @@
 
             // Update date
             const now = new Date();
-            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            const options = {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            };
             const dateElements = document.querySelectorAll('.subtext');
             if (dateElements.length > 1) {
                 dateElements[0].textContent = `Terakhir diperbarui: ${now.toLocaleDateString('id-ID', options)}`;
