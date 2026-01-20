@@ -13,18 +13,18 @@
     <link rel="shortcut icon" href="{{ asset('assets/logo-side.png') }}" type="image/x-icon">
     <style>
         :root {
-            --primary-color: #01747B;
-            --primary-dark: #005a60;
-            --secondary-color: #00ABB5;
-            --accent-color: #00D2DF;
-            --light-color: #B5FBFF;
-            --dark-color: #004F54;
-            --success-color: #28a745;
-            --warning-color: #ffc107;
-            --card-bg: rgba(255, 255, 255, 0.95);
-            --text-dark: #2c3e50;
-            --text-light: #7f8c8d;
-            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --primary-color: #1D8A4E; /* Hijau terang islami */
+            --primary-dark: #146C43;
+            --secondary-color: #28A745; /* Hijau cerah */
+            --accent-color: #2ECC71; /* Hijau mint */
+            --light-color: #E8F5E9; /* Hijau sangat muda */
+            --dark-color: #0F5132; /* Hijau tua */
+            --success-color: #27AE60; /* Hijau sukses */
+            --warning-color: #F39C12; /* Oranye */
+            --card-bg: rgba(255, 255, 255, 0.98);
+            --text-dark: #1C2833;
+            --text-light: #566573;
+            --shadow: 0 10px 30px rgba(29, 138, 78, 0.15);
             --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
@@ -56,7 +56,7 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            filter: blur(5px);
+            filter: blur(5px) brightness(0.9);
             z-index: -2;
         }
 
@@ -67,7 +67,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(to top, var(--primary-color) 10%, rgba(1, 116, 123, 0) 70%);
+            background: linear-gradient(to top, rgba(29, 138, 78, 0.9) 10%, rgba(29, 138, 78, 0.4) 70%);
             z-index: -1;
         }
 
@@ -168,7 +168,7 @@
             justify-content: center;
             margin-right: 12px;
             font-size: 1rem;
-            color: var(--primary-dark);
+            color: var(--primary-color);
             transition: all 0.3s ease;
         }
 
@@ -251,7 +251,7 @@
             position: absolute;
             opacity: 0.5;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
             animation: float 15s infinite ease-in-out;
         }
@@ -262,6 +262,7 @@
             top: 10%;
             left: 10%;
             animation-delay: 0s;
+            background: rgba(40, 167, 69, 0.3);
         }
 
         .shape:nth-child(2) {
@@ -270,6 +271,7 @@
             top: 70%;
             left: 80%;
             animation-delay: 2s;
+            background: rgba(232, 245, 233, 0.3);
         }
 
         .shape:nth-child(3) {
@@ -278,6 +280,7 @@
             top: 20%;
             left: 85%;
             animation-delay: 4s;
+            background: rgba(29, 138, 78, 0.3);
         }
 
         .shape:nth-child(4) {
@@ -286,6 +289,7 @@
             top: 80%;
             left: 15%;
             animation-delay: 6s;
+            background: rgba(46, 204, 113, 0.3);
         }
 
         .shape:nth-child(5) {
@@ -294,6 +298,7 @@
             top: 60%;
             left: 5%;
             animation-delay: 8s;
+            background: rgba(39, 174, 96, 0.3);
         }
 
         @keyframes float {
@@ -378,7 +383,7 @@
             transform: translateX(-50%);
             width: 350px;
             height: 4px;
-            background: #ffff;
+            background: white;
             border-radius: 2px;
         }
 
@@ -393,18 +398,19 @@
 
         .financial-summary {
             width: 100%;
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 25px;
             text-align: center;
             transition: var(--transition);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
+            box-shadow: var(--shadow);
         }
 
         .financial-summary h3 {
-            color: white;
+            color: var(--primary-dark);
             font-weight: 600;
             margin-bottom: 10px;
             text-align: center;
@@ -413,14 +419,26 @@
             padding-bottom: 14px;
         }
 
+        .financial-summary h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border-radius: 2px;
+        }
+
         .total-balance {
-            background: linear-gradient(135deg, var(--success-color), #20c997);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
             padding: 25px;
             border-radius: 15px;
             text-align: center;
             margin-bottom: 25px;
-            box-shadow: 0 5px 15px rgba(32, 201, 151, 0.3);
+            box-shadow: 0 5px 15px rgba(29, 138, 78, 0.3);
         }
 
         .total-balance h4 {
@@ -463,7 +481,7 @@
         }
 
         .financial-card.expense {
-            border-top: 4px solid #dc3545;
+            border-top: 4px solid #E74C3C;
         }
 
         .financial-card .label {
@@ -487,7 +505,7 @@
         }
 
         .financial-card .value.expense {
-            color: #dc3545;
+            color: #E74C3C;
         }
 
         .financial-card .subtext {
@@ -501,7 +519,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
             padding: 10px 20px;
             border-radius: 50px;
@@ -511,7 +529,7 @@
         }
 
         .transparency-badge i {
-            color: var(--accent-color);
+            color: var(--light-color);
         }
 
         .access-buttons {
@@ -541,8 +559,8 @@
 
         .btn-admin:hover {
             background: transparent;
-            color: white;
-            border-color: white;
+            color: var(--dark-color);
+            border-color: var(--dark-color);
         }
 
         .btn-public {
@@ -562,7 +580,7 @@
             color: white;
             text-align: center;
             font-size: 0.9rem;
-            opacity: 0.8;
+            opacity: 0.9;
             padding: 20px 0;
         }
 
