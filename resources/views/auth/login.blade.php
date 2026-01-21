@@ -3,136 +3,442 @@
 @section('title', 'Login Admin - Sistem Keuangan Masjid')
 
 @section('content')
-<div class="login-container fade-in">
-    <div class="login-card">
-        <div class="login-card-header">
-            <h2><i class="fas fa-user-shield"></i> Login Admin</h2>
-            <p>Masuk untuk mengelola keuangan masjid</p>
-        </div>
+    <div class="login-container fade-in">
+        <div class="login-card">
+            <div class="login-card-header">
+                <h2><i class="fas fa-user-shield"></i> Login Admin</h2>
+                <p>Masuk dengan PIN 4 digit</p>
+            </div>
 
-        <div class="login-card-body">
-            <form id="loginForm" method="POST" action="">
-                @csrf
-                
-                <div class="form-group">
-                    <label for="phone" class="form-label">
-                        <i class="fas fa-phone-alt me-1"></i> Nomor Telepon
-                    </label>
-                    <input 
-                            type="tel" 
-                            id="phone" 
-                            name="phone" 
-                            class="form-control @error('phone') is-invalid @enderror" 
-                            placeholder="Contoh: 081234567890" 
-                            value="{{ old('phone') }}"
-                            required
-                            autofocus
-                            autocomplete="tel"
-                        >
-                </div>
+            <div class="login-card-body">
+                <form id="loginForm" method="POST" action="">
+                    @csrf
 
-                <button type="submit" class="btn-login" id="loginButton">
-                    <i class="fas fa-sign-in-alt"></i>
-                    <span>Masuk</span>
-                </button>
+                    <div class="form-group">
+                        <label class="form-label text-center mb-2">
+                            <i class="fas fa-key me-1"></i> PIN 4 Digit
+                        </label>
 
-                <div class="login-options">
-                    <div class="remember-me">
-                        <input type="checkbox" id="remember" name="remember">
-                        <label for="remember">Ingat saya</label>
+                        <div class="pin-input-container">
+                            <div class="pin-input-wrapper">
+                                <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit"
+                                    data-index="0" autocomplete="off" autofocus required>
+                                <div class="pin-dash">-</div>
+                                <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit"
+                                    data-index="1" autocomplete="off" required>
+                                <div class="pin-dash">-</div>
+                                <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit"
+                                    data-index="2" autocomplete="off" required>
+                                <div class="pin-dash">-</div>
+                                <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit"
+                                    data-index="3" autocomplete="off" required>
+                            </div>
+                            <input type="hidden" id="pin" name="pin">
+                            <div class="pin-error" id="pinError"></div>
+                        </div>
+
+                        <p class="pin-hint">
+                            <i class="fas fa-info-circle"></i> Masukkan 4 digit PIN Anda
+                        </p>
                     </div>
-                    <a href="#" class="forgot-password">
-                        <i class="fas fa-question-circle"></i> Lupa akses?
-                    </a>
-                </div>
-            </form>
+
+                    <button type="submit" class="btn-login" id="loginButton">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Masuk</span>
+                    </button>
+
+                    <div class="login-options">
+                        <a class="back-options" href="{{ route('index') }}">
+                            <i class="fas fa-arrow-left"></i> Kembali ke Beranda
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="login-footer">
+            <p>&copy; {{ date('Y') }} Sistem Keuangan Masjid Jami' Al-Muttaqiin</p>
         </div>
     </div>
 
-    <div class="login-footer">
-        <p>
-            <a href="{{ route('index') }}">
-                <i class="fas fa-arrow-left"></i> Kembali ke Beranda
-            </a>
-        </p>
-        <p>&copy; {{ date('Y') }} Sistem Keuangan Masjid Jami' Al-Muttaqiin</p>
-    </div>
-</div>
+    @push('styles')
+        <style>
+            /* PIN Input Styles */
+            .pin-input-container {
+                text-align: center;
+                margin-bottom: 15px;
+            }
 
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const loginForm = document.getElementById('loginForm');
-        const loginButton = document.getElementById('loginButton');
-        const phoneInput = document.getElementById('phone');
+            .pin-input-wrapper {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 5px;
+                margin-bottom: 10px;
+            }
 
-        // Format phone number input
-        phoneInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 0) {
-                if (value.startsWith('0')) {
-                    value = '62' + value.substring(1);
+            .pin-digit {
+                width: 60px;
+                height: 60px;
+                text-align: center;
+                font-size: 1.8rem;
+                font-weight: 700;
+                border: 2px solid #e1e8ed;
+                border-radius: 12px;
+                background-color: white;
+                color: var(--text-dark);
+                transition: all 0.3s ease;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                caret-color: transparent;
+            }
+
+            .pin-digit:focus {
+                outline: none;
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 3px rgba(29, 138, 78, 0.1);
+                background-color: #f8fff8;
+                transform: translateY(-2px);
+            }
+
+            .pin-digit.active {
+                border-color: var(--primary-color);
+                background-color: #f8fff8;
+            }
+
+            .pin-digit.error {
+                border-color: #e74c3c;
+                background-color: #fff5f5;
+                animation: shake 0.5s ease;
+            }
+
+            .pin-dash {
+                font-size: 1.5rem;
+                font-weight: 600;
+                color: var(--text-light);
+                margin: 0 5px;
+                user-select: none;
+            }
+
+            .pin-error {
+                color: #e74c3c;
+                font-size: 0.9rem;
+                margin-top: 8px;
+                min-height: 20px;
+                text-align: center;
+                animation: fadeIn 0.3s ease;
+            }
+
+            .pin-hint {
+                color: var(--text-light);
+                font-size: 0.9rem;
+                text-align: center;
+                margin-top: 10px;
+                margin-bottom: 0;
+            }
+
+            .pin-hint i {
+                color: var(--primary-color);
+                margin-right: 5px;
+            }
+
+            /* Number keypad styles for mobile */
+            .pin-digit::-webkit-outer-spin-button,
+            .pin-digit::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+            .pin-digit[type="text"] {
+                -moz-appearance: textfield;
+            }
+
+            /* Animation for error */
+            @keyframes shake {
+
+                0%,
+                100% {
+                    transform: translateX(0);
                 }
-                if (!value.startsWith('62')) {
-                    value = '62' + value;
+
+                25% {
+                    transform: translateX(-5px);
+                }
+
+                75% {
+                    transform: translateX(5px);
                 }
             }
-            e.target.value = value;
-        });
 
-        // Phone validation
-        phoneInput.addEventListener('blur', function(e) {
-            const value = e.target.value.replace(/\D/g, '');
-            if (value.length < 10) {
-                showError('Nomor telepon terlalu pendek');
-            } else if (value.length > 15) {
-                showError('Nomor telepon terlalu panjang');
-            }
-        });
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
 
-        // Form submission
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const phone = phoneInput.value.replace(/\D/g, '');
-            
-            if (!phone) {
-                showError('Nomor telepon harus diisi');
-                phoneInput.focus();
-                return;
+                to {
+                    opacity: 1;
+                }
             }
-            
-            if (phone.length < 10) {
-                showError('Nomor telepon terlalu pendek');
-                phoneInput.focus();
-                return;
-            }
-            
-            // Show loading state
-            loginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Memproses...</span>';
-            loginButton.classList.add('loading');
-            loginButton.disabled = true;
-            
-            // Simulate API call (replace with actual fetch)
-            setTimeout(() => {
-                // For demo purposes, we'll just submit the form
-                // In real application, remove this timeout and uncomment the next line
-                // loginForm.submit();
-                
-                // Demo success
-                alert('Login berhasil! Mengarahkan ke dashboard...');
-                window.location.href = '/dashboard';
-            }, 1500);
-        });
 
-        // Enter key to submit
-        phoneInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                loginForm.dispatchEvent(new Event('submit'));
+            /* Responsive styles for PIN */
+            @media (max-width: 768px) {
+                .pin-digit {
+                    width: 50px;
+                    height: 50px;
+                    font-size: 1.5rem;
+                }
+
+                .pin-dash {
+                    font-size: 1.3rem;
+                }
             }
-        });
-    });
-</script>
-@endpush
+
+            @media (max-width: 480px) {
+                .pin-digit {
+                    width: 45px;
+                    height: 45px;
+                    font-size: 1.3rem;
+                }
+
+                .pin-dash {
+                    font-size: 1.1rem;
+                }
+            }
+        </style>
+    @endpush
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const loginForm = document.getElementById('loginForm');
+                const loginButton = document.getElementById('loginButton');
+                const pinInputs = document.querySelectorAll('.pin-digit');
+                const hiddenPinInput = document.getElementById('pin');
+                const pinError = document.getElementById('pinError');
+
+                // Function to get complete PIN
+                function getPIN() {
+                    let pin = '';
+                    pinInputs.forEach(input => {
+                        pin += input.value;
+                    });
+                    return pin;
+                }
+
+                // Function to update hidden input
+                function updateHiddenPIN() {
+                    hiddenPinInput.value = getPIN();
+                }
+
+                // Function to show error
+                function showError(message) {
+                    pinError.textContent = message;
+                    pinError.style.color = '#e74c3c';
+                    pinError.style.opacity = '1';
+
+                    // Add error class to all inputs
+                    pinInputs.forEach(input => {
+                        input.classList.add('error');
+                    });
+
+                    // Remove error after 3 seconds
+                    setTimeout(() => {
+                        pinError.textContent = '';
+                        pinInputs.forEach(input => {
+                            input.classList.remove('error');
+                        });
+                    }, 3000);
+                }
+
+                // Function to clear error
+                function clearError() {
+                    pinError.textContent = '';
+                    pinInputs.forEach(input => {
+                        input.classList.remove('error');
+                    });
+                }
+
+                // Handle input focus and navigation
+                pinInputs.forEach((input, index) => {
+                    // Focus on click
+                    input.addEventListener('click', function() {
+                        this.select();
+                        clearError();
+                    });
+
+                    // Handle input
+                    input.addEventListener('input', function(e) {
+                        clearError();
+
+                        // Allow only numbers
+                        this.value = this.value.replace(/[^0-9]/g, '');
+
+                        // Remove active class from all
+                        pinInputs.forEach(input => {
+                            input.classList.remove('active');
+                        });
+
+                        // Add active class to current
+                        this.classList.add('active');
+
+                        // If a number was entered and not empty
+                        if (this.value.length === 1 && this.value.match(/[0-9]/)) {
+                            updateHiddenPIN();
+
+                            // Move to next input if available
+                            if (index < pinInputs.length - 1) {
+                                pinInputs[index + 1].focus();
+                                pinInputs[index + 1].select();
+                            } else {
+                                // If last input, blur
+                                this.blur();
+                            }
+                        }
+                    });
+
+                    // Handle backspace
+                    input.addEventListener('keydown', function(e) {
+                        clearError();
+
+                        if (e.key === 'Backspace') {
+                            // Remove active class from all
+                            pinInputs.forEach(input => {
+                                input.classList.remove('active');
+                            });
+
+                            // Add active class to current
+                            this.classList.add('active');
+
+                            // If current is empty, go to previous
+                            if (this.value === '' && index > 0) {
+                                pinInputs[index - 1].focus();
+                                pinInputs[index - 1].select();
+                            } else {
+                                // Clear current and stay
+                                this.value = '';
+                                updateHiddenPIN();
+                            }
+                        }
+
+                        // Handle arrow keys
+                        if (e.key === 'ArrowLeft' && index > 0) {
+                            e.preventDefault();
+                            pinInputs[index - 1].focus();
+                            pinInputs[index - 1].select();
+                        }
+
+                        if (e.key === 'ArrowRight' && index < pinInputs.length - 1) {
+                            e.preventDefault();
+                            pinInputs[index + 1].focus();
+                            pinInputs[index + 1].select();
+                        }
+
+                        // Prevent non-numeric characters (except navigation keys)
+                        if (!/^[0-9]$|Backspace|Delete|ArrowLeft|ArrowRight|Tab|Enter$/.test(e.key) && !
+                            e.ctrlKey && !e.metaKey) {
+                            e.preventDefault();
+                        }
+                    });
+
+                    // Handle paste
+                    input.addEventListener('paste', function(e) {
+                        e.preventDefault();
+                        const pastedData = (e.clipboardData || window.clipboardData).getData('text');
+                        const numbers = pastedData.replace(/[^0-9]/g, '');
+
+                        if (numbers.length === 4) {
+                            // Fill all inputs with pasted numbers
+                            pinInputs.forEach((input, idx) => {
+                                if (idx < 4) {
+                                    input.value = numbers[idx] || '';
+                                }
+                            });
+                            updateHiddenPIN();
+
+                            // Focus last input
+                            pinInputs[3].focus();
+                            pinInputs[3].select();
+                        } else {
+                            showError('PIN harus 4 digit angka');
+                        }
+                    });
+                });
+
+                // Auto-focus first input on page load
+                if (pinInputs[0]) {
+                    pinInputs[0].focus();
+                }
+
+                // Form submission
+                loginForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const pin = getPIN();
+
+                    // Validation
+                    if (pin.length !== 4) {
+                        showError('PIN harus 4 digit angka');
+                        pinInputs[0].focus();
+                        return;
+                    }
+
+                    if (!/^\d{4}$/.test(pin)) {
+                        showError('PIN hanya boleh berisi angka');
+                        pinInputs[0].focus();
+                        return;
+                    }
+
+                    // Show loading state
+                    loginButton.innerHTML =
+                        '<i class="fas fa-spinner fa-spin"></i><span>Memverifikasi PIN...</span>';
+                    loginButton.classList.add('loading');
+                    loginButton.disabled = true;
+
+                    // For demo - In production, this would be your actual login API call
+                    setTimeout(() => {
+                        // Demo success - In real app, validate with backend
+                        if (pin === '1234') { // Default demo PIN
+                            alert('Login berhasil! Mengarahkan ke dashboard...');
+                            window.location.href = '/dashboard';
+                        } else {
+                            // Demo failure
+                            showError('PIN salah. Coba lagi.');
+
+                            // Clear all inputs
+                            pinInputs.forEach(input => {
+                                input.value = '';
+                            });
+                            updateHiddenPIN();
+
+                            // Focus first input
+                            pinInputs[0].focus();
+
+                            // Reset button
+                            loginButton.innerHTML =
+                                '<i class="fas fa-sign-in-alt"></i><span>Masuk</span>';
+                            loginButton.classList.remove('loading');
+                            loginButton.disabled = false;
+                        }
+                    }, 1500);
+                });
+
+                // Enter key to submit from any input
+                pinInputs.forEach(input => {
+                    input.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            loginForm.dispatchEvent(new Event('submit'));
+                        }
+                    });
+                });
+
+                // Auto-select content on focus for better UX
+                pinInputs.forEach(input => {
+                    input.addEventListener('focus', function() {
+                        this.select();
+                        clearError();
+                    });
+                });
+            });
+        </script>
+    @endpush
 @endsection
