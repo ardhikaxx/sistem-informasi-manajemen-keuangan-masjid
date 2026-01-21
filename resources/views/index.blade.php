@@ -26,6 +26,8 @@
             --text-light: #566573;
             --shadow: 0 10px 30px rgba(29, 138, 78, 0.15);
             --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
         }
 
         * {
@@ -637,6 +639,7 @@
             justify-content: center;
             text-align: center;
             width: 100%;
+            margin-bottom: 50px;
         }
 
         .logo-container {
@@ -693,7 +696,7 @@
         }
 
         .financial-summary {
-            width: fit-content;
+            width: 100%;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 20px;
@@ -810,6 +813,168 @@
             margin-top: 5px;
             font-weight: 500;
         }
+
+        /* =================== SECTION TENTANG MASJID =================== */
+        .about-section {
+            width: 100%;
+            margin-top: 20px;
+            margin-bottom: 50px;
+            padding: 0 15px;
+        }
+
+        .section-title {
+            text-align: center;
+            color: white;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 4px;
+            background: white;
+            border-radius: 2px;
+        }
+
+        .glassmorphism-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            padding: 30px;
+            color: white;
+            transition: var(--transition);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            min-height: 320px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            z-index: -1;
+            border-radius: 20px;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .card-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            transition: var(--transition);
+        }
+
+        .glass-card:hover .card-icon {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .card-content {
+            font-size: 1rem;
+            line-height: 1.6;
+            opacity: 0.9;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .card-highlight {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px 15px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            margin-top: 15px;
+            border-left: 4px solid var(--accent-color);
+            color: white;
+        }
+
+        /* Masjid History Section */
+        .history-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            margin-top: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .history-title {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .history-content {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        .history-features {
+            color: white;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .history-feature {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* =================== END SECTION TENTANG MASJID =================== */
 
         .transparency-badge {
             display: inline-flex;
@@ -934,6 +1099,14 @@
             .total-balance .amount {
                 font-size: 3rem;
             }
+
+            .section-title {
+                font-size: 2.5rem;
+            }
+
+            .glassmorphism-cards {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
 
         /* Desktop (≥992px) */
@@ -987,6 +1160,23 @@
 
             .financial-card .value {
                 font-size: 1.3rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .glassmorphism-cards {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+
+            .glass-card {
+                padding: 25px;
+            }
+
+            .history-section {
+                padding: 30px;
             }
 
             .menu-container {
@@ -1083,19 +1273,65 @@
                 font-size: 1.4rem;
             }
 
+            /* Tentang Masjid Responsive */
+            .about-section {
+                margin-bottom: 30px;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+                margin-bottom: 25px;
+            }
+
+            .section-title::after {
+                width: 120px;
+                height: 3px;
+            }
+
+            .glassmorphism-cards {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .glass-card {
+                padding: 25px;
+                min-height: 280px;
+            }
+
+            .card-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .card-title {
+                font-size: 1.3rem;
+            }
+
+            .card-content {
+                font-size: 0.95rem;
+            }
+
+            .history-section {
+                padding: 25px 20px;
+                margin-top: 20px;
+            }
+
+            .history-title {
+                font-size: 1.5rem;
+            }
+
+            .history-content {
+                font-size: 1rem;
+            }
+
+            .history-features {
+                gap: 10px;
+            }
+
             .menu-container {
                 top: 15px;
                 right: 15px;
-            }
-
-            .menu-toggle {
-                width: 45px;
-                height: 45px;
-            }
-
-            .menu-items {
-                top: 55px;
-                min-width: 200px;
             }
 
             .modal-container {
@@ -1244,6 +1480,83 @@
 
             .financial-card .subtext {
                 font-size: 0.75rem;
+            }
+
+            /* Tentang Masjid Responsive */
+            .about-section {
+                margin-bottom: 25px;
+                padding: 0 10px;
+            }
+
+            .section-title {
+                font-size: 1.6rem;
+                margin-bottom: 20px;
+                padding-bottom: 10px;
+            }
+
+            .section-title::after {
+                width: 100px;
+                height: 3px;
+            }
+
+            .glassmorphism-cards {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                margin-bottom: 25px;
+            }
+
+            .glass-card {
+                padding: 20px;
+                min-height: 260px;
+                border-radius: 15px;
+            }
+
+            .card-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3rem;
+                margin-bottom: 15px;
+            }
+
+            .card-title {
+                font-size: 1.2rem;
+                margin-bottom: 12px;
+            }
+
+            .card-content {
+                font-size: 0.9rem;
+                line-height: 1.5;
+            }
+
+            .card-highlight {
+                padding: 10px 12px;
+                font-size: 0.85rem;
+            }
+
+            .history-section {
+                padding: 20px 15px;
+                border-radius: 15px;
+                margin-top: 15px;
+            }
+
+            .history-title {
+                font-size: 1.3rem;
+                margin-bottom: 15px;
+            }
+
+            .history-content {
+                font-size: 0.95rem;
+                line-height: 1.6;
+            }
+
+            .history-features {
+                gap: 8px;
+                margin-top: 15px;
+            }
+
+            .history-feature {
+                padding: 8px 12px;
+                font-size: 0.8rem;
             }
 
             .access-buttons {
@@ -1417,6 +1730,15 @@
                 font-size: 1.2rem;
             }
 
+            .section-title {
+                font-size: 1.4rem;
+            }
+
+            .glass-card {
+                padding: 18px;
+                min-height: 240px;
+            }
+
             .menu-items {
                 min-width: 160px;
             }
@@ -1435,6 +1757,7 @@
 
             .hero-section {
                 padding: 10px 0;
+                margin-bottom: 20px;
             }
 
             .title {
@@ -1468,6 +1791,25 @@
 
             .financial-card {
                 padding: 12px;
+            }
+
+            /* Tentang Masjid Landscape */
+            .about-section {
+                margin-bottom: 20px;
+            }
+
+            .glassmorphism-cards {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            .glass-card {
+                min-height: 220px;
+                padding: 15px;
+            }
+
+            .history-section {
+                padding: 20px 15px;
             }
 
             .footer {
@@ -1608,12 +1950,98 @@
                         <div class="subtext">Tahun {{ date('Y') }}</div>
                     </div>
                 </div>
-
             </div>
         </section>
 
+        <!-- =================== SECTION TENTANG MASJID =================== -->
+        <section class="about-section fade-in">
+            <h2 class="section-title">Tentang Masjid Jami' Al-Muttaqiin</h2>
+
+            <div class="glassmorphism-cards">
+                <div class="glass-card slide-up">
+                    <div class="card-icon">
+                        <i class="fas fa-mosque"></i>
+                    </div>
+                    <h3 class="card-title">Sejarah Masjid</h3>
+                    <p class="card-content">
+                        Masjid Jami' Al-Muttaqiin didirikan pada tahun 1985 sebagai pusat ibadah dan aktivitas keislaman di wilayah Jember. 
+                        Sejak berdiri, masjid ini telah menjadi simbol persatuan umat dan pusat pembangunan karakter masyarakat muslim.
+                    </p>
+                    <div class="card-highlight">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Didirikan: 15 Agustus 1985</span>
+                    </div>
+                </div>
+
+                <div class="glass-card slide-up" style="animation-delay: 0.2s">
+                    <div class="card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="card-title">Fasilitas & Kegiatan</h3>
+                    <p class="card-content">
+                        Masjid ini dilengkapi dengan berbagai fasilitas modern termasuk tempat wudhu yang nyaman, ruang perkantoran, 
+                        perpustakaan islami, dan aula serbaguna. Setiap harinya diadakan berbagai kegiatan keagamaan dan sosial.
+                    </p>
+                    <div class="card-highlight">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Kapasitas: 1,500 jamaah</span>
+                    </div>
+                </div>
+
+                <div class="glass-card slide-up" style="animation-delay: 0.4s">
+                    <div class="card-icon">
+                        <i class="fas fa-hands-helping"></i>
+                    </div>
+                    <h3 class="card-title">Program & Layanan</h3>
+                    <p class="card-content">
+                        Masjid menyelenggarakan berbagai program termasuk TPA, pengajian rutin, bantuan sosial, pembinaan remaja masjid, 
+                        dan layanan konsultasi keagamaan. Kami juga aktif dalam kegiatan kemasyarakatan dan pembangunan umat.
+                    </p>
+                    <div class="card-highlight">
+                        <i class="fas fa-star"></i>
+                        <span>TPA: 150 anak aktif</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="history-section slide-up" style="animation-delay: 0.6s">
+                <h3 class="history-title"><i class="fas fa-mosque"></i> Visi & Misi Masjid</h3>
+                <div class="history-content">
+                    <p><strong>Visi:</strong> Menjadi masjid yang mandiri, modern, dan menjadi pusat peradaban Islam yang berkontribusi positif bagi pembangunan umat dan bangsa.</p>
+                    <p><strong>Misi:</strong></p>
+                    <ul>
+                        <li>Menyelenggarakan ibadah yang khusyuk dan bermakna</li>
+                        <li>Mengembangkan pendidikan Islam yang berkualitas</li>
+                        <li>Memberdayakan ekonomi umat melalui program produktif</li>
+                        <li>Menjadi tempat silaturahmi dan pemersatu umat</li>
+                        <li>Melaksanakan pengelolaan keuangan yang transparan dan akuntabel</li>
+                    </ul>
+                </div>
+                <div class="history-features">
+                    <div class="history-feature">
+                        <i class="fas fa-clock"></i>
+                        <span>5 Waktu Sholat Berjamaah</span>
+                    </div>
+                    <div class="history-feature">
+                        <i class="fas fa-book-open"></i>
+                        <span>Pengajian Rutin Harian</span>
+                    </div>
+                    <div class="history-feature">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>Program Pendidikan</span>
+                    </div>
+                    <div class="history-feature">
+                        <i class="fas fa-hands"></i>
+                        <span>Layanan Sosial</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- =================== END SECTION TENTANG MASJID =================== -->
+
         <div class="footer fade-in">
             <p>&copy; {{ date('Y') }} Masjid Jami' Al-Muttaqiin. All rights reserved.</p>
+            <p class="mt-2">Sistem Keuangan Transparan - Membangun Kepercayaan Melalui Akuntabilitas</p>
         </div>
     </div>
 
@@ -1792,6 +2220,12 @@
             if (dateElements.length > 1) {
                 dateElements[0].textContent = `Terakhir diperbarui: ${now.toLocaleDateString('id-ID', options)}`;
             }
+
+            // Add animation to glass cards
+            const glassCards = document.querySelectorAll('.glass-card');
+            glassCards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.2}s`;
+            });
         });
 
         // Handle responsive adjustments
