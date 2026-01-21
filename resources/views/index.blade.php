@@ -1814,15 +1814,15 @@
         </button>
 
         <div class="menu-items" id="menuItems">
-            <a href="#" class="menu-item" id="loginAdmin">
+            <a href="{{ route('auth.login') }}" class="menu-item">
                 <i class="fas fa-user-shield"></i>
                 <span>Login Admin</span>
             </a>
 
-            <a href="#" class="menu-item" id="qrcodeAmal">
+            <button class="menu-item" id="qrcodeAmal">
                 <i class="fas fa-qrcode"></i>
                 <span>Amal QR Code</span>
-            </a>
+            </button>
         </div>
 
         <div class="menu-overlay" id="menuOverlay"></div>
@@ -2042,7 +2042,6 @@
         const menuToggle = document.getElementById('menuToggle');
         const menuItems = document.getElementById('menuItems');
         const menuOverlay = document.getElementById('menuOverlay');
-        const loginAdmin = document.getElementById('loginAdmin');
         const qrcodeAmal = document.getElementById('qrcodeAmal');
 
         // QRIS Modal Elements
@@ -2106,16 +2105,6 @@
         // Event listeners for menu
         menuToggle.addEventListener('click', toggleMenu);
         menuOverlay.addEventListener('click', closeMenu);
-
-        // Menu item click handlers
-        loginAdmin.addEventListener('click', function(e) {
-            e.preventDefault();
-            alert('Fitur Login Admin akan diarahkan ke halaman login');
-            closeMenu();
-
-            // Simulate redirect (in real app, use window.location.href)
-            console.log('Redirect to admin login page');
-        });
 
         qrcodeAmal.addEventListener('click', function(e) {
             e.preventDefault();
