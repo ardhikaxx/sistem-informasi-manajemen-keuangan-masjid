@@ -697,37 +697,19 @@
 
         .financial-summary {
             width: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 25px;
             text-align: center;
-            transition: var(--transition);
-            border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
-            box-shadow: var(--shadow);
         }
 
         .financial-summary h3 {
-            color: var(--primary-dark);
-            font-weight: 600;
-            margin-bottom: 10px;
+            color: var(--light-color);
+            font-weight: 700;
+            margin-bottom: 20px;
             text-align: center;
-            font-size: 1.8rem;
+            font-size: 2.2rem;
             position: relative;
-            padding-bottom: 14px;
-        }
-
-        .financial-summary h3::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 3px;
-            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
-            border-radius: 2px;
         }
 
         .total-balance {
@@ -736,7 +718,7 @@
             padding: 25px;
             border-radius: 15px;
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 10px;
             box-shadow: 0 5px 15px rgba(29, 138, 78, 0.3);
         }
 
@@ -1928,7 +1910,7 @@
                     Kabupaten Jember, Jawa Timur 68124</p>
             </div>
 
-            <div class="financial-summary slide-up">
+            <div class="financial-summary glass-card slide-up">
                 <h3>Total Keuangan Masjid</h3>
 
                 <div class="total-balance">
@@ -2041,7 +2023,6 @@
 
         <div class="footer fade-in">
             <p>&copy; {{ date('Y') }} Masjid Jami' Al-Muttaqiin. All rights reserved.</p>
-            <p class="mt-2">Sistem Keuangan Transparan - Membangun Kepercayaan Melalui Akuntabilitas</p>
         </div>
     </div>
 
