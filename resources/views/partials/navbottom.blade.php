@@ -14,8 +14,8 @@
             </div>
 
             <!-- Manajemen Keuangan -->
-            <div class="navbottom-item" data-label="Keuangan">
-                <a href="#" class="navbottom-link">
+            <div class="navbottom-item {{ request()->routeIs('admins.manajemen-keuangan') || request()->is('/') ? 'active' : '' }}" data-label="Keuangan">
+                <a href="{{ route('admins.manajemen-keuangan') }}" class="navbottom-link">
                     <div class="navbottom-icon-wrapper">
                         <i class="fas fa-sack-dollar navbottom-icon"></i>
                     </div>

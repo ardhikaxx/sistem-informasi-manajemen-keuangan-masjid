@@ -13,3 +13,7 @@ Route::get('/admin/login', function () {
 Route::get('/admin/dashboard', function () {
     return view('admins.dashboard.index');
 })->name('admins.dashboard');
+
+Route::get('/admin/manajemen-keuangan', function () {
+    return view('admins.manajemen-keuangan.index');
+})->name('admins.manajemen-keuangan');
