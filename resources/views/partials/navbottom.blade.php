@@ -24,8 +24,8 @@
             </div>
 
             <!-- Manajemen Laporan -->
-            <div class="navbottom-item" data-label="Laporan">
-                <a href="#" class="navbottom-link">
+            <div class="navbottom-item {{ request()->routeIs('admins.manajemen-laporan') || request()->is('/') ? 'active' : '' }}" data-label="Laporan">
+                <a href="{{ route('admins.manajemen-laporan') }}" class="navbottom-link">
                     <div class="navbottom-icon-wrapper">
                         <i class="fas fa-receipt navbottom-icon"></i>
                     </div>

@@ -17,3 +17,7 @@ Route::get('/admin/dashboard', function () {
 Route::get('/admin/manajemen-keuangan', function () {
     return view('admins.manajemen-keuangan.index');
 })->name('admins.manajemen-keuangan');
+
+Route::get('/admin/manajemen-laporan', function () {
+    return view('admins.manajemen-laporan.index');
+})->name('admins.manajemen-laporan');

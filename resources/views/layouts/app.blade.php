@@ -503,8 +503,8 @@
                 </div>
 
                 <!-- Manajemen Laporan -->
-                <div class="sidebar-item">
-                    <a href="#" class="sidebar-link">
+                <div class="sidebar-item {{ request()->routeIs('admins.manajemen-laporan') || request()->is('/') ? 'active' : '' }}">
+                    <a href="{{ route('admins.manajemen-laporan') }}" class="sidebar-link">
                         <div class="sidebar-icon-wrapper">
                             <i class="fas fa-receipt sidebar-icon"></i>
                         </div>
