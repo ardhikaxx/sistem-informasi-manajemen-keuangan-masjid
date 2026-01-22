@@ -513,9 +513,9 @@
                     </a>
                 </div>
 
-                <!-- Profile -->
-                <div class="sidebar-item">
-                    <a href="#" class="sidebar-link">
+                <!-- Pengaturan Profil -->
+                <div class="sidebar-item {{ request()->routeIs('admins.pengaturan-profil') || request()->is('/') ? 'active' : '' }}">
+                    <a href="{{ route('admins.pengaturan-profil') }}" class="sidebar-link">
                         <div class="sidebar-icon-wrapper">
                             <i class="fas fa-user sidebar-icon"></i>
                         </div>

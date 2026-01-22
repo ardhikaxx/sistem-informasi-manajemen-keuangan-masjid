@@ -21,3 +21,7 @@ Route::get('/admin/manajemen-keuangan', function () {
 Route::get('/admin/manajemen-laporan', function () {
     return view('admins.manajemen-laporan.index');
 })->name('admins.manajemen-laporan');
+
+Route::get('/admin/pengaturan-profil', function () {
+    return view('admins.pengaturan-profil.index');
+})->name('admins.pengaturan-profil');

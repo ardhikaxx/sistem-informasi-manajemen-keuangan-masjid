@@ -34,8 +34,8 @@
             </div>
 
             <!-- Profile -->
-            <div class="navbottom-item" data-label="Profil">
-                <a href="#" class="navbottom-link">
+            <div class="navbottom-item {{ request()->routeIs('admins.pengaturan-profil') || request()->is('/') ? 'active' : '' }}" data-label="Profil">
+                <a href="{{ route('admins.pengaturan-profil') }}" class="navbottom-link">
                     <div class="navbottom-icon-wrapper">
                         <i class="fas fa-user navbottom-icon"></i>
                     </div>
