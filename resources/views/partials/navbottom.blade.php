@@ -33,7 +33,7 @@
                 </a>
             </div>
 
-            <!-- Profile -->
+            <!-- Pengaturan Profil -->
             <div class="navbottom-item {{ request()->routeIs('admins.pengaturan-profil') || request()->is('/') ? 'active' : '' }}" data-label="Profil">
                 <a href="{{ route('admins.pengaturan-profil') }}" class="navbottom-link">
                     <div class="navbottom-icon-wrapper">
