@@ -11,7 +11,31 @@
             </div>
 
             <div class="login-card-body">
-                <form id="loginForm" method="POST" action="">
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        {{ $errors->first() }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                <form id="loginForm" method="POST" action="{{ route('auth.login.post') }}">
                     @csrf
 
                     <div class="form-group">
@@ -33,8 +57,10 @@
                                 <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="pin-digit"
                                     data-index="3" autocomplete="off" required>
                             </div>
-                            <input type="hidden" id="pin" name="pin">
-                            <div class="pin-error" id="pinError"></div>
+                            <input type="hidden" id="pin" name="pin" value="{{ old('pin') }}">
+                            @error('pin')
+                                <div class="pin-error">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <p class="pin-hint">
@@ -63,6 +89,43 @@
 
     @push('styles')
         <style>
+            /* Alert Styles */
+            .alert {
+                border-radius: 10px;
+                border: none;
+                padding: 15px;
+                margin-bottom: 20px;
+                animation: slideDown 0.3s ease;
+            }
+
+            .alert-danger {
+                background-color: #fff5f5;
+                color: #e74c3c;
+                border-left: 4px solid #e74c3c;
+            }
+
+            .alert-success {
+                background-color: #f0fff4;
+                color: #28a745;
+                border-left: 4px solid #28a745;
+            }
+
+            .btn-close {
+                padding: 1rem;
+                margin-top: -0.375rem;
+            }
+
+            @keyframes slideDown {
+                from {
+                    transform: translateY(-10px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+
             /* PIN Input Styles */
             .pin-input-container {
                 text-align: center;
@@ -141,29 +204,20 @@
                 margin-right: 5px;
             }
 
-            /* Number keypad styles for mobile */
-            .pin-digit::-webkit-outer-spin-button,
-            .pin-digit::-webkit-inner-spin-button {
-                -webkit-appearance: none;
-                margin: 0;
-            }
-
-            .pin-digit[type="text"] {
-                -moz-appearance: textfield;
+            /* Button loading state */
+            .btn-login.loading {
+                opacity: 0.8;
+                cursor: not-allowed;
             }
 
             /* Animation for error */
             @keyframes shake {
-
-                0%,
-                100% {
+                0%, 100% {
                     transform: translateX(0);
                 }
-
                 25% {
                     transform: translateX(-5px);
                 }
-
                 75% {
                     transform: translateX(5px);
                 }
@@ -173,7 +227,6 @@
                 from {
                     opacity: 0;
                 }
-
                 to {
                     opacity: 1;
                 }
@@ -213,7 +266,7 @@
                 const loginButton = document.getElementById('loginButton');
                 const pinInputs = document.querySelectorAll('.pin-digit');
                 const hiddenPinInput = document.getElementById('pin');
-                const pinError = document.getElementById('pinError');
+                const pinError = document.querySelector('.pin-error');
 
                 // Function to get complete PIN
                 function getPIN() {
@@ -231,29 +284,35 @@
 
                 // Function to show error
                 function showError(message) {
-                    pinError.textContent = message;
-                    pinError.style.color = '#e74c3c';
-                    pinError.style.opacity = '1';
+                    if (pinError) {
+                        pinError.textContent = message;
+                        pinError.style.color = '#e74c3c';
+                        pinError.style.opacity = '1';
+                    }
 
                     // Add error class to all inputs
                     pinInputs.forEach(input => {
                         input.classList.add('error');
                     });
-
-                    // Remove error after 3 seconds
-                    setTimeout(() => {
-                        pinError.textContent = '';
-                        pinInputs.forEach(input => {
-                            input.classList.remove('error');
-                        });
-                    }, 3000);
                 }
 
                 // Function to clear error
                 function clearError() {
-                    pinError.textContent = '';
+                    if (pinError) {
+                        pinError.textContent = '';
+                    }
                     pinInputs.forEach(input => {
                         input.classList.remove('error');
+                    });
+                }
+
+                // Auto-fill from old input (for validation errors)
+                const oldPin = hiddenPinInput.value;
+                if (oldPin && oldPin.length === 4) {
+                    pinInputs.forEach((input, index) => {
+                        if (index < oldPin.length) {
+                            input.value = oldPin[index];
+                        }
                     });
                 }
 
@@ -333,8 +392,7 @@
                         }
 
                         // Prevent non-numeric characters (except navigation keys)
-                        if (!/^[0-9]$|Backspace|Delete|ArrowLeft|ArrowRight|Tab|Enter$/.test(e.key) && !
-                            e.ctrlKey && !e.metaKey) {
+                        if (!/^[0-9]$|Backspace|Delete|ArrowLeft|ArrowRight|Tab|Enter$/.test(e.key) && !e.ctrlKey && !e.metaKey) {
                             e.preventDefault();
                         }
                     });
@@ -370,55 +428,29 @@
 
                 // Form submission
                 loginForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-
                     const pin = getPIN();
 
                     // Validation
                     if (pin.length !== 4) {
                         showError('PIN harus 4 digit angka');
                         pinInputs[0].focus();
+                        e.preventDefault();
                         return;
                     }
 
                     if (!/^\d{4}$/.test(pin)) {
                         showError('PIN hanya boleh berisi angka');
                         pinInputs[0].focus();
+                        e.preventDefault();
                         return;
                     }
 
                     // Show loading state
-                    loginButton.innerHTML =
-                        '<i class="fas fa-spinner fa-spin"></i><span>Memverifikasi PIN...</span>';
+                    loginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Memverifikasi PIN...</span>';
                     loginButton.classList.add('loading');
                     loginButton.disabled = true;
 
-                    // For demo - In production, this would be your actual login API call
-                    setTimeout(() => {
-                        // Demo success - In real app, validate with backend
-                        if (pin === '1234') { // Default demo PIN
-                            alert('Login berhasil! Mengarahkan ke dashboard...');
-                            window.location.href = '/dashboard';
-                        } else {
-                            // Demo failure
-                            showError('PIN salah. Coba lagi.');
-
-                            // Clear all inputs
-                            pinInputs.forEach(input => {
-                                input.value = '';
-                            });
-                            updateHiddenPIN();
-
-                            // Focus first input
-                            pinInputs[0].focus();
-
-                            // Reset button
-                            loginButton.innerHTML =
-                                '<i class="fas fa-sign-in-alt"></i><span>Masuk</span>';
-                            loginButton.classList.remove('loading');
-                            loginButton.disabled = false;
-                        }
-                    }, 1500);
+                    // Form will submit normally to backend
                 });
 
                 // Enter key to submit from any input

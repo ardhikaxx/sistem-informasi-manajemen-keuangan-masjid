@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>@yield('title', 'Dashboard Admin - Keuangan Masjid')</title>
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -461,6 +463,43 @@
         .desktop-sidebar::-webkit-scrollbar-thumb:hover {
             background: rgba(0, 0, 0, 0.2);
         }
+
+        .swal2-popup {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            border-radius: 16px;
+        }
+
+        .swal2-title {
+            color: var(--dark-color);
+            font-weight: 700;
+        }
+
+        .swal2-actions button {
+            border-radius: 10px;
+            padding: 10px 25px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .swal2-confirm {
+            background-color: var(--primary-color) !important;
+            border: none !important;
+        }
+
+        .swal2-confirm:hover {
+            background-color: var(--primary-dark) !important;
+            transform: translateY(-2px);
+        }
+
+        .swal2-cancel {
+            background-color: #6c757d !important;
+            border: none !important;
+        }
+
+        .swal2-cancel:hover {
+            background-color: #5a6268 !important;
+            transform: translateY(-2px);
+        }
     </style>
     @stack('styles')
 </head>
@@ -492,7 +531,8 @@
                 </div>
 
                 <!-- Manajemen Keuangan -->
-                <div class="sidebar-item {{ request()->routeIs('admins.manajemen-keuangan') || request()->is('/') ? 'active' : '' }}">
+                <div
+                    class="sidebar-item {{ request()->routeIs('admins.manajemen-keuangan') || request()->is('/') ? 'active' : '' }}">
                     <a href="{{ route('admins.manajemen-keuangan') }}" class="sidebar-link">
                         <div class="sidebar-icon-wrapper">
                             <i class="fas fa-sack-dollar sidebar-icon"></i>
@@ -503,7 +543,8 @@
                 </div>
 
                 <!-- Manajemen Laporan -->
-                <div class="sidebar-item {{ request()->routeIs('admins.manajemen-laporan') || request()->is('/') ? 'active' : '' }}">
+                <div
+                    class="sidebar-item {{ request()->routeIs('admins.manajemen-laporan') || request()->is('/') ? 'active' : '' }}">
                     <a href="{{ route('admins.manajemen-laporan') }}" class="sidebar-link">
                         <div class="sidebar-icon-wrapper">
                             <i class="fas fa-receipt sidebar-icon"></i>
@@ -514,7 +555,8 @@
                 </div>
 
                 <!-- Pengaturan Profil -->
-                <div class="sidebar-item {{ request()->routeIs('admins.pengaturan-profil') || request()->is('/') ? 'active' : '' }}">
+                <div
+                    class="sidebar-item {{ request()->routeIs('admins.pengaturan-profil') || request()->is('/') ? 'active' : '' }}">
                     <a href="{{ route('admins.pengaturan-profil') }}" class="sidebar-link">
                         <div class="sidebar-icon-wrapper">
                             <i class="fas fa-user sidebar-icon"></i>
@@ -526,7 +568,7 @@
 
                 <!-- Logout -->
                 <div class="sidebar-item logout-item">
-                    <a href="#" class="sidebar-link">
+                    <a href="#" onclick="confirmLogout(event)" class="sidebar-link">
                         <div class="sidebar-icon-wrapper">
                             <i class="fas fa-sign-out-alt sidebar-icon"></i>
                         </div>
@@ -571,8 +613,11 @@
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-sign-out-alt me-2"></i>
-                                Keluar</a></li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="#" onclick="confirmLogout(event)">
+                                <i class="fas fa-sign-out-alt me-2"></i> Keluar
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -680,6 +725,50 @@
             // Update on page load
             updateActiveNavItem();
         });
+
+        function confirmLogout(event) {
+            event.preventDefault();
+
+            Swal.fire({
+                title: 'Konfirmasi Logout',
+                text: 'Apakah Anda yakin ingin logout?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Logout',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                customClass: {
+                    confirmButton: 'btn btn-danger',
+                    cancelButton: 'btn btn-secondary'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Submit form logout
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = "{{ route('auth.logout') }}";
+
+                    // Add CSRF token
+                    const csrfToken = document.createElement('input');
+                    csrfToken.type = 'hidden';
+                    csrfToken.name = '_token';
+                    csrfToken.value = "{{ csrf_token() }}";
+                    form.appendChild(csrfToken);
+
+                    // Add method spoofing for DELETE (optional, depends on your route)
+                    const method = document.createElement('input');
+                    method.type = 'hidden';
+                    method.name = '_method';
+                    method.value = 'POST'; // Sesuaikan dengan route
+                    form.appendChild(method);
+
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
     </script>
 
     @stack('scripts')
