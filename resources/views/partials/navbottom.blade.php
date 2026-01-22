@@ -3,38 +3,42 @@
     <div class="navbottom-container">
         <div class="navbottom-wrapper">
             <!-- Dashboard -->
-            <div class="navbottom-item {{ request()->routeIs('admins.dashboard') ? 'active' : '' }}">
+            <div class="navbottom-item {{ request()->routeIs('admins.dashboard') || request()->is('/') ? 'active' : '' }}" data-label="Dashboard">
                 <a href="{{ route('admins.dashboard') }}" class="navbottom-link">
                     <div class="navbottom-icon-wrapper">
                         <i class="fas fa-home navbottom-icon"></i>
                     </div>
+                    <span class="navbottom-label">Dashboard</span>
                 </a>
             </div>
             
             <!-- Manajemen Keuangan -->
-            <div class="navbottom-item">
-                <a href="#" class="navbottom-link">
+            <div class="navbottom-item " data-label="Keuangan">
+                <a href="" class="navbottom-link">
                     <div class="navbottom-icon-wrapper">
-                        <i class="fas fa-money-bill-wave navbottom-icon"></i>
+                        <i class="fas fa-sack-dollar navbottom-icon"></i>
                     </div>
+                    <span class="navbottom-label">Keuangan</span>
                 </a>
             </div>
             
             <!-- Manajemen Laporan -->
-            <div class="navbottom-item">
-                <a href="#" class="navbottom-link">
+            <div class="navbottom-item" data-label="Laporan">
+                <a href="" class="navbottom-link">
                     <div class="navbottom-icon-wrapper">
-                        <i class="fas fa-file-alt navbottom-icon"></i>
+                        <i class="fas fa-receipt navbottom-icon"></i>
                     </div>
+                    <span class="navbottom-label">Laporan</span>
                 </a>
             </div>
             
             <!-- Profile -->
-            <div class="navbottom-item">
-                <a href="#" class="navbottom-link">
+            <div class="navbottom-item" data-label="Profil">
+                <a href="" class="navbottom-link">
                     <div class="navbottom-icon-wrapper">
                         <i class="fas fa-user navbottom-icon"></i>
                     </div>
+                    <span class="navbottom-label">Profil</span>
                 </a>
             </div>
         </div>
@@ -50,8 +54,9 @@
         transform: translateX(-50%);
         z-index: 1030;
         width: calc(100% - 32px);
-        max-width: 480px;
+        max-width: 520px;
         padding: 0;
+        transition: var(--transition);
     }
     
     .navbottom-container {
@@ -61,13 +66,15 @@
         padding: 12px 16px;
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
+        transition: var(--transition);
     }
     
     .navbottom-wrapper {
         display: flex;
         justify-content: space-around;
         align-items: center;
-        gap: 8px;
+        gap: 4px;
+        transition: var(--transition);
     }
     
     .navbottom-item {
@@ -75,17 +82,33 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        position: relative;
+        min-width: 60px;
+        max-width: 100%;
+    }
+    
+    .navbottom-item.compact {
+        flex: 0.8;
+        min-width: 50px;
+    }
+    
+    .navbottom-item.active {
+        flex: 1;
+        min-width: 50px;
     }
     
     .navbottom-link {
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
         text-decoration: none;
         width: 100%;
         height: 100%;
-        padding: 4px;
+        padding: 6px 8px;
+        position: relative;
+        transition: var(--transition);
     }
     
     .navbottom-icon-wrapper {
@@ -99,20 +122,54 @@
         background: transparent;
     }
     
+    .navbottom-item.compact .navbottom-icon-wrapper {
+        width: 42px;
+        height: 42px;
+    }
+    
+    .navbottom-item.active .navbottom-icon-wrapper {
+        width: 52px;
+        height: 52px;
+    }
+    
     .navbottom-icon {
         font-size: 20px;
         color: #8E8E93;
         transition: all 0.3s ease;
     }
     
+    .navbottom-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #8E8E93;
+        margin-top: 4px;
+        opacity: 0;
+        width: 0;
+        height: 0;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        text-align: center;
+        white-space: nowrap;
+    }
+    
     /* Active State */
     .navbottom-item.active .navbottom-icon-wrapper {
         background: linear-gradient(135deg, rgba(29, 138, 78, 0.15) 0%, rgba(46, 204, 113, 0.15) 100%);
+        transform: translateY(-4px);
     }
     
     .navbottom-item.active .navbottom-icon {
         color: var(--primary-color);
         transform: scale(1.1);
+    }
+    
+    .navbottom-item.active .navbottom-label {
+        color: var(--primary-color);
+        opacity: 1;
+        width: auto;
+        height: auto;
+        display: block;
+        transform: translateY(0);
     }
     
     /* Hover Effect */
@@ -125,11 +182,19 @@
         color: var(--primary-color);
     }
     
+    .navbottom-item:not(.active):hover .navbottom-label {
+        opacity: 1;
+        width: auto;
+        height: auto;
+        color: var(--text-light);
+    }
+    
     /* Mobile Extra Small (max-width: 360px) */
     @media (max-width: 360px) {
         .navbottom {
             bottom: 16px;
             width: calc(100% - 24px);
+            max-width: 320px;
         }
         
         .navbottom-container {
@@ -138,16 +203,30 @@
         }
         
         .navbottom-wrapper {
-            gap: 4px;
+            gap: 2px;
         }
         
         .navbottom-icon-wrapper {
-            width: 42px;
-            height: 42px;
+            width: 40px;
+            height: 40px;
+        }
+        
+        .navbottom-item.compact .navbottom-icon-wrapper {
+            width: 36px;
+            height: 36px;
+        }
+        
+        .navbottom-item.active .navbottom-icon-wrapper {
+            width: 44px;
+            height: 44px;
         }
         
         .navbottom-icon {
             font-size: 18px;
+        }
+        
+        .navbottom-label {
+            font-size: 10px;
         }
     }
     
@@ -156,6 +235,7 @@
         .navbottom {
             bottom: 18px;
             width: calc(100% - 28px);
+            max-width: 340px;
         }
         
         .navbottom-container {
@@ -164,16 +244,30 @@
         }
         
         .navbottom-wrapper {
-            gap: 6px;
+            gap: 3px;
         }
         
         .navbottom-icon-wrapper {
-            width: 44px;
-            height: 44px;
+            width: 42px;
+            height: 42px;
+        }
+        
+        .navbottom-item.compact .navbottom-icon-wrapper {
+            width: 38px;
+            height: 38px;
+        }
+        
+        .navbottom-item.active .navbottom-icon-wrapper {
+            width: 46px;
+            height: 46px;
         }
         
         .navbottom-icon {
             font-size: 19px;
+        }
+        
+        .navbottom-label {
+            font-size: 11px;
         }
     }
     
@@ -182,7 +276,7 @@
         .navbottom {
             bottom: 20px;
             width: calc(100% - 32px);
-            max-width: 500px;
+            max-width: 400px;
         }
         
         .navbottom-container {
@@ -191,16 +285,30 @@
         }
         
         .navbottom-wrapper {
-            gap: 8px;
+            gap: 4px;
         }
         
         .navbottom-icon-wrapper {
-            width: 48px;
-            height: 48px;
+            width: 46px;
+            height: 46px;
+        }
+        
+        .navbottom-item.compact .navbottom-icon-wrapper {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .navbottom-item.active .navbottom-icon-wrapper {
+            width: 50px;
+            height: 50px;
         }
         
         .navbottom-icon {
             font-size: 20px;
+        }
+        
+        .navbottom-label {
+            font-size: 12px;
         }
     }
     
@@ -209,7 +317,7 @@
         .navbottom {
             bottom: 24px;
             width: calc(100% - 40px);
-            max-width: 540px;
+            max-width: 480px;
         }
         
         .navbottom-container {
@@ -218,16 +326,30 @@
         }
         
         .navbottom-wrapper {
-            gap: 12px;
+            gap: 6px;
         }
         
         .navbottom-icon-wrapper {
-            width: 52px;
-            height: 52px;
+            width: 50px;
+            height: 50px;
+        }
+        
+        .navbottom-item.compact .navbottom-icon-wrapper {
+            width: 44px;
+            height: 44px;
+        }
+        
+        .navbottom-item.active .navbottom-icon-wrapper {
+            width: 56px;
+            height: 56px;
         }
         
         .navbottom-icon {
             font-size: 22px;
+        }
+        
+        .navbottom-label {
+            font-size: 13px;
         }
     }
     
@@ -236,7 +358,7 @@
         .navbottom {
             bottom: 28px;
             width: auto;
-            max-width: 580px;
+            max-width: 520px;
         }
         
         .navbottom-container {
@@ -245,16 +367,30 @@
         }
         
         .navbottom-wrapper {
-            gap: 16px;
+            gap: 8px;
         }
         
         .navbottom-icon-wrapper {
-            width: 54px;
-            height: 54px;
+            width: 52px;
+            height: 52px;
+        }
+        
+        .navbottom-item.compact .navbottom-icon-wrapper {
+            width: 46px;
+            height: 46px;
+        }
+        
+        .navbottom-item.active .navbottom-icon-wrapper {
+            width: 58px;
+            height: 58px;
         }
         
         .navbottom-icon {
             font-size: 23px;
+        }
+        
+        .navbottom-label {
+            font-size: 14px;
         }
     }
     
@@ -262,7 +398,7 @@
     @media (min-width: 992px) and (max-width: 1199px) {
         .navbottom {
             bottom: 30px;
-            max-width: 600px;
+            max-width: 550px;
         }
         
         .navbottom-container {
@@ -271,50 +407,38 @@
         }
         
         .navbottom-wrapper {
-            gap: 20px;
+            gap: 10px;
         }
         
         .navbottom-icon-wrapper {
-            width: 56px;
-            height: 56px;
+            width: 54px;
+            height: 54px;
+        }
+        
+        .navbottom-item.compact .navbottom-icon-wrapper {
+            width: 48px;
+            height: 48px;
+        }
+        
+        .navbottom-item.active .navbottom-icon-wrapper {
+            width: 60px;
+            height: 60px;
         }
         
         .navbottom-icon {
             font-size: 24px;
         }
+        
+        .navbottom-label {
+            font-size: 14px;
+        }
     }
     
-    /* Desktop Medium (1200px - 1399px) */
-    @media (min-width: 1200px) and (max-width: 1399px) {
+    /* Desktop Medium (1200px+) */
+    @media (min-width: 1200px) {
         .navbottom {
             bottom: 32px;
-            max-width: 620px;
-        }
-        
-        .navbottom-container {
-            padding: 17px 30px;
-            border-radius: 35px;
-        }
-        
-        .navbottom-wrapper {
-            gap: 24px;
-        }
-        
-        .navbottom-icon-wrapper {
-            width: 58px;
-            height: 58px;
-        }
-        
-        .navbottom-icon {
-            font-size: 25px;
-        }
-    }
-    
-    /* Desktop Large (1400px+) */
-    @media (min-width: 1400px) {
-        .navbottom {
-            bottom: 35px;
-            max-width: 640px;
+            max-width: 580px;
         }
         
         .navbottom-container {
@@ -323,16 +447,30 @@
         }
         
         .navbottom-wrapper {
-            gap: 28px;
+            gap: 12px;
         }
         
         .navbottom-icon-wrapper {
-            width: 60px;
-            height: 60px;
+            width: 56px;
+            height: 56px;
+        }
+        
+        .navbottom-item.compact .navbottom-icon-wrapper {
+            width: 50px;
+            height: 50px;
+        }
+        
+        .navbottom-item.active .navbottom-icon-wrapper {
+            width: 62px;
+            height: 62px;
         }
         
         .navbottom-icon {
-            font-size: 26px;
+            font-size: 25px;
+        }
+        
+        .navbottom-label {
+            font-size: 15px;
         }
     }
     
@@ -340,15 +478,16 @@
     @media (max-height: 500px) and (orientation: landscape) {
         .navbottom {
             bottom: 12px;
+            max-width: 500px;
         }
         
         .navbottom-container {
-            padding: 8px 14px;
-            border-radius: 22px;
+            padding: 8px 16px;
+            border-radius: 24px;
         }
         
         .navbottom-wrapper {
-            gap: 6px;
+            gap: 4px;
         }
         
         .navbottom-icon-wrapper {
@@ -356,33 +495,22 @@
             height: 40px;
         }
         
-        .navbottom-icon {
-            font-size: 18px;
-        }
-    }
-    
-    /* Landscape Mode for Tablet */
-    @media (min-height: 501px) and (max-height: 700px) and (orientation: landscape) {
-        .navbottom {
-            bottom: 16px;
+        .navbottom-item.compact .navbottom-icon-wrapper {
+            width: 36px;
+            height: 36px;
         }
         
-        .navbottom-container {
-            padding: 10px 18px;
-            border-radius: 26px;
-        }
-        
-        .navbottom-wrapper {
-            gap: 10px;
-        }
-        
-        .navbottom-icon-wrapper {
+        .navbottom-item.active .navbottom-icon-wrapper {
             width: 44px;
             height: 44px;
         }
         
         .navbottom-icon {
-            font-size: 20px;
+            font-size: 18px;
+        }
+        
+        .navbottom-label {
+            font-size: 11px;
         }
     }
     
@@ -402,14 +530,89 @@
         animation: slideUp 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
     
-    .navbottom-icon-wrapper::before {
-        content: '';
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        background: var(--primary-color);
-        opacity: 0;
-        pointer-events: none;
+    /* Smooth transition for active state */
+    .navbottom-item {
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .navbottom-link {
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 </style>
+
+<script>
+    // JavaScript untuk mengatur status aktif dan animasi
+    document.addEventListener('DOMContentLoaded', function() {
+        const navItems = document.querySelectorAll('.navbottom-item');
+        let activeItem = null;
+        
+        // Set initial active item
+        navItems.forEach(item => {
+            if (item.classList.contains('active')) {
+                activeItem = item;
+            }
+        });
+        
+        // Apply compact class to non-active items
+        updateNavItems();
+        
+        // Click handler for nav items
+        navItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                // If this is already active, do nothing
+                if (this.classList.contains('active')) {
+                    return;
+                }
+                
+                // Remove active class from all items
+                navItems.forEach(navItem => {
+                    navItem.classList.remove('active');
+                    navItem.classList.add('compact');
+                });
+                
+                // Add active class to clicked item
+                this.classList.add('active');
+                this.classList.remove('compact');
+                
+                // Update active item reference
+                activeItem = this;
+                
+                // Update other items
+                updateNavItems();
+            });
+        });
+        
+        function updateNavItems() {
+            navItems.forEach(item => {
+                if (!item.classList.contains('active')) {
+                    item.classList.add('compact');
+                } else {
+                    item.classList.remove('compact');
+                }
+            });
+        }
+        
+        // Hover effect for non-active items
+        navItems.forEach(item => {
+            if (!item.classList.contains('active')) {
+                item.addEventListener('mouseenter', function() {
+                    const label = this.querySelector('.navbottom-label');
+                    if (label) {
+                        label.style.opacity = '1';
+                        label.style.width = 'auto';
+                        label.style.height = 'auto';
+                    }
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    const label = this.querySelector('.navbottom-label');
+                    if (label && !this.classList.contains('active')) {
+                        label.style.opacity = '0';
+                        label.style.width = '0';
+                        label.style.height = '0';
+                    }
+                });
+            }
+        });
+    });
+</script>

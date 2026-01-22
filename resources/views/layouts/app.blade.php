@@ -30,6 +30,7 @@
             --glass-bg: rgba(255, 255, 255, 0.1);
             --glass-border: rgba(255, 255, 255, 0.2);
             --navbar-height: 70px;
+            --navbottom-height: 85px;
         }
         * {
             margin: 0;
@@ -50,17 +51,7 @@
             min-height: 100vh;
             overflow-x: hidden;
             position: relative;
-            padding-bottom: 100px;
-        }
-        @media (min-width: 768px) {
-            body {
-                padding-bottom: 110px;
-            }
-        }
-        @media (min-width: 992px) {
-            body {
-                padding-bottom: 120px;
-            }
+            padding-bottom: var(--navbottom-height);
         }
         .glass-effect {
             background: var(--card-bg);
@@ -84,20 +75,8 @@
         }
         /* Main Content */
         .main-content {
-            min-height: calc(100vh - var(--navbar-height) - 100px);
+            min-height: calc(100vh - var(--navbar-height) - var(--navbottom-height));
             padding: 20px 15px;
-        }
-        @media (min-width: 768px) {
-            .main-content {
-                min-height: calc(100vh - var(--navbar-height) - 110px);
-                padding: 30px 20px;
-            }
-        }
-        @media (min-width: 992px) {
-            .main-content {
-                min-height: calc(100vh - var(--navbar-height) - 120px);
-                padding: 40px 30px;
-            }
         }
         .page-title {
             color: var(--dark-color);
@@ -154,6 +133,14 @@
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
+            }
+            :root {
+                --navbottom-height: 80px;
+            }
+        }
+        @media (max-width: 360px) {
+            :root {
+                --navbottom-height: 75px;
             }
         }
     </style>
@@ -215,15 +202,72 @@
             var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
-            // Add active class to current nav item
-            const currentPath = window.location.pathname;
-            const navItems = document.querySelectorAll('.navbottom-item');
-            navItems.forEach(item => {
-                const link = item.querySelector('a');
-                if (link && link.getAttribute('href') === currentPath) {
-                    item.classList.add('active');
+            
+            // Update active state based on current page
+            updateActiveNavItem();
+            
+            // Function to update active nav item
+            function updateActiveNavItem() {
+                const currentPath = window.location.pathname;
+                const navItems = document.querySelectorAll('.navbottom-item');
+                
+                // Remove active class from all items first
+                navItems.forEach(item => {
+                    item.classList.remove('active');
+                    const label = item.querySelector('.navbottom-label');
+                    if (label) {
+                        label.style.display = 'none';
+                        label.style.opacity = '0';
+                        label.style.width = '0';
+                    }
+                });
+                
+                // Add active class to current item
+                navItems.forEach(item => {
+                    const link = item.querySelector('a');
+                    if (link) {
+                        // Check if href matches current path
+                        const href = link.getAttribute('href');
+                        if (href && (currentPath.includes(href) || href.includes(currentPath))) {
+                            item.classList.add('active');
+                            
+                            // Show label for active item
+                            const label = item.querySelector('.navbottom-label');
+                            if (label) {
+                                label.style.display = 'block';
+                                setTimeout(() => {
+                                    label.style.opacity = '1';
+                                    label.style.width = 'auto';
+                                }, 10);
+                            }
+                            
+                            // Adjust other items
+                            adjustOtherItems();
+                        }
+                    }
+                });
+            }
+            
+            // Function to adjust other non-active items
+            function adjustOtherItems() {
+                const activeItem = document.querySelector('.navbottom-item.active');
+                const allItems = document.querySelectorAll('.navbottom-item:not(.active)');
+                
+                if (activeItem) {
+                    // Add compact class to non-active items
+                    allItems.forEach(item => {
+                        item.classList.add('compact');
+                    });
+                } else {
+                    // Remove compact class if no active item
+                    allItems.forEach(item => {
+                        item.classList.remove('compact');
+                    });
                 }
-            });
+            }
+            
+            // Update on page load
+            updateActiveNavItem();
         });
     </script>
     @stack('scripts')
