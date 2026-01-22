@@ -4,7 +4,6 @@
 @section('page-title', 'Dashboard')
 
 @section('content')
-
     <div class="row g-4">
         <!-- Stats Cards -->
         <div class="col-xl-4 col-md-6 fade-in-up">
