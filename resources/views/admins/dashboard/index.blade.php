@@ -86,9 +86,9 @@
     </div>
     
     <!-- Chart Section -->
-    <div class="col-12 mt-4 fade-in-up" style="animation-delay: 0.3s;">
+    <div class="col-12 mt-4 mb-5 fade-in-up" style="animation-delay: 0.3s;">
         <div class="glass-effect p-4">
-            <div class="d-flex flex-column justify-content-md-between gap-2 align-items-lg-center align-items-start mb-4">
+            <div class="d-flex flex-column flex-md-row justify-content-md-between gap-2 align-items-lg-center align-items-start mb-4">
                 <div>
                     <h5 class="fw-bold text-dark">Statistik Keuangan Bulanan</h5>
                     <p class="text-muted mb-0">Grafik pemasukan dan pengeluaran selama 6 bulan terakhir</p>
@@ -109,7 +109,7 @@
                 <canvas id="financialChart"></canvas>
             </div>
             
-            <div class="row mt-4 text-center">
+            <div class="mt-4 flex-column flex-md-row text-center d-flex justify-content-start align-items-center gap-2">
                 <div class="col-md-6">
                     <div class="d-flex align-items-center justify-content-center">
                         <div class="rounded-circle p-2 me-3">

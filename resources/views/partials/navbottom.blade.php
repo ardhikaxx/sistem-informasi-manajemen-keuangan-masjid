@@ -13,8 +13,8 @@
             </div>
             
             <!-- Manajemen Keuangan -->
-            <div class="navbottom-item " data-label="Keuangan">
-                <a href="" class="navbottom-link">
+            <div class="navbottom-item" data-label="Keuangan">
+                <a href="#" class="navbottom-link">
                     <div class="navbottom-icon-wrapper">
                         <i class="fas fa-sack-dollar navbottom-icon"></i>
                     </div>
@@ -24,7 +24,7 @@
             
             <!-- Manajemen Laporan -->
             <div class="navbottom-item" data-label="Laporan">
-                <a href="" class="navbottom-link">
+                <a href="#" class="navbottom-link">
                     <div class="navbottom-icon-wrapper">
                         <i class="fas fa-receipt navbottom-icon"></i>
                     </div>
@@ -34,7 +34,7 @@
             
             <!-- Profile -->
             <div class="navbottom-item" data-label="Profil">
-                <a href="" class="navbottom-link">
+                <a href="#" class="navbottom-link">
                     <div class="navbottom-icon-wrapper">
                         <i class="fas fa-user navbottom-icon"></i>
                     </div>
@@ -46,6 +46,13 @@
 </nav>
 
 <style>
+    /* Hide bottom navigation on desktop */
+    @media (min-width: 992px) {
+        .navbottom {
+            display: none !important;
+        }
+    }
+    
     /* Floating Bottom Navigation */
     .navbottom {
         position: fixed;
@@ -397,80 +404,14 @@
     /* Desktop Small (992px - 1199px) */
     @media (min-width: 992px) and (max-width: 1199px) {
         .navbottom {
-            bottom: 30px;
-            max-width: 550px;
-        }
-        
-        .navbottom-container {
-            padding: 16px 28px;
-            border-radius: 34px;
-        }
-        
-        .navbottom-wrapper {
-            gap: 10px;
-        }
-        
-        .navbottom-icon-wrapper {
-            width: 54px;
-            height: 54px;
-        }
-        
-        .navbottom-item.compact .navbottom-icon-wrapper {
-            width: 48px;
-            height: 48px;
-        }
-        
-        .navbottom-item.active .navbottom-icon-wrapper {
-            width: 60px;
-            height: 60px;
-        }
-        
-        .navbottom-icon {
-            font-size: 24px;
-        }
-        
-        .navbottom-label {
-            font-size: 14px;
+            display: none;
         }
     }
     
     /* Desktop Medium (1200px+) */
     @media (min-width: 1200px) {
         .navbottom {
-            bottom: 32px;
-            max-width: 580px;
-        }
-        
-        .navbottom-container {
-            padding: 18px 32px;
-            border-radius: 36px;
-        }
-        
-        .navbottom-wrapper {
-            gap: 12px;
-        }
-        
-        .navbottom-icon-wrapper {
-            width: 56px;
-            height: 56px;
-        }
-        
-        .navbottom-item.compact .navbottom-icon-wrapper {
-            width: 50px;
-            height: 50px;
-        }
-        
-        .navbottom-item.active .navbottom-icon-wrapper {
-            width: 62px;
-            height: 62px;
-        }
-        
-        .navbottom-icon {
-            font-size: 25px;
-        }
-        
-        .navbottom-label {
-            font-size: 15px;
+            display: none;
         }
     }
     
@@ -540,6 +481,7 @@
     }
 </style>
 
+<!-- JavaScript for navbottom (same as before) -->
 <script>
     // JavaScript untuk mengatur status aktif dan animasi
     document.addEventListener('DOMContentLoaded', function() {
