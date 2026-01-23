@@ -19,7 +19,7 @@
                 <!-- Edit Profil Form -->
                 <form id="profilForm">
                     <div class="d-flex gap-3 flex-column flex-md-row">
-                        <div class="col-md-6">
+                        <div class="col-md-6 p-3">
                             <h6 class="fw-bold mb-3 border-bottom pb-2" style="color: var(--primary-color);">
                                 <i class="fas fa-user-edit me-2"></i>Informasi Profil
                             </h6>
@@ -42,24 +42,10 @@
                         </div>
 
                         <!-- Ubah PIN Section -->
-                        <div class="col-md-6">
+                        <div class="col-md-6 p-3">
                             <h6 class="fw-bold mb-3 border-bottom pb-2" style="color: var(--primary-color);">
                                 <i class="fas fa-lock me-2"></i>Keamanan
                             </h6>
-
-                            <div class="alert alert-warning bg-warning bg-opacity-10 border-warning border-opacity-25 mb-4">
-                                <div class="d-flex">
-                                    <div class="me-3">
-                                        <i class="fas fa-exclamation-triangle text-warning fa-lg"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="alert-heading fw-bold">PIN Keamanan</h6>
-                                        <p class="mb-0 small">PIN 4 digit digunakan untuk verifikasi penting. Pastikan PIN
-                                            mudah
-                                            diingat namun sulit ditebak orang lain.</p>
-                                    </div>
-                                </div>
-                            </div>
 
                             <div class="mb-3">
                                 <label for="pinSekarang" class="form-label fw-medium">
