@@ -69,26 +69,6 @@
                         </select>
                     </div>
                 </div>
-                <div class="row mt-3">
-                    <div class="col-12">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="d-flex gap-2 flex-wrap">
-                                <button class="btn btn-sm btn-outline-primary filter-btn active" data-filter="all">
-                                    Semua Transaksi
-                                </button>
-                                <button class="btn btn-sm btn-outline-success filter-btn" data-filter="pemasukan">
-                                    <i class="fas fa-donate me-1"></i>Pemasukan
-                                </button>
-                                <button class="btn btn-sm btn-outline-warning filter-btn" data-filter="pengeluaran">
-                                    <i class="fas fa-shopping-cart me-1"></i>Pengeluaran
-                                </button>
-                            </div>
-                            <div class="text-muted small">
-                                Menampilkan <span id="totalRecords">25</span> transaksi
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
