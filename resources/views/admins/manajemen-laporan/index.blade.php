@@ -70,7 +70,7 @@
     </div>
 
     <!-- Report Preview -->
-    <div class="row fade-in-up" id="reportPreview">
+    <div class="row fade-in-up mb-5" id="reportPreview">
         <div class="col-12">
             <div class="glass-effect p-4">
                 <div class="table-responsive">
@@ -175,7 +175,7 @@
 
         .btn-outline-danger {
             background: linear-gradient(135deg, var(--danger-color), #dc3545);
-            border: 2px solid var(--danger-color);
+            border: 2px solid #dc3545;
             transition: all 0.3s ease;
         }
 
