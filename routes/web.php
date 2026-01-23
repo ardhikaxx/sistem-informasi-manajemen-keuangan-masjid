@@ -28,17 +28,17 @@ Route::prefix('admin')->group(function () {
 
         Route::get('/manajemen-keuangan', function () {
 
-            return view('admins.manajemen-keuangan.index', compact('admin'));
+            return view('admins.manajemen-keuangan.index');
         })->name('admins.manajemen-keuangan');
 
         Route::get('/manajemen-laporan', function () {
 
-            return view('admins.manajemen-laporan.index', compact('admin'));
+            return view('admins.manajemen-laporan.index');
         })->name('admins.manajemen-laporan');
 
         Route::get('/pengaturan-profil', function () {
 
-            return view('admins.pengaturan-profil.index', compact('admin'));
+            return view('admins.pengaturan-profil.index');
         })->name('admins.pengaturan-profil');
     });
 });

@@ -595,8 +595,7 @@
                         data-bs-toggle="dropdown" aria-expanded="false">
                         <!-- Profile text - hanya tampil di desktop -->
                         <div class="profile-text me-2 d-none d-md-block">
-                            <div class="fw-bold text-dark">Admin Masjid</div>
-                            <small class="text-muted">Administrator</small>
+                            <div class="fw-bold" style="color: var(--primary-color)">{{ Auth::user()->nama_lengkap ?? 'Admin' }}</div>
                         </div>
                         <!-- Profile icon -->
                         <div class="rounded-circle d-flex align-items-center justify-content-center profile-icon"
