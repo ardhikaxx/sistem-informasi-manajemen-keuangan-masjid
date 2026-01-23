@@ -10,22 +10,13 @@ class AdminMiddleware
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @return mixed
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!Auth::check()) {
+        // Gunakan guard 'admin' untuk mengecek autentikasi
+        if (!Auth::guard('admin')->check()) {
             return redirect()->route('auth.login')
                 ->with('error', 'Silakan login terlebih dahulu.');
-        }
-
-        if (!Auth::user() instanceof \App\Models\Admins) {
-            Auth::logout();
-            return redirect()->route('auth.login')
-                ->with('error', 'Akses ditolak.');
         }
 
         return $next($request);

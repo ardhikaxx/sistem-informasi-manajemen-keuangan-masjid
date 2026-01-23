@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PengaturanProfilController;
 
 // Public routes
 Route::get('/', function () {
@@ -27,18 +28,25 @@ Route::prefix('admin')->group(function () {
             ->name('admins.dashboard');
 
         Route::get('/manajemen-keuangan', function () {
-
             return view('admins.manajemen-keuangan.index');
         })->name('admins.manajemen-keuangan');
 
         Route::get('/manajemen-laporan', function () {
-
             return view('admins.manajemen-laporan.index');
         })->name('admins.manajemen-laporan');
 
-        Route::get('/pengaturan-profil', function () {
-
-            return view('admins.pengaturan-profil.index');
-        })->name('admins.pengaturan-profil');
+        // Pengaturan Profil Routes
+        Route::prefix('pengaturan-profil')->group(function () {
+            Route::get('/', [PengaturanProfilController::class, 'index'])
+                ->name('admins.pengaturan-profil');
+            
+            Route::post('/update', [PengaturanProfilController::class, 'update'])
+                ->name('admins.pengaturan-profil.update');
+        });
     });
+});
+
+// Fallback route untuk 404
+Route::fallback(function () {
+    return redirect()->route('index');
 });
