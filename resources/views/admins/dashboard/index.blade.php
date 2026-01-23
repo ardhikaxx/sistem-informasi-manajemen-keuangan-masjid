@@ -4,6 +4,9 @@
 @section('page-title', 'Dashboard')
 
 @section('content')
+    <!-- SweetAlert CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <div class="row g-4">
         <!-- Stats Cards -->
         <div class="col-xl-4 col-md-6 fade-in-up">
@@ -143,6 +146,27 @@
 
     @push('scripts')
         <script>
+            // SweetAlert Notification
+            document.addEventListener('DOMContentLoaded', function() {
+                @if(session('success'))
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Login Berhasil!',
+                        text: '{{ session('success') }}',
+                        timer: 3000,
+                        timerProgressBar: true,
+                        showConfirmButton: false,
+                        background: '#f8f9fa',
+                        iconColor: '#28a745',
+                        customClass: {
+                            title: 'text-success fw-bold',
+                            popup: 'shadow-sm'
+                        }
+                    });
+                @endif
+            });
+
+            // Existing Chart Code
             document.addEventListener('DOMContentLoaded', function() {
                 // Chart Data
                 const months = ['Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt'];
