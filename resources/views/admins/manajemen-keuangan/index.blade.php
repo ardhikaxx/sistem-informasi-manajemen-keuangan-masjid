@@ -74,7 +74,7 @@
     </div>
 
     <!-- Transactions Table -->
-    <div class="row fade-in-up">
+    <div class="row fade-in-up mb-5">
         <div class="col-12">
             <div class="glass-effect p-4">
                 <div class="table-responsive">
@@ -206,16 +206,6 @@
                             <textarea class="form-control" id="keteranganPemasukan" rows="3"
                                 placeholder="Tambahkan keterangan (opsional)"></textarea>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Kategori</label>
-                            <select class="form-select" id="kategoriPemasukan">
-                                <option value="donasi">Donasi</option>
-                                <option value="infak">Infak</option>
-                                <option value="zakat">Zakat</option>
-                                <option value="sedekah">Sedekah</option>
-                                <option value="lainnya">Lainnya</option>
-                            </select>
-                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -258,16 +248,6 @@
                             <label for="keteranganPengeluaran" class="form-label">Keterangan</label>
                             <textarea class="form-control" id="keteranganPengeluaran" rows="3"
                                 placeholder="Tambahkan keterangan (opsional)"></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Kategori</label>
-                            <select class="form-select" id="kategoriPengeluaran">
-                                <option value="operasional">Operasional</option>
-                                <option value="listrik">Listrik & Air</option>
-                                <option value="kebersihan">Kebersihan</option>
-                                <option value="perawatan">Perawatan</option>
-                                <option value="lainnya">Lainnya</option>
-                            </select>
                         </div>
                     </form>
                 </div>
