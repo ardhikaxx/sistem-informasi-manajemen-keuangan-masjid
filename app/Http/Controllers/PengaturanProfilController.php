@@ -26,17 +26,19 @@ class PengaturanProfilController extends Controller
     {
         $adminId = Auth::guard('admin')->id();
         
-        // Validasi input
+        // Validasi input secara kondisional
         $validator = Validator::make($request->all(), [
-            'nama_lengkap' => 'required|string|max:255',
-            'nomor_telfon' => 'required|string|max:15',
-            'pin_sekarang' => 'required|digits:4',
+            'nama_lengkap' => 'sometimes|string|max:255',
+            'nomor_telfon' => 'sometimes|string|max:15',
+            'pin_sekarang' => 'required_with:pin_baru|digits:4',
             'pin_baru' => 'nullable|digits:4|confirmed',
             'pin_baru_confirmation' => 'nullable|digits:4',
         ], [
-            'nama_lengkap.required' => 'Nama lengkap wajib diisi.',
-            'nomor_telfon.required' => 'Nomor telepon wajib diisi.',
-            'pin_sekarang.required' => 'PIN saat ini wajib diisi.',
+            'nama_lengkap.string' => 'Nama lengkap harus berupa teks.',
+            'nama_lengkap.max' => 'Nama lengkap maksimal 255 karakter.',
+            'nomor_telfon.string' => 'Nomor telepon harus berupa teks.',
+            'nomor_telfon.max' => 'Nomor telepon maksimal 15 karakter.',
+            'pin_sekarang.required_with' => 'PIN saat ini wajib diisi jika ingin mengubah PIN.',
             'pin_sekarang.digits' => 'PIN harus terdiri dari 4 digit.',
             'pin_baru.digits' => 'PIN baru harus terdiri dari 4 digit.',
             'pin_baru.confirmed' => 'Konfirmasi PIN baru tidak cocok.',
@@ -50,7 +52,7 @@ class PengaturanProfilController extends Controller
             ], 422);
         }
 
-        // Ambil data admin untuk verifikasi PIN
+        // Ambil data admin untuk verifikasi
         $admin = DB::table('admins')->where('id', $adminId)->first();
         
         if (!$admin) {
@@ -60,29 +62,56 @@ class PengaturanProfilController extends Controller
             ], 404);
         }
 
-        // Verifikasi PIN saat ini
-        if ($admin->pin !== $request->pin_sekarang) {
+        // Cek apakah ada perubahan data
+        $hasChanges = false;
+        $updateData = ['updated_at' => now()];
+
+        // Update nama lengkap jika diisi dan berbeda
+        if ($request->filled('nama_lengkap') && $admin->nama_lengkap !== $request->nama_lengkap) {
+            $updateData['nama_lengkap'] = $request->nama_lengkap;
+            $hasChanges = true;
+        }
+
+        // Update nomor telepon jika diisi dan berbeda
+        if ($request->filled('nomor_telfon') && $admin->nomor_telfon !== $request->nomor_telfon) {
+            $updateData['nomor_telfon'] = $request->nomor_telfon;
+            $hasChanges = true;
+        }
+
+        // Update PIN jika diisi PIN baru
+        if ($request->filled('pin_baru')) {
+            // Verifikasi PIN saat ini
+            if ($admin->pin !== $request->pin_sekarang) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'PIN saat ini salah.',
+                    'errors' => ['pin_sekarang' => ['PIN saat ini tidak valid.']]
+                ], 422);
+            }
+
+            // Cek apakah PIN baru berbeda dengan PIN lama
+            if ($admin->pin !== $request->pin_baru) {
+                $updateData['pin'] = $request->pin_baru;
+                $hasChanges = true;
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'PIN baru harus berbeda dengan PIN saat ini.',
+                    'errors' => ['pin_baru' => ['PIN baru harus berbeda dengan PIN saat ini.']]
+                ], 422);
+            }
+        }
+
+        // Jika tidak ada perubahan
+        if (!$hasChanges) {
             return response()->json([
                 'success' => false,
-                'message' => 'PIN saat ini salah.',
-                'errors' => ['pin_sekarang' => ['PIN saat ini tidak valid.']]
-            ], 422);
+                'message' => 'Tidak ada perubahan data.'
+            ], 400);
         }
 
         try {
-            // Data untuk update
-            $updateData = [
-                'nama_lengkap' => $request->nama_lengkap,
-                'nomor_telfon' => $request->nomor_telfon,
-                'updated_at' => now(),
-            ];
-
-            // Jika PIN baru diisi, update PIN
-            if ($request->filled('pin_baru')) {
-                $updateData['pin'] = $request->pin_baru;
-            }
-
-            // Update data admin menggunakan query builder
+            // Update data admin
             $updated = DB::table('admins')
                 ->where('id', $adminId)
                 ->update($updateData);
@@ -90,7 +119,8 @@ class PengaturanProfilController extends Controller
             if ($updated) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Profil berhasil diperbarui.'
+                    'message' => 'Profil berhasil diperbarui.',
+                    'admin' => array_merge((array)$admin, $updateData)
                 ]);
             } else {
                 return response()->json([

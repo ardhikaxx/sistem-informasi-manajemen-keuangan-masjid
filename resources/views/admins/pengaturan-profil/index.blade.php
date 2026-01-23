@@ -23,45 +23,47 @@
                             </h6>
                             <div class="mb-3">
                                 <label for="namaLengkap" class="form-label fw-medium">
-                                    Nama Lengkap <span class="text-danger">*</span>
+                                    Nama Lengkap
                                 </label>
                                 <input type="text" class="form-control" id="namaLengkap" name="nama_lengkap"
-                                    value="{{ $admin->nama_lengkap ?? old('nama_lengkap') }}" required>
-                                <div class="form-text">Nama lengkap yang akan ditampilkan di sistem</div>
+                                    value="{{ $admin->nama_lengkap ?? old('nama_lengkap') }}"
+                                    placeholder="Masukkan nama lengkap">
+                                <div class="form-text">Kosongkan jika tidak ingin mengubah nama</div>
                                 <div class="invalid-feedback" id="namaLengkap-error"></div>
                             </div>
                             <div class="mb-3">
                                 <label for="nomorTelepon" class="form-label fw-medium">
-                                    Nomor Telepon <span class="text-danger">*</span>
+                                    Nomor Telepon
                                 </label>
                                 <input type="tel" class="form-control" id="nomorTelepon" name="nomor_telfon"
-                                    value="{{ $admin->nomor_telfon ?? old('nomor_telfon') }}" required>
-                                <div class="form-text">Nomor telepon aktif untuk kontak</div>
+                                    value="{{ $admin->nomor_telfon ?? old('nomor_telfon') }}"
+                                    placeholder="Masukkan nomor telepon">
+                                <div class="form-text">Kosongkan jika tidak ingin mengubah nomor telepon</div>
                                 <div class="invalid-feedback" id="nomorTelepon-error"></div>
                             </div>
                         </div>
                         <!-- Ubah PIN Section -->
                         <div class="col-md-6 p-3">
                             <h6 class="fw-bold mb-3 border-bottom pb-2" style="color: var(--primary-color);">
-                                <i class="fas fa-lock me-2"></i>Keamanan
+                                <i class="fas fa-lock me-2"></i>Keamanan (Opsional)
                             </h6>
                             <div class="mb-3">
                                 <label for="pinSekarang" class="form-label fw-medium">
-                                    PIN Sekarang <span class="text-danger">*</span>
+                                    PIN Sekarang
                                 </label>
                                 <div class="input-group">
                                     <input type="password" class="form-control" id="pinSekarang" name="pin_sekarang"
-                                        placeholder="Masukkan PIN saat ini" maxlength="4" required>
+                                        placeholder="Masukkan PIN saat ini" maxlength="4">
                                     <button class="btn btn-outline-secondary" type="button" id="togglePinSekarang">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
-                                <div class="form-text">Masukkan PIN 4 digit yang sedang aktif</div>
+                                <div class="form-text">Hanya diisi jika ingin mengubah PIN</div>
                                 <div class="invalid-feedback" id="pinSekarang-error"></div>
                             </div>
                             <div class="mb-3">
                                 <label for="pinBaru" class="form-label fw-medium">
-                                    PIN Baru (Opsional)
+                                    PIN Baru
                                 </label>
                                 <div class="input-group">
                                     <input type="password" class="form-control" id="pinBaru" name="pin_baru"
@@ -89,12 +91,13 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="d-flex justify-content-end gap-3 pt-3 border-top">
                         <button type="reset" class="btn btn-secondary px-4" id="resetBtn">
-                            <i class="fas fa-times me-2"></i>Batal
+                            <i class="fas fa-times me-2"></i>Reset
                         </button>
                         <button type="submit" class="btn btn-primary px-4" id="submitBtn">
-                            <i class="fas fa-save me-2"></i>Simpan
+                            <i class="fas fa-save me-2"></i>Simpan Perubahan
                         </button>
                     </div>
                 </form>
@@ -126,8 +129,9 @@
             box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.2);
         }
 
-        .alert-warning {
-            border-left: 4px solid var(--warning-color);
+        .alert-info {
+            background-color: rgba(13, 110, 253, 0.1);
+            border-left: 4px solid var(--primary-color);
         }
 
         .border-bottom {
@@ -150,6 +154,10 @@
             opacity: 0.7;
             cursor: not-allowed;
         }
+
+        ul {
+            padding-left: 20px;
+        }
     </style>
 @endpush
 @push('scripts')
@@ -171,7 +179,7 @@
                 if (button && input) {
                     button.addEventListener('click', function() {
                         const type = input.getAttribute('type') === 'password' ? 'text' :
-                        'password';
+                            'password';
                         input.setAttribute('type', type);
                         const icon = this.querySelector('i');
 
@@ -235,10 +243,56 @@
             const submitBtn = document.getElementById('submitBtn');
             const resetBtn = document.getElementById('resetBtn');
 
-            // GANTI bagian form submission dengan kode berikut:
             if (profilForm && submitBtn) {
                 profilForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
+
+                    // Check if there's any change
+                    const originalValues = {
+                        nama_lengkap: '{{ $admin->nama_lengkap ?? '' }}',
+                        nomor_telfon: '{{ $admin->nomor_telfon ?? '' }}'
+                    };
+
+                    const currentValues = {
+                        nama_lengkap: document.getElementById('namaLengkap').value.trim(),
+                        nomor_telfon: document.getElementById('nomorTelepon').value.trim(),
+                        pin_baru: document.getElementById('pinBaru').value.trim(),
+                        pin_baru_confirmation: document.getElementById('konfirmasiPin').value
+                        .trim(),
+                        pin_sekarang: document.getElementById('pinSekarang').value.trim()
+                    };
+
+                    // Check if PIN baru diisi tanpa PIN sekarang
+                    if (currentValues.pin_baru && !currentValues.pin_sekarang) {
+                        document.getElementById('pinSekarang').classList.add('is-invalid');
+                        document.getElementById('pinSekarang-error').textContent =
+                            'PIN saat ini wajib diisi jika ingin mengubah PIN.';
+                        showErrorAlert('Harap isi PIN saat ini jika ingin mengubah PIN.');
+                        return;
+                    }
+
+                    // Check if PIN baru diisi tanpa konfirmasi
+                    if (currentValues.pin_baru && !currentValues.pin_baru_confirmation) {
+                        document.getElementById('konfirmasiPin').classList.add('is-invalid');
+                        document.getElementById('konfirmasiPin-error').textContent =
+                            'Harap konfirmasi PIN baru.';
+                        showErrorAlert('Harap konfirmasi PIN baru.');
+                        return;
+                    }
+
+                    // Check if there's any change at all
+                    const hasNameChange = currentValues.nama_lengkap &&
+                        currentValues.nama_lengkap !== originalValues.nama_lengkap;
+                    const hasPhoneChange = currentValues.nomor_telfon &&
+                        currentValues.nomor_telfon !== originalValues.nomor_telfon;
+                    const hasPinChange = currentValues.pin_baru && currentValues.pin_sekarang;
+
+                    if (!hasNameChange && !hasPhoneChange && !hasPinChange) {
+                        showErrorAlert(
+                            'Tidak ada perubahan data. Silakan isi setidaknya satu field yang ingin diubah.'
+                            );
+                        return;
+                    }
 
                     // Disable submit button
                     submitBtn.disabled = true;
@@ -259,6 +313,13 @@
                     try {
                         // Collect form data
                         const formData = new FormData(this);
+
+                        // Remove empty fields
+                        for (let [key, value] of formData.entries()) {
+                            if (!value.trim()) {
+                                formData.delete(key);
+                            }
+                        }
 
                         // Send request
                         const response = await fetch('{{ route('admins.pengaturan-profil.update') }}', {
@@ -290,6 +351,12 @@
                             document.getElementById('pinSekarang').value = '';
                             document.getElementById('pinBaru').value = '';
                             document.getElementById('konfirmasiPin').value = '';
+
+                            // Update original values
+                            originalValues.nama_lengkap = data.admin?.nama_lengkap || originalValues
+                                .nama_lengkap;
+                            originalValues.nomor_telfon = data.admin?.nomor_telfon || originalValues
+                                .nomor_telfon;
                         } else {
                             // Validation errors
                             if (data.errors) {
@@ -305,7 +372,7 @@
                     } finally {
                         // Re-enable submit button
                         submitBtn.disabled = false;
-                        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan';
+                        submitBtn.innerHTML = '<i class="fas fa-save me-2"></i>Simpan Perubahan';
                     }
                 });
             }
@@ -313,7 +380,7 @@
             // Reset form
             if (resetBtn) {
                 resetBtn.addEventListener('click', function() {
-                    if (confirm('Apakah Anda yakin ingin membatalkan perubahan?')) {
+                    if (confirm('Apakah Anda yakin ingin mereset form?')) {
                         // Reset to original values
                         document.getElementById('namaLengkap').value = '{{ $admin->nama_lengkap ?? '' }}';
                         document.getElementById('nomorTelepon').value = '{{ $admin->nomor_telfon ?? '' }}';
