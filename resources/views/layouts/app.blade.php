@@ -583,7 +583,7 @@
     <!-- Top Navigation -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
         <div class="container-fluid d-flex justify-content-between justify-content-lg-end">
-            <a class="navbar-brand d-flex align-items-center d-md-none d-block" href="#">
+            <a class="navbar-brand d-flex align-items-center d-md-none d-block ms-2" href="#">
                 <i class="fas fa-mosque me-2"></i>
                 <span>Keuangan Masjid</span>
             </a>
@@ -607,7 +607,7 @@
                         <li>
                             <h6 class="dropdown-header">Akun</h6>
                         </li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Profil Saya</a>
+                        <li><a class="dropdown-item" href="{{ route('admins.pengaturan-profil') }}"><i class="fas fa-user me-2"></i> Profil Saya</a>
                         </li>
                         <li>
                             <hr class="dropdown-divider">
