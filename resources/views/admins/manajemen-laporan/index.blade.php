@@ -229,49 +229,6 @@
             const warningColor = getComputedStyle(document.documentElement).getPropertyValue('--warning-color')
                 .trim();
 
-            // Initialize Chart
-            let reportChart = initializeChart('bar');
-
-            // Chart type dropdown functionality
-            document.querySelectorAll('[data-type]').forEach(item => {
-                item.addEventListener('click', function(e) {
-                    e.preventDefault();
-
-                    // Update active state
-                    document.querySelectorAll('[data-type]').forEach(el => {
-                        el.classList.remove('active');
-                    });
-                    this.classList.add('active');
-
-                    // Update dropdown button text
-                    const typeText = this.textContent;
-                    document.getElementById('chartTypeDropdown').innerHTML =
-                        `<i class="fas fa-chart-bar me-2"></i>${typeText}`;
-
-                    // Destroy old chart and create new one
-                    const chartType = this.getAttribute('data-type');
-                    if (reportChart) {
-                        reportChart.destroy();
-                    }
-                    reportChart = initializeChart(chartType);
-                });
-            });
-
-            // Filter functionality
-            const filterButtons = document.querySelectorAll('.filter-btn');
-            const jenisLaporan = document.getElementById('jenisLaporan');
-            const customDateRange = document.getElementById('customDateRange');
-
-            // Show/hide custom date range based on report type
-            jenisLaporan.addEventListener('change', function() {
-                if (this.value === 'custom') {
-                    customDateRange.classList.remove('d-none');
-                } else {
-                    customDateRange.classList.add('d-none');
-                }
-                updateReportPeriodText();
-            });
-
             filterButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     filterButtons.forEach(btn => btn.classList.remove('active'));
@@ -279,21 +236,6 @@
                     filterReportTable();
                 });
             });
-
-            function filterReportTable() {
-                const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
-                const rows = document.querySelectorAll('#reportTable tbody tr');
-
-                rows.forEach(row => {
-                    const isIncome = row.cells[3].textContent !== '-';
-                    let shouldShow = true;
-
-                    if (activeFilter === 'pemasukan' && !isIncome) shouldShow = false;
-                    if (activeFilter === 'pengeluaran' && isIncome) shouldShow = false;
-
-                    row.style.display = shouldShow ? '' : 'none';
-                });
-            }
 
             // Update report period text
             function updateReportPeriodText() {
@@ -331,26 +273,6 @@
                     year: 'numeric'
                 });
             }
-
-            // Filter change events
-            document.getElementById('filterBulan').addEventListener('change', updateReportPeriodText);
-            document.getElementById('filterTahun').addEventListener('change', updateReportPeriodText);
-            document.getElementById('startDate').addEventListener('change', updateReportPeriodText);
-            document.getElementById('endDate').addEventListener('change', updateReportPeriodText);
-
-            // Tampilkan Laporan button
-            document.getElementById('tampilkanLaporan').addEventListener('click', function() {
-                updateReportPeriodText();
-                filterReportTable();
-
-                // Scroll to report preview
-                document.getElementById('reportPreview').scrollIntoView({
-                    behavior: 'smooth'
-                });
-
-                // Show success message
-                alert('Laporan berhasil diperbarui!');
-            });
 
             // Add animation
             const observerOptions = {
