@@ -58,6 +58,10 @@ Route::prefix('admin')->group(function () {
             //      ->name('admins.manajemen-laporan.export');
         });
 
+        Route::get('/manajemen-laporan/print', function () {
+            return view('admins.manajemen-laporan.print');
+        })->name('admins.manajemen-laporan.print');
+
         // Pengaturan Profil Routes
         Route::prefix('pengaturan-profil')->group(function () {
             Route::get('/', [PengaturanProfilController::class, 'index'])
