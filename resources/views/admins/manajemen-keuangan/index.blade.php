@@ -173,7 +173,8 @@
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                             <button type="button" class="btn btn-sm btn-outline-danger delete-btn"
-                                                data-id="{{ $transaksi->id }}" data-bs-toggle="tooltip" title="Hapus">
+                                                data-id="{{ $transaksi->id }}" data-uraian="{{ $transaksi->uraian }}"
+                                                data-bs-toggle="tooltip" title="Hapus">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </div>
@@ -434,27 +435,6 @@
                     <button type="button" class="btn btn-primary" id="simpanEdit">
                         <i class="fas fa-save me-2"></i>Simpan Perubahan
                     </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Delete Confirmation Modal -->
-    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content glass-modal">
-                <div class="modal-header">
-                    <h5 class="modal-title text-danger">
-                        <i class="fas fa-exclamation-triangle me-2"></i>Konfirmasi Hapus
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Apakah Anda yakin ingin menghapus transaksi ini?</p>
-                    <p class="text-muted small">Data yang dihapus tidak dapat dikembalikan.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-danger" id="confirmDelete">Hapus</button>
                 </div>
             </div>
         </div>
@@ -866,81 +846,77 @@
             // Delete button functionality
             document.querySelectorAll('.delete-btn').forEach(button => {
                 button.addEventListener('click', function() {
-                    deleteId = this.getAttribute('data-id');
-                    $('#deleteModal').modal('show'); // Modal delete tetap bisa pakai jQuery
-                });
-            });
+                    const id = this.getAttribute('data-id');
+                    const uraian = this.getAttribute('data-uraian'); // Mengambil nilai uraian
 
-            // Confirm Delete
-            document.getElementById('confirmDelete').addEventListener('click', function() {
-                if (!deleteId) return;
-                const deleteButton = this;
-                const originalText = deleteButton.innerHTML;
-                deleteButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menghapus...';
-                deleteButton.disabled = true;
+                    // Tampilkan SweetAlert konfirmasi
+                    Swal.fire({
+                        title: 'Konfirmasi Hapus',
+                        html: `Apakah Anda yakin ingin menghapus transaksi berikut?<br><strong>${uraian}</strong>`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Ya, Hapus!',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Perbaikan: Gunakan URL yang sesuai dengan definisi route
+                            const url = `/admin/manajemen-keuangan/delete/${id}`;
+                            const csrfToken = document.querySelector(
+                                'meta[name="csrf-token"]').getAttribute('content');
 
-                const url = `/admin/manajemen-keuangan/delete/${deleteId}`;
-
-                fetch(url, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                .getAttribute('content'),
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
+                            fetch(url, {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'X-CSRF-TOKEN': csrfToken,
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json'
+                                    }
+                                })
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error(
+                                            `HTTP error! status: ${response.status}`
+                                            );
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    if (data && data.success) {
+                                        // Tampilkan pesan sukses
+                                        Swal.fire({
+                                            title: 'Dihapus!',
+                                            text: data.message ||
+                                                'Transaksi berhasil dihapus.',
+                                            icon: 'success',
+                                            timer: 1500,
+                                            showConfirmButton: false
+                                        }).then(() => {
+                                            window.location
+                                        .reload(); // Refresh halaman setelah sukses
+                                        });
+                                    } else {
+                                        Swal.fire({
+                                            title: 'Gagal!',
+                                            text: data?.message ||
+                                                'Terjadi kesalahan saat menghapus transaksi.',
+                                            icon: 'error'
+                                        });
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Fetch Error Details (Delete):',
+                                        error);
+                                    Swal.fire({
+                                        title: 'Kesalahan!',
+                                        text: 'Terjadi kesalahan jaringan atau server saat menghapus transaksi.',
+                                        icon: 'error'
+                                    });
+                                });
                         }
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            // Jika status bukan 2xx, anggap sebagai network/server error
-                            throw new Error(
-                                `HTTP error! status: ${response.status}. ${response.statusText}`);
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        // Reset button state
-                        deleteButton.innerHTML = originalText;
-                        deleteButton.disabled = false;
-                        if (data && typeof data === 'object' && data.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil!',
-                                text: data.message || 'Transaksi berhasil dihapus!',
-                                timer: 2000,
-                                showConfirmButton: false,
-                                background: '#f8f9fa',
-                                backdrop: 'rgba(0,0,0,0.1)'
-                            }).then(() => {
-                                $('#deleteModal').modal(
-                                    'hide'); // Modal delete tetap bisa pakai jQuery
-                                setTimeout(() => {
-                                    window.location.reload();
-                                }, 1500);
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Gagal Menghapus',
-                                text: data?.message || 'Gagal menghapus transaksi',
-                                background: '#f8f9fa',
-                                backdrop: 'rgba(0,0,0,0.1)'
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        // Reset button state
-                        deleteButton.innerHTML = originalText;
-                        deleteButton.disabled = false;
-                        console.error('Fetch Error Details (Delete):', error);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Kesalahan',
-                            text: 'Terjadi kesalahan jaringan atau server saat menghapus transaksi',
-                            background: '#f8f9fa',
-                            backdrop: 'rgba(0,0,0,0.1)'
-                        });
                     });
+                });
             });
 
             // Reset modal forms when hidden (gunakan event listener DOM)
