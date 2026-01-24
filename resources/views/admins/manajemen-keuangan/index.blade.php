@@ -175,14 +175,93 @@
                 </div>
                 <!-- Pagination -->
                 @if ($transaksis->hasPages())
-                    <div class="d-flex justify-content-between align-items-center mt-4">
-                        <div class="text-muted small">
-                            Menampilkan {{ $transaksis->firstItem() }} sampai {{ $transaksis->lastItem() }} dari
+                    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center gap-3 mt-4">
+                        <!-- Informasi Halaman -->
+                        <div class="text-muted small text-center text-lg-start">
+                            Menampilkan {{ $transaksis->firstItem() ?? 0 }} sampai {{ $transaksis->lastItem() ?? 0 }} dari
                             {{ $transaksis->total() }} transaksi
                         </div>
-                        <div>
-                            {{ $transaksis->withQueryString()->links() }}
-                        </div>
+
+                        <!-- Link Paginasi -->
+                        <nav aria-label="Navigasi halaman transaksi">
+                            <ul class="pagination custom-pagination mb-0">
+                                {{-- Tombol Sebelumnya --}}
+                                @if ($transaksis->onFirstPage())
+                                    <li class="page-item disabled" aria-disabled="true" aria-label="Sebelumnya">
+                                        <span class="page-link" aria-hidden="true">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </span>
+                                    </li>
+                                @else
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $transaksis->previousPageUrl() }}" rel="prev"
+                                            aria-label="Sebelumnya">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                @endif
+
+                                {{-- Link Halaman --}}
+                                @php
+                                    $start = max($transaksis->currentPage() - 1, 1);
+                                    $end = min($transaksis->currentPage() + 1, $transaksis->lastPage());
+                                    if ($start == 1) {
+                                        $end = min(3, $transaksis->lastPage());
+                                    }
+                                    if ($end == $transaksis->lastPage()) {
+                                        $start = max($end - 2, 1);
+                                    }
+                                @endphp
+
+                                @if ($start > 1)
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $transaksis->url(1) }}">1</a>
+                                    </li>
+                                    @if ($start > 2)
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    @endif
+                                @endif
+
+                                @for ($page = $start; $page <= $end; $page++)
+                                    @if ($page == $transaksis->currentPage())
+                                        <li class="page-item active" aria-current="page">
+                                            <span class="page-link">{{ $page }}</span>
+                                        </li>
+                                    @else
+                                        <li class="page-item">
+                                            <a class="page-link"
+                                                href="{{ $transaksis->url($page) }}">{{ $page }}</a>
+                                        </li>
+                                    @endif
+                                @endfor
+
+                                @if ($end < $transaksis->lastPage())
+                                    @if ($end < $transaksis->lastPage() - 1)
+                                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    @endif
+                                    <li class="page-item">
+                                        <a class="page-link"
+                                            href="{{ $transaksis->url($transaksis->lastPage()) }}">{{ $transaksis->lastPage() }}</a>
+                                    </li>
+                                @endif
+
+                                {{-- Tombol Berikutnya --}}
+                                @if ($transaksis->hasMorePages())
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $transaksis->nextPageUrl() }}" rel="next"
+                                            aria-label="Berikutnya">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                @else
+                                    <li class="page-item disabled" aria-disabled="true" aria-label="Berikutnya">
+                                        <span class="page-link" aria-hidden="true">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </span>
+                                    </li>
+                                @endif
+                            </ul>
+                        </nav>
                     </div>
                 @endif
             </div>
@@ -490,7 +569,7 @@
                 const url = "{{ route('admins.manajemen-keuangan.store') }}";
                 const modalElement = modalInstance._element; // Dapatkan elemen DOM modal
                 const saveButton = modalElement.querySelector(
-                '.btn-success, .btn-warning'); // Ambil tombol simpan dari elemen modal
+                    '.btn-success, .btn-warning'); // Ambil tombol simpan dari elemen modal
                 // Tampilkan loading state
                 const originalText = saveButton.innerHTML;
                 saveButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan...';
@@ -707,7 +786,7 @@
                             }).then(() => {
                                 // Tutup modal edit setelah sukses
                                 editModalInstance
-                            .hide(); // Gunakan instance untuk menyembunyikan modal
+                                    .hide(); // Gunakan instance untuk menyembunyikan modal
                                 setTimeout(() => {
                                     window.location.reload();
                                 }, 1500);
@@ -798,7 +877,7 @@
                                 backdrop: 'rgba(0,0,0,0.1)'
                             }).then(() => {
                                 $('#deleteModal').modal(
-                                'hide'); // Modal delete tetap bisa pakai jQuery
+                                    'hide'); // Modal delete tetap bisa pakai jQuery
                                 setTimeout(() => {
                                     window.location.reload();
                                 }, 1500);
