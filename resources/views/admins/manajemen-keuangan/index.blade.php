@@ -98,71 +98,91 @@
             </div>
         </div>
     </div>
-    <!-- Transactions Table -->
+    <!-- NEW REPORT Table with Actions -->
     <div class="row fade-in-up mb-5">
         <div class="col-12">
             <div class="glass-effect p-4">
                 <div class="table-responsive">
-                    <table class="table table-hover" id="transactionsTable">
-                        <thead>
-                            <tr class="table-light">
+                    <table class="table table-bordered" id="reportTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="fw-semibold text-dark">No</th>
                                 <th class="fw-semibold text-dark">Tanggal</th>
                                 <th class="fw-semibold text-dark">Uraian</th>
-                                <th class="fw-semibold text-dark">Jenis</th>
-                                <th class="fw-semibold text-dark text-end">Jumlah</th>
+                                <th class="fw-semibold text-dark text-end">Pemasukan</th>
+                                <th class="fw-semibold text-dark text-end">Pengeluaran</th>
                                 <th class="fw-semibold text-dark text-end">Saldo</th>
                                 <th class="fw-semibold text-dark">Keterangan</th>
-                                <th class="fw-semibold text-dark text-center">Aksi</th>
+                                <th class="fw-semibold text-dark">Aksi</th> <!-- Kolom Aksi Ditambahkan -->
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($transaksis as $transaksi)
-                                <tr
-                                    class="{{ $transaksi->jenis_transaksi == 'pemasukan' ? 'table-success-light' : 'table-warning-light' }}">
-                                    <td class="text-nowrap">{{ $transaksi->formatted_tanggal }}</td>
+                            @php
+                                // Inisialisasi saldo awal
+                                $currentBalance = $saldoAwal ?? 0; // Ganti $saldoAwal dengan variabel yang benar-benar merepresentasikan saldo awal
+                                $totalPemasukan = 0;
+                                $totalPengeluaran = 0;
+                            @endphp
+                            @forelse($transaksis as $index => $transaksi)
+                                @php
+                                    $no = $index + 1;
+                                    $isIncome = $transaksi->jenis_transaksi === 'pemasukan';
+                                    $amount = $transaksi->jumlah;
+                                    $currentBalance = $isIncome ? $currentBalance + $amount : $currentBalance - $amount;
+
+                                    if ($isIncome) {
+                                        $totalPemasukan += $amount;
+                                    } else {
+                                        $totalPengeluaran += $amount;
+                                    }
+                                @endphp
+                                <tr>
+                                    <td>{{ $no }}</td>
+                                    <td class="text-nowrap">
+                                        {{ \Carbon\Carbon::parse($transaksi->tanggal)->format('d/m/Y') }}</td>
                                     <td>
                                         <div class="fw-medium">{{ $transaksi->uraian }}</div>
                                     </td>
-                                    <td>
-                                        <span
-                                            class="badge {{ $transaksi->jenis_transaksi == 'pemasukan' ? 'bg-success' : 'bg-warning' }}">
-                                            {{ $transaksi->jenis_transaksi == 'pemasukan' ? 'Pemasukan' : 'Pengeluaran' }}
-                                        </span>
-                                    </td>
                                     <td class="text-end">
-                                        <span
-                                            class="{{ $transaksi->jenis_transaksi == 'pemasukan' ? 'text-success' : 'text-warning' }} fw-bold">
-                                            Rp {{ number_format($transaksi->jumlah, 0, ',', '.') }}
-                                        </span>
-                                    </td>
-                                    <td class="text-end">
-                                        <span class="fw-bold">Rp
-                                            {{ number_format($transaksi->saldo_sesudah, 0, ',', '.') }}</span>
-                                    </td>
-                                    <td>
-                                        @if ($transaksi->keterangan)
-                                            <span
-                                                class="text-muted small">{{ Str::limit($transaksi->keterangan, 50) }}</span>
+                                        @if ($isIncome)
+                                            <span class="text-success">Rp {{ number_format($amount, 0, ',', '.') }}</span>
                                         @else
                                             <span class="text-muted">-</span>
                                         @endif
                                     </td>
-                                    <td class="text-center">
-                                        <div class="d-flex gap-2 justify-content-center">
-                                            <button class="btn btn-sm btn-outline-primary edit-btn"
-                                                data-id="{{ $transaksi->id }}">
+                                    <td class="text-end">
+                                        @if (!$isIncome)
+                                            <span class="text-warning">Rp {{ number_format($amount, 0, ',', '.') }}</span>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-end fw-bold">
+                                        Rp {{ number_format($currentBalance, 0, ',', '.') }}
+                                    </td>
+                                    <td>
+                                        <span
+                                            class="badge {{ $isIncome ? 'bg-success bg-opacity-10 text-success' : 'bg-warning bg-opacity-10 text-warning' }}">
+                                            {{ $transaksi->keterangan ?: ($isIncome ? 'Donasi' : 'Operasional') }}
+                                        </span>
+                                    </td>
+                                    <td> <!-- Kolom Aksi -->
+                                        <div class="d-flex gap-1 justify-content-center">
+                                            <button type="button" class="btn btn-sm btn-outline-primary edit-btn"
+                                                data-id="{{ $transaksi->id }}" data-bs-toggle="tooltip" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </button>
-                                            <button class="btn btn-sm btn-outline-danger delete-btn"
-                                                data-id="{{ $transaksi->id }}">
-                                                <i class="fas fa-trash"></i>
+                                            <button type="button" class="btn btn-sm btn-outline-danger delete-btn"
+                                                data-id="{{ $transaksi->id }}" data-bs-toggle="tooltip" title="Hapus">
+                                                <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center py-4">
+                                    <td colspan="8" class="text-center py-4">
+                                        <!-- Colspan disesuaikan dengan jumlah kolom -->
                                         <div class="text-muted">
                                             <i class="fas fa-inbox fa-2x mb-3"></i>
                                             <p>Tidak ada transaksi ditemukan</p>
@@ -171,102 +191,112 @@
                                 </tr>
                             @endforelse
                         </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <th colspan="3" class="text-end">TOTAL</th>
+                                <th class="text-end text-success">Rp {{ number_format($totalPemasukan, 0, ',', '.') }}
+                                </th>
+                                <th class="text-end text-warning">Rp {{ number_format($totalPengeluaran, 0, ',', '.') }}
+                                </th>
+                                <th class="text-end text-primary">Rp {{ number_format($currentBalance, 0, ',', '.') }}
+                                </th>
+                                <th></th>
+                                <th></th> <!-- Kolom untuk Aksi di footer -->
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
-                <!-- Pagination -->
-                @if ($transaksis->hasPages())
-                    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center gap-3 mt-4">
-                        <!-- Informasi Halaman -->
-                        <div class="text-muted small text-center text-lg-start">
-                            Menampilkan {{ $transaksis->firstItem() ?? 0 }} sampai {{ $transaksis->lastItem() ?? 0 }} dari
-                            {{ $transaksis->total() }} transaksi
-                        </div>
-
-                        <!-- Link Paginasi -->
-                        <nav aria-label="Navigasi halaman transaksi">
-                            <ul class="pagination custom-pagination mb-0">
-                                {{-- Tombol Sebelumnya --}}
-                                @if ($transaksis->onFirstPage())
-                                    <li class="page-item disabled" aria-disabled="true" aria-label="Sebelumnya">
-                                        <span class="page-link" aria-hidden="true">
-                                            <i class="fas fa-chevron-left"></i>
-                                        </span>
-                                    </li>
-                                @else
-                                    <li class="page-item">
-                                        <a class="page-link" href="{{ $transaksis->previousPageUrl() }}" rel="prev"
-                                            aria-label="Sebelumnya">
-                                            <i class="fas fa-chevron-left"></i>
-                                        </a>
-                                    </li>
-                                @endif
-
-                                {{-- Link Halaman --}}
-                                @php
-                                    $start = max($transaksis->currentPage() - 1, 1);
-                                    $end = min($transaksis->currentPage() + 1, $transaksis->lastPage());
-                                    if ($start == 1) {
-                                        $end = min(3, $transaksis->lastPage());
-                                    }
-                                    if ($end == $transaksis->lastPage()) {
-                                        $start = max($end - 2, 1);
-                                    }
-                                @endphp
-
-                                @if ($start > 1)
-                                    <li class="page-item">
-                                        <a class="page-link" href="{{ $transaksis->url(1) }}">1</a>
-                                    </li>
-                                    @if ($start > 2)
-                                        <li class="page-item disabled"><span class="page-link">...</span></li>
-                                    @endif
-                                @endif
-
-                                @for ($page = $start; $page <= $end; $page++)
-                                    @if ($page == $transaksis->currentPage())
-                                        <li class="page-item active" aria-current="page">
-                                            <span class="page-link">{{ $page }}</span>
-                                        </li>
-                                    @else
-                                        <li class="page-item">
-                                            <a class="page-link"
-                                                href="{{ $transaksis->url($page) }}">{{ $page }}</a>
-                                        </li>
-                                    @endif
-                                @endfor
-
-                                @if ($end < $transaksis->lastPage())
-                                    @if ($end < $transaksis->lastPage() - 1)
-                                        <li class="page-item disabled"><span class="page-link">...</span></li>
-                                    @endif
-                                    <li class="page-item">
-                                        <a class="page-link"
-                                            href="{{ $transaksis->url($transaksis->lastPage()) }}">{{ $transaksis->lastPage() }}</a>
-                                    </li>
-                                @endif
-
-                                {{-- Tombol Berikutnya --}}
-                                @if ($transaksis->hasMorePages())
-                                    <li class="page-item">
-                                        <a class="page-link" href="{{ $transaksis->nextPageUrl() }}" rel="next"
-                                            aria-label="Berikutnya">
-                                            <i class="fas fa-chevron-right"></i>
-                                        </a>
-                                    </li>
-                                @else
-                                    <li class="page-item disabled" aria-disabled="true" aria-label="Berikutnya">
-                                        <span class="page-link" aria-hidden="true">
-                                            <i class="fas fa-chevron-right"></i>
-                                        </span>
-                                    </li>
-                                @endif
-                            </ul>
-                        </nav>
-                    </div>
-                @endif
             </div>
         </div>
     </div>
+    <!-- END NEW REPORT Table -->
+
+    <!-- Pagination (ID diubah agar tidak bentrok dengan tabel lama) -->
+    @if ($transaksis->hasPages())
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center gap-3 mt-4">
+            <!-- Informasi Halaman -->
+            <div class="text-muted small text-center text-lg-start">
+                Menampilkan {{ $transaksis->firstItem() ?? 0 }} sampai {{ $transaksis->lastItem() ?? 0 }} dari
+                {{ $transaksis->total() }} transaksi
+            </div>
+            <!-- Link Paginasi -->
+            <nav aria-label="Navigasi halaman laporan keuangan">
+                <ul class="pagination custom-pagination mb-0">
+                    {{-- Tombol Sebelumnya --}}
+                    @if ($transaksis->onFirstPage())
+                        <li class="page-item disabled" aria-disabled="true" aria-label="Sebelumnya">
+                            <span class="page-link" aria-hidden="true">
+                                <i class="fas fa-chevron-left"></i>
+                            </span>
+                        </li>
+                    @else
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $transaksis->previousPageUrl() }}" rel="prev"
+                                aria-label="Sebelumnya">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    @endif
+                    {{-- Link Halaman --}}
+                    @php
+                        $start = max($transaksis->currentPage() - 1, 1);
+                        $end = min($transaksis->currentPage() + 1, $transaksis->lastPage());
+                        if ($start == 1) {
+                            $end = min(3, $transaksis->lastPage());
+                        }
+                        if ($end == $transaksis->lastPage()) {
+                            $start = max($end - 2, 1);
+                        }
+                    @endphp
+                    @if ($start > 1)
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $transaksis->url(1) }}">1</a>
+                        </li>
+                        @if ($start > 2)
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        @endif
+                    @endif
+                    @for ($page = $start; $page <= $end; $page++)
+                        @if ($page == $transaksis->currentPage())
+                            <li class="page-item active" aria-current="page">
+                                <span class="page-link">{{ $page }}</span>
+                            </li>
+                        @else
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $transaksis->url($page) }}">{{ $page }}</a>
+                            </li>
+                        @endif
+                    @endfor
+                    @if ($end < $transaksis->lastPage())
+                        @if ($end < $transaksis->lastPage() - 1)
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        @endif
+                        <li class="page-item">
+                            <a class="page-link"
+                                href="{{ $transaksis->url($transaksis->lastPage()) }}">{{ $transaksis->lastPage() }}</a>
+                        </li>
+                    @endif
+                    {{-- Tombol Berikutnya --}}
+                    @if ($transaksis->hasMorePages())
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $transaksis->nextPageUrl() }}" rel="next"
+                                aria-label="Berikutnya">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    @else
+                        <li class="page-item disabled" aria-disabled="true" aria-label="Berikutnya">
+                            <span class="page-link" aria-hidden="true">
+                                <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </li>
+                    @endif
+                </ul>
+            </nav>
+        </div>
+    @endif
+
+
     <!-- Modals -->
     <!-- Tambah Pemasukan Modal -->
     <div class="modal fade" id="tambahPemasukanModal" tabindex="-1" aria-hidden="true">
@@ -479,11 +509,11 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             let deleteId = null;
+
             // Inisialisasi instance modal di awal
             const tambahPemasukanModalEl = document.getElementById('tambahPemasukanModal');
             const tambahPengeluaranModalEl = document.getElementById('tambahPengeluaranModal');
             const editModalEl = document.getElementById('editModal');
-
             const tambahPemasukanModalInstance = new bootstrap.Modal(tambahPemasukanModalEl);
             const tambahPengeluaranModalInstance = new bootstrap.Modal(tambahPengeluaranModalEl);
             const editModalInstance = new bootstrap.Modal(editModalEl);
@@ -521,6 +551,12 @@
                     // Allow only numbers
                     this.value = this.value.replace(/[^\d]/g, '');
                 });
+            });
+
+            // Initialize Bootstrap Tooltips for actions
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            const tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
             });
 
             // Reset filter
@@ -825,7 +861,7 @@
                             backdrop: 'rgba(0,0,0,0.1)'
                         });
                     });
-            });
+            })
 
             // Delete button functionality
             document.querySelectorAll('.delete-btn').forEach(button => {
@@ -919,7 +955,6 @@
                     }
                 }
             });
-
             tambahPengeluaranModalEl.addEventListener('hidden.bs.modal', function() {
                 const form = this.querySelector('form');
                 if (form) {
@@ -931,7 +966,6 @@
                     }
                 }
             });
-
             editModalEl.addEventListener('hidden.bs.modal', function() {
                 const form = document.getElementById('formEdit');
                 if (form) {
