@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PengaturanProfilController;
 use App\Http\Controllers\ManajemenKeuanganController;
 use App\Http\Controllers\ManajemenLaporanController;
+use App\Http\Controllers\DashboardController; // Tambahkan import controller
 
 // Public routes
 Route::get('/', function () {
@@ -26,8 +27,13 @@ Route::prefix('admin')->group(function () {
 
     // Protected admin routes
     Route::middleware(['admin'])->group(function () {
-        Route::get('/dashboard', [AuthController::class, 'dashboard'])
+        // Dashboard routes - gunakan controller
+        Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('admins.dashboard');
+
+        // Route untuk chart data - PENTING: harus berada dalam middleware admin
+        Route::get('/dashboard/chart-data', [DashboardController::class, 'getChartData'])
+            ->name('admins.dashboard.chart-data');
 
         // Manajemen Keuangan Routes
         Route::prefix('manajemen-keuangan')->group(function () {

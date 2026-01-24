@@ -66,17 +66,4 @@ class AuthController extends Controller
         return redirect()->route('index')
             ->with('success', 'Anda telah berhasil logout.');
     }
-
-    /**
-     * Show dashboard
-     */
-    public function dashboard()
-    {
-        if (!Auth::check()) {
-            return redirect()->route('auth.login');
-        }
-        
-        $admin = Auth::user();
-        return view('admins.dashboard.index', compact('admin'));
-    }
 }
