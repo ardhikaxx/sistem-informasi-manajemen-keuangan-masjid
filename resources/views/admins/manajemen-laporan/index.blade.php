@@ -8,15 +8,23 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="glass-effect p-4">
-                <div
-                    class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                     <div>
                         <h5 class="fw-bold text-dark mb-1">Laporan Keuangan Masjid</h5>
                         <p class="text-muted mb-0">Lihat dan cetak laporan keuangan masjid</p>
                     </div>
-                    <button class="btn btn-outline-danger d-block">
-                        <i class="fas fa-file-pdf me-2"></i>Export PDF
-                    </button>
+                    <!-- Tombol Export PDF -->
+                    <form action="" method="POST" style="display: inline;">
+                        @csrf
+                        <input type="hidden" name="jenis_laporan" value="{{ old('jenis_laporan', $jenisLaporan) }}">
+                        <input type="hidden" name="bulan" value="{{ old('bulan', $bulan) }}">
+                        <input type="hidden" name="tahun" value="{{ old('tahun', $tahun) }}">
+                        <input type="hidden" name="start_date" value="{{ old('start_date', $startDate) }}">
+                        <input type="hidden" name="end_date" value="{{ old('end_date', $endDate) }}">
+                        <button type="submit" class="btn btn-outline-danger d-block">
+                            <i class="fas fa-file-pdf me-2"></i>Export PDF
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -26,53 +34,105 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="glass-effect p-4">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label">Jenis Laporan</label>
-                        <select id="jenisLaporan" class="form-select">
-                            <option value="bulanan">Laporan Bulanan</option>
-                            <option value="harian">Laporan Harian</option>
-                            <option value="mingguan">Laporan Mingguan</option>
-                            <option value="tahunan">Laporan Tahunan</option>
-                        </select>
+                <form method="GET" action="{{ route('admins.manajemen-laporan') }}" id="filterForm">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="jenis_laporan" class="form-label">Jenis Laporan</label>
+                            <select name="jenis_laporan" id="jenisLaporan" class="form-select">
+                                <option value="bulanan" {{ old('jenis_laporan', $jenisLaporan) == 'bulanan' ? 'selected' : '' }}>Laporan Bulanan</option>
+                                <option value="harian" {{ old('jenis_laporan', $jenisLaporan) == 'harian' ? 'selected' : '' }}>Laporan Harian</option>
+                                <option value="mingguan" {{ old('jenis_laporan', $jenisLaporan) == 'mingguan' ? 'selected' : '' }}>Laporan Mingguan</option>
+                                <option value="tahunan" {{ old('jenis_laporan', $jenisLaporan) == 'tahunan' ? 'selected' : '' }}>Laporan Tahunan</option>
+                                <option value="custom" {{ old('jenis_laporan', $jenisLaporan) == 'custom' ? 'selected' : '' }}>Periode Custom</option>
+                            </select>
+                        </div>
+                        <!-- Field Bulan: Ditampilkan jika jenis_laporan adalah bulanan atau custom -->
+                        <div class="col-md-4" id="bulanFilterGroup" style="{{ in_array(old('jenis_laporan', $jenisLaporan), ['harian', 'mingguan', 'tahunan']) ? 'display:none;' : '' }}">
+                            <label for="bulan" class="form-label">Bulan</label>
+                            <select name="bulan" id="filterBulan" class="form-select">
+                                <option value="">Pilih Bulan</option>
+                                <option value="01" {{ old('bulan', $bulan) == '01' ? 'selected' : '' }}>Januari</option>
+                                <option value="02" {{ old('bulan', $bulan) == '02' ? 'selected' : '' }}>Februari</option>
+                                <option value="03" {{ old('bulan', $bulan) == '03' ? 'selected' : '' }}>Maret</option>
+                                <option value="04" {{ old('bulan', $bulan) == '04' ? 'selected' : '' }}>April</option>
+                                <option value="05" {{ old('bulan', $bulan) == '05' ? 'selected' : '' }}>Mei</option>
+                                <option value="06" {{ old('bulan', $bulan) == '06' ? 'selected' : '' }}>Juni</option>
+                                <option value="07" {{ old('bulan', $bulan) == '07' ? 'selected' : '' }}>Juli</option>
+                                <option value="08" {{ old('bulan', $bulan) == '08' ? 'selected' : '' }}>Agustus</option>
+                                <option value="09" {{ old('bulan', $bulan) == '09' ? 'selected' : '' }}>September</option>
+                                <option value="10" {{ old('bulan', $bulan) == '10' ? 'selected' : '' }}>Oktober</option>
+                                <option value="11" {{ old('bulan', $bulan) == '11' ? 'selected' : '' }}>November</option>
+                                <option value="12" {{ old('bulan', $bulan) == '12' ? 'selected' : '' }}>Desember</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4" id="tahunFilterGroup">
+                            <label for="tahun" class="form-label">Tahun</label>
+                            <select name="tahun" id="filterTahun" class="form-select">
+                                <option value="">Pilih Tahun</option>
+                                @foreach($tahunList as $t)
+                                    <option value="{{ $t }}" {{ old('tahun', $tahun) == $t ? 'selected' : '' }}>{{ $t }}</option>
+                                @endforeach
+                                <!-- Opsi fallback jika tahun saat ini belum ada di database -->
+                                @php $currentYear = \Carbon\Carbon::now()->year; @endphp
+                                @if (!in_array($currentYear, $tahunList->toArray()))
+                                    <option value="{{ $currentYear }}" {{ old('tahun', $tahun) == $currentYear ? 'selected' : '' }}>{{ $currentYear }}</option>
+                                @endif
+                            </select>
+                        </div>
+                        <!-- Field Tanggal Custom: Ditampilkan jika jenis_laporan adalah custom -->
+                        <div class="col-md-4" id="customDateGroup" style="{{ old('jenis_laporan', $jenisLaporan) !== 'custom' ? 'display:none;' : '' }}">
+                            <label for="start_date" class="form-label">Tanggal Mulai</label>
+                            <input type="date" name="start_date" id="startDate" class="form-select" value="{{ old('start_date', $startDate) }}">
+                        </div>
+                        <div class="col-md-4" id="customEndDateGroup" style="{{ old('jenis_laporan', $jenisLaporan) !== 'custom' ? 'display:none;' : '' }}">
+                            <label for="end_date" class="form-label">Tanggal Akhir</label>
+                            <input type="date" name="end_date" id="endDate" class="form-select" value="{{ old('end_date', $endDate) }}">
+                        </div>
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Bulan</label>
-                        <select id="filterBulan" class="form-select">
-                            <option value="">Pilih Bulan</option>
-                            <option value="01">Januari</option>
-                            <option value="02">Februari</option>
-                            <option value="03">Maret</option>
-                            <option value="04">April</option>
-                            <option value="05">Mei</option>
-                            <option value="06">Juni</option>
-                            <option value="07">Juli</option>
-                            <option value="08">Agustus</option>
-                            <option value="09">September</option>
-                            <option value="10">Oktober</option>
-                            <option value="11">November</option>
-                            <option value="12">Desember</option>
-                        </select>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-2"></i>Terapkan Filter
+                        </button>
+                        <!-- Tombol Reset -->
+                        <a href="{{ route('admins.manajemen-laporan') }}" class="btn btn-secondary ms-2">
+                            <i class="fas fa-redo me-2"></i>Reset
+                        </a>
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Tahun</label>
-                        <select id="filterTahun" class="form-select">
-                            <option value="">Pilih Tahun</option>
-                            <option value="2024">2024</option>
-                            <option value="2023">2023</option>
-                            <option value="2022">2022</option>
-                            <option value="2021">2021</option>
-                        </select>
-                    </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
 
-    <!-- Report Preview -->
-    <div class="row fade-in-up mb-5" id="reportPreview">
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="glass-effect p-4 text-center">
+                <h6 class="text-muted mb-2">Total Pemasukan</h6>
+                <h4 class="text-success fw-bold">Rp {{ number_format($summary['total_pemasukan'], 0, ',', '.') }}</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-effect p-4 text-center">
+                <h6 class="text-muted mb-2">Total Pengeluaran</h6>
+                <h4 class="text-danger fw-bold">Rp {{ number_format($summary['total_pengeluaran'], 0, ',', '.') }}</h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-effect p-4 text-center">
+                <h6 class="text-muted mb-2">Saldo Akhir</h6>
+                <h4 class="text-primary fw-bold">Rp {{ number_format($summary['saldo_akhir_periode'], 0, ',', '.') }}</h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Table -->
+    <div class="row fade-in-up mb-5">
         <div class="col-12">
             <div class="glass-effect p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0">Detail Transaksi ({{ $periodeLabel }})</h6>
+                    <small class="text-muted">{{ $transaksis->total() }} transaksi ditemukan</small>
+                </div>
                 <div class="table-responsive">
                     <table class="table table-bordered" id="reportTable">
                         <thead class="table-light">
@@ -87,82 +147,151 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @for ($i = 1; $i <= 8; $i++)
-                                @php
-                                    $isIncome = $i % 3 != 0;
-                                    $amount = $isIncome ? rand(100000, 5000000) : rand(50000, 3000000);
-                                    $balance = 25450000 + ($isIncome ? $amount : -$amount);
-                                @endphp
+                            @forelse($transaksis as $index => $transaksi)
                                 <tr>
-                                    <td>{{ $i }}</td>
-                                    <td class="text-nowrap">{{ date('d/m/Y', strtotime("-$i days")) }}</td>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td class="text-nowrap">
+                                        {{ \Carbon\Carbon::parse($transaksi->tanggal)->format('d/m/Y') }}</td>
                                     <td>
-                                        <div class="fw-medium">
-                                            {{ $isIncome ? 'Donatur Rutin Bulanan' : 'Pembelian Perlengkapan' }}</div>
+                                        <div class="fw-medium">{{ $transaksi->uraian }}</div>
                                     </td>
                                     <td class="text-end">
-                                        @if ($isIncome)
-                                            <span class="text-success">Rp {{ number_format($amount, 0, ',', '.') }}</span>
+                                        @if ($transaksi->jenis_transaksi === 'pemasukan')
+                                            <span class="text-success">Rp {{ number_format($transaksi->jumlah, 0, ',', '.') }}</span>
                                         @else
                                             <span class="text-muted">-</span>
                                         @endif
                                     </td>
                                     <td class="text-end">
-                                        @if (!$isIncome)
-                                            <span class="text-warning">Rp {{ number_format($amount, 0, ',', '.') }}</span>
+                                        @if ($transaksi->jenis_transaksi === 'pengeluaran')
+                                            <span class="text-danger">Rp {{ number_format($transaksi->jumlah, 0, ',', '.') }}</span>
                                         @else
                                             <span class="text-muted">-</span>
                                         @endif
                                     </td>
                                     <td class="text-end fw-bold">
-                                        Rp {{ number_format($balance, 0, ',', '.') }}
+                                        Rp {{ number_format($transaksi->saldo_sesudah, 0, ',', '.') }}
                                     </td>
                                     <td>
-                                        <span
-                                            class="badge {{ $isIncome ? 'bg-success bg-opacity-10 text-success' : 'bg-warning bg-opacity-10 text-warning' }}">
-                                            {{ $isIncome ? 'Donasi' : 'Operasional' }}
+                                        <span class="badge 
+                                            {{ $transaksi->jenis_transaksi === 'pemasukan' ? 'bg-success bg-opacity-10 text-success' : 'bg-warning bg-opacity-10 text-danger' }}">
+                                            {{ $transaksi->keterangan }}
                                         </span>
                                     </td>
                                 </tr>
-                            @endfor
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="text-center py-4">
+                                        <div class="text-muted">
+                                            <i class="fas fa-inbox fa-2x mb-3"></i>
+                                            <p>Tidak ada transaksi ditemukan</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
                         </tbody>
+                        @if($transaksis->count() > 0)
                         <tfoot class="table-light">
                             <tr>
                                 <th colspan="3" class="text-end">TOTAL</th>
-                                <th class="text-end text-success">Rp 12.750.000</th>
-                                <th class="text-end text-warning">Rp 8.325.000</th>
-                                <th class="text-end text-primary">Rp 25.450.000</th>
+                                <th class="text-end text-success">Rp {{ number_format($summary['total_pemasukan'], 0, ',', '.') }}</th>
+                                <th class="text-end text-danger">Rp {{ number_format($summary['total_pengeluaran'], 0, ',', '.') }}</th>
+                                <th class="text-end text-primary">Rp {{ number_format($summary['saldo_akhir_periode'], 0, ',', '.') }}</th>
                                 <th></th>
                             </tr>
                         </tfoot>
+                        @endif
                     </table>
-                </div>
-                <!-- Pagination -->
-                <div class="d-flex justify-content-between align-items-center mt-4">
-                    <div class="text-muted small">
-                        Menampilkan 1 sampai 10 dari 25 transaksi
-                    </div>
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination pagination-sm mb-0">
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1">
-                                    <i class="fas fa-chevron-left"></i>
-                                </a>
-                            </li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">
-                                    <i class="fas fa-chevron-right"></i>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Pagination -->
+    @if ($transaksis->hasPages())
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center gap-3 mt-4">
+            <!-- Informasi Halaman -->
+            <div class="text-muted small text-center text-lg-start">
+                Menampilkan {{ $transaksis->firstItem() ?? 0 }} sampai {{ $transaksis->lastItem() ?? 0 }} dari
+                {{ $transaksis->total() }} transaksi
+            </div>
+            <!-- Link Paginasi -->
+            <nav aria-label="Navigasi halaman laporan keuangan">
+                <ul class="pagination custom-pagination mb-0">
+                    {{-- Tombol Sebelumnya --}}
+                    @if ($transaksis->onFirstPage())
+                        <li class="page-item disabled" aria-disabled="true" aria-label="Sebelumnya">
+                            <span class="page-link" aria-hidden="true">
+                                <i class="fas fa-chevron-left"></i>
+                            </span>
+                        </li>
+                    @else
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $transaksis->previousPageUrl() }}" rel="prev"
+                                aria-label="Sebelumnya">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    @endif
+                    {{-- Link Halaman --}}
+                    @php
+                        $start = max($transaksis->currentPage() - 1, 1);
+                        $end = min($transaksis->currentPage() + 1, $transaksis->lastPage());
+                        if ($start == 1) {
+                            $end = min(3, $transaksis->lastPage());
+                        }
+                        if ($end == $transaksis->lastPage()) {
+                            $start = max($end - 2, 1);
+                        }
+                    @endphp
+                    @if ($start > 1)
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $transaksis->url(1) }}">1</a>
+                        </li>
+                        @if ($start > 2)
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        @endif
+                    @endif
+                    @for ($page = $start; $page <= $end; $page++)
+                        @if ($page == $transaksis->currentPage())
+                            <li class="page-item active" aria-current="page">
+                                <span class="page-link">{{ $page }}</span>
+                            </li>
+                        @else
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $transaksis->url($page) }}">{{ $page }}</a>
+                            </li>
+                        @endif
+                    @endfor
+                    @if ($end < $transaksis->lastPage())
+                        @if ($end < $transaksis->lastPage() - 1)
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        @endif
+                        <li class="page-item">
+                            <a class="page-link"
+                                href="{{ $transaksis->url($transaksis->lastPage()) }}">{{ $transaksis->lastPage() }}</a>
+                        </li>
+                    @endif
+                    {{-- Tombol Berikutnya --}}
+                    @if ($transaksis->hasMorePages())
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $transaksis->nextPageUrl() }}" rel="next"
+                                aria-label="Berikutnya">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    @else
+                        <li class="page-item disabled" aria-disabled="true" aria-label="Berikutnya">
+                            <span class="page-link" aria-hidden="true">
+                                <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </li>
+                    @endif
+                </ul>
+            </nav>
+        </div>
+    @endif
+
 @endsection
 
 @push('styles')
@@ -203,76 +332,39 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize date inputs
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('startDate').value = today;
-            document.getElementById('endDate').value = today;
+            const jenisLaporanSelect = document.getElementById('jenisLaporan');
+            const bulanGroup = document.getElementById('bulanFilterGroup');
+            const tahunGroup = document.getElementById('tahunFilterGroup');
+            const customDateGroup = document.getElementById('customDateGroup');
+            const customEndDateGroup = document.getElementById('customEndDateGroup');
 
-            // Set current year and month in filters
-            const currentDate = new Date();
-            document.getElementById('filterBulan').value = (currentDate.getMonth() + 1).toString().padStart(2, '0');
-            document.getElementById('filterTahun').value = currentDate.getFullYear().toString();
+            // Function to show/hide fields based on report type
+            function toggleFilterFields() {
+                const selectedType = jenisLaporanSelect.value;
 
-            // Update report period text
-            updateReportPeriodText();
-
-            // Chart functionality
-            const months = ['Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt'];
-            const incomeData = [9500000, 11000000, 12500000, 10500000, 12750000, 13250000];
-            const expenseData = [6200000, 7500000, 8200000, 7800000, 8325000, 8450000];
-
-            // Get colors from CSS variables
-            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color')
-                .trim();
-            const successColor = getComputedStyle(document.documentElement).getPropertyValue('--success-color')
-                .trim();
-            const warningColor = getComputedStyle(document.documentElement).getPropertyValue('--warning-color')
-                .trim();
-
-            filterButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    filterButtons.forEach(btn => btn.classList.remove('active'));
-                    this.classList.add('active');
-                    filterReportTable();
-                });
-            });
-
-            // Update report period text
-            function updateReportPeriodText() {
-                const jenis = document.getElementById('jenisLaporan').value;
-                const bulan = document.getElementById('filterBulan');
-                const tahun = document.getElementById('filterTahun');
-                const startDate = document.getElementById('startDate');
-                const endDate = document.getElementById('endDate');
-
-                let periodText = '';
-
-                if (jenis === 'custom') {
-                    if (startDate.value && endDate.value) {
-                        const start = new Date(startDate.value);
-                        const end = new Date(endDate.value);
-                        periodText = `Periode: ${formatDate(start)} - ${formatDate(end)}`;
-                    }
-                } else if (bulan.value && tahun.value) {
-                    const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-                        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-                    ];
-                    periodText = `Periode: ${monthNames[parseInt(bulan.value) - 1]} ${tahun.value}`;
-                } else {
-                    periodText =
-                        `Periode: ${new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}`;
+                if (selectedType === 'custom') {
+                    bulanGroup.style.display = 'none';
+                    tahunGroup.style.display = 'block';
+                    customDateGroup.style.display = 'block';
+                    customEndDateGroup.style.display = 'block';
+                } else if (selectedType === 'tahunan') {
+                    bulanGroup.style.display = 'none';
+                    tahunGroup.style.display = 'block';
+                    customDateGroup.style.display = 'none';
+                    customEndDateGroup.style.display = 'none';
+                } else { // harian, mingguan, bulanan
+                    bulanGroup.style.display = 'block';
+                    tahunGroup.style.display = 'block';
+                    customDateGroup.style.display = 'none';
+                    customEndDateGroup.style.display = 'none';
                 }
-
-                document.getElementById('reportPeriodText').textContent = periodText;
             }
 
-            function formatDate(date) {
-                return date.toLocaleDateString('id-ID', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric'
-                });
-            }
+            // Initial call on page load
+            toggleFilterFields();
+
+            // Add change listener to select
+            jenisLaporanSelect.addEventListener('change', toggleFilterFields);
 
             // Add animation
             const observerOptions = {
@@ -295,6 +387,18 @@
                 el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
                 observer.observe(el);
             });
+
+            // Set today's date as default for custom filter if empty
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            const today = new Date().toISOString().split('T')[0];
+
+            if (!startDateInput.value) {
+                startDateInput.value = today;
+            }
+            if (!endDateInput.value) {
+                endDateInput.value = today;
+            }
         });
     </script>
 @endpush

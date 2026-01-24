@@ -92,18 +92,19 @@ class ManajemenKeuanganController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+    // app/Http/Controllers/ManajemenKeuanganController.php
+
     public function store(Request $request)
     {
-        DB::beginTransaction(); // Mulai transaksi database
+        DB::beginTransaction();
         try {
-            // Validasi input - tambahkan aliran
             $validator = Validator::make($request->all(), [
                 'tanggal' => 'required|date',
                 'uraian' => 'required|string|max:255',
                 'jenis_transaksi' => 'required|in:pemasukan,pengeluaran',
                 'jumlah' => 'required|numeric|min:1',
                 'keterangan' => 'nullable|string',
-                'aliran' => 'required|in:Aktivitas Operasi,Aktivitas Investasi,Aktivitas Pendanaan,Aktivitas Pendanaan Lain' // Validasi enum
+                'aliran' => 'required|in:Aktivitas Operasi,Aktivitas Investasi,Aktivitas Pendanaan,Aktivitas Pendanaan Lain'
             ]);
 
             if ($validator->fails()) {
@@ -114,43 +115,21 @@ class ManajemenKeuanganController extends Controller
                 ], 422);
             }
 
-            // Format jumlah sebagai decimal
             $jumlah = $request->jumlah;
             if (is_string($jumlah)) {
                 $jumlah = (float) str_replace(['.', ','], ['', '.'], $jumlah);
             }
 
-            // Hitung saldo sebelumnya
-            $lastTransaction = Transaksi::orderBy('tanggal', 'desc')
-                ->orderBy('id', 'desc')
-                ->first();
-            $saldoSebelum = $lastTransaction ? $lastTransaction->saldo_sesudah : 0;
-
-            // Hitung saldo sesudah
-            if ($request->jenis_transaksi == 'pemasukan') {
-                $saldoSesudah = $saldoSebelum + $jumlah;
-            } else {
-                $saldoSesudah = $saldoSebelum - $jumlah;
-            }
-
-            // Buat transaksi baru
             $transaksi = new Transaksi();
             $transaksi->tanggal = $request->tanggal;
             $transaksi->uraian = $request->uraian;
             $transaksi->jenis_transaksi = $request->jenis_transaksi;
             $transaksi->jumlah = $jumlah;
             $transaksi->keterangan = $request->keterangan;
-            $transaksi->aliran = $request->aliran; // Simpan aliran
-            $transaksi->saldo_sebelum = $saldoSebelum;
-            $transaksi->saldo_sesudah = $saldoSesudah;
-
-            // Simpan transaksi
+            $transaksi->aliran = $request->aliran;
             $transaksi->save();
 
-            DB::commit(); // Commit transaksi database
-
-            // Log keberhasilan jika diperlukan
-            Log::info("Transaksi berhasil disimpan: ID {$transaksi->id}");
+            DB::commit();
 
             return response()->json([
                 'success' => true,
@@ -159,21 +138,25 @@ class ManajemenKeuanganController extends Controller
                     'id' => $transaksi->id,
                     'uraian' => $transaksi->uraian,
                     'jumlah' => $transaksi->jumlah,
-                    'aliran' => $transaksi->aliran, // Tambahkan ke response jika perlu
+                    'aliran' => $transaksi->aliran,
                     'saldo_sesudah' => $transaksi->saldo_sesudah
                 ]
             ], 200);
 
-        } catch (\Throwable $e) { // Tangkap Throwable untuk menangani Exception & Error fatal
-            DB::rollback(); // Rollback transaksi database jika terjadi error
-            // Log error ke file log Laravel secara rinci
-            Log::error('Error menyimpan transaksi di ManajemenKeuanganController@store: ' . $e->getMessage() . "\nTrace:\n" . $e->getTraceAsString());
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::error('Error menyimpan transaksi: ' . $e->getMessage());
+            if (str_contains($e->getMessage(), 'Saldo tidak mencukupi')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal menyimpan transaksi: ' . $e->getMessage()
+                ], 422);
+            }
 
-            // Kirim response error umum ke client tanpa informasi sensitif
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan saat menyimpan transaksi. Silakan coba lagi nanti.'
-            ], 500); // Gunakan HTTP status 500 untuk server error
+                'message' => 'Terjadi kesalahan saat menyimpan transaksi.'
+            ], 500);
         }
     }
 
@@ -213,7 +196,6 @@ class ManajemenKeuanganController extends Controller
         try {
             $transaksi = Transaksi::findOrFail($id);
 
-            // Validasi input - tambahkan aliran
             $validator = Validator::make($request->all(), [
                 'tanggal' => 'required|date',
                 'uraian' => 'required|string|max:255',
@@ -231,27 +213,17 @@ class ManajemenKeuanganController extends Controller
                 ], 422);
             }
 
-            // Format jumlah sebagai decimal
             $jumlah = $request->jumlah;
             if (is_string($jumlah)) {
                 $jumlah = (float) str_replace(['.', ','], ['', '.'], $jumlah);
             }
 
-            // Simpan data lama untuk perbandingan
-            $oldData = $transaksi->toArray();
-
-            // Update data transaksi
             $transaksi->tanggal = $request->tanggal;
             $transaksi->uraian = $request->uraian;
             $transaksi->jenis_transaksi = $request->jenis_transaksi;
             $transaksi->jumlah = $jumlah;
             $transaksi->keterangan = $request->keterangan;
-            $transaksi->aliran = $request->aliran; // Update aliran
-
-            // Hitung ulang saldo
-            $this->recalculateSaldoFromTransaction($transaksi);
-
-            // Simpan perubahan
+            $transaksi->aliran = $request->aliran;
             $transaksi->save();
 
             DB::commit();
@@ -261,12 +233,20 @@ class ManajemenKeuanganController extends Controller
                 'message' => 'Transaksi berhasil diperbarui!',
                 'data' => $transaksi
             ]);
-        } catch (\Throwable $e) {
+        } catch (\Exception $e) {
             DB::rollback();
-            Log::error('Error memperbarui transaksi di ManajemenKeuanganController@update: ' . $e->getMessage() . "\nTrace:\n" . $e->getTraceAsString());
+            Log::error('Error memperbarui transaksi: ' . $e->getMessage());
+
+            if (str_contains($e->getMessage(), 'Saldo tidak mencukupi')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal memperbarui transaksi: ' . $e->getMessage()
+                ], 422);
+            }
+
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memperbarui transaksi. Silakan coba lagi nanti.'
+                'message' => 'Gagal memperbarui transaksi.'
             ], 500);
         }
     }
