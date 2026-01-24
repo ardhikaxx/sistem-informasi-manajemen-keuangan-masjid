@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PengaturanProfilController;
+use App\Http\Controllers\ManajemenKeuanganController;
 
 // Public routes
 Route::get('/', function () {
@@ -27,9 +28,26 @@ Route::prefix('admin')->group(function () {
         Route::get('/dashboard', [AuthController::class, 'dashboard'])
             ->name('admins.dashboard');
 
-        Route::get('/manajemen-keuangan', function () {
-            return view('admins.manajemen-keuangan.index');
-        })->name('admins.manajemen-keuangan');
+        // Manajemen Keuangan Routes
+        Route::prefix('manajemen-keuangan')->group(function () {
+            Route::get('/', [ManajemenKeuanganController::class, 'index'])
+                ->name('admins.manajemen-keuangan');
+            
+            Route::post('/store', [ManajemenKeuanganController::class, 'store'])
+                ->name('admins.manajemen-keuangan.store');
+            
+            Route::get('/edit/{id}', [ManajemenKeuanganController::class, 'edit'])
+                ->name('admins.manajemen-keuangan.edit');
+            
+            Route::put('/update/{id}', [ManajemenKeuanganController::class, 'update'])
+                ->name('admins.manajemen-keuangan.update');
+            
+            Route::delete('/delete/{id}', [ManajemenKeuanganController::class, 'destroy'])
+                ->name('admins.manajemen-keuangan.delete');
+            
+            Route::get('/statistics', [ManajemenKeuanganController::class, 'getStatistics'])
+                ->name('admins.manajemen-keuangan.statistics');
+        });
 
         Route::get('/manajemen-laporan', function () {
             return view('admins.manajemen-laporan.index');

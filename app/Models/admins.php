@@ -23,7 +23,6 @@ class Admins extends Authenticatable
         'remember_token',
     ];
 
-    // TAMBAHKAN INI untuk menangani remember_token
     public function getRememberToken()
     {
         return $this->remember_token;
