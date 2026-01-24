@@ -1682,7 +1682,8 @@
             .shape:nth-child(3),
             .shape:nth-child(4),
             .shape:nth-child(5) {
-                display: none; /* Hide some shapes on mobile for better performance */
+                display: none;
+                /* Hide some shapes on mobile for better performance */
             }
         }
 
@@ -1915,20 +1916,20 @@
 
                 <div class="total-balance">
                     <h4>Saldo Saat Ini</h4>
-                    <div class="amount">Rp 125.450.750</div>
-                    <div class="subtext mt-2">Terakhir diperbarui: {{ date('d F Y') }}</div>
+                    <div class="amount">Rp {{ number_format($saldoSaatIni, 0, ',', '.') }}</div>
+                    <div class="subtext mt-2">Terakhir diperbarui: {{ $tanggalUpdate }}</div>
                 </div>
 
                 <div class="financial-details">
                     <div class="financial-card income">
                         <div class="label">Total Pemasukan</div>
-                        <div class="value income">Rp 189.250.500</div>
+                        <div class="value income">Rp {{ number_format($totalPemasukanTahunIni, 0, ',', '.') }}</div>
                         <div class="subtext">Tahun {{ date('Y') }}</div>
                     </div>
 
                     <div class="financial-card expense">
                         <div class="label">Total Pengeluaran</div>
-                        <div class="value expense">Rp 63.799.750</div>
+                        <div class="value expense">Rp {{ number_format($totalPengeluaranTahunIni, 0, ',', '.') }}</div>
                         <div class="subtext">Tahun {{ date('Y') }}</div>
                     </div>
                 </div>
@@ -1946,8 +1947,10 @@
                     </div>
                     <h3 class="card-title">Sejarah Masjid</h3>
                     <p class="card-content">
-                        Masjid Jami' Al-Muttaqiin didirikan pada tahun 1985 sebagai pusat ibadah dan aktivitas keislaman di wilayah Jember. 
-                        Sejak berdiri, masjid ini telah menjadi simbol persatuan umat dan pusat pembangunan karakter masyarakat muslim.
+                        Masjid Jami' Al-Muttaqiin didirikan pada tahun 1985 sebagai pusat ibadah dan aktivitas keislaman
+                        di wilayah Jember.
+                        Sejak berdiri, masjid ini telah menjadi simbol persatuan umat dan pusat pembangunan karakter
+                        masyarakat muslim.
                     </p>
                     <div class="card-highlight">
                         <i class="fas fa-calendar-alt"></i>
@@ -1961,8 +1964,10 @@
                     </div>
                     <h3 class="card-title">Fasilitas & Kegiatan</h3>
                     <p class="card-content">
-                        Masjid ini dilengkapi dengan berbagai fasilitas modern termasuk tempat wudhu yang nyaman, ruang perkantoran, 
-                        perpustakaan islami, dan aula serbaguna. Setiap harinya diadakan berbagai kegiatan keagamaan dan sosial.
+                        Masjid ini dilengkapi dengan berbagai fasilitas modern termasuk tempat wudhu yang nyaman, ruang
+                        perkantoran,
+                        perpustakaan islami, dan aula serbaguna. Setiap harinya diadakan berbagai kegiatan keagamaan dan
+                        sosial.
                     </p>
                     <div class="card-highlight">
                         <i class="fas fa-check-circle"></i>
@@ -1976,8 +1981,10 @@
                     </div>
                     <h3 class="card-title">Program & Layanan</h3>
                     <p class="card-content">
-                        Masjid menyelenggarakan berbagai program termasuk TPA, pengajian rutin, bantuan sosial, pembinaan remaja masjid, 
-                        dan layanan konsultasi keagamaan. Kami juga aktif dalam kegiatan kemasyarakatan dan pembangunan umat.
+                        Masjid menyelenggarakan berbagai program termasuk TPA, pengajian rutin, bantuan sosial,
+                        pembinaan remaja masjid,
+                        dan layanan konsultasi keagamaan. Kami juga aktif dalam kegiatan kemasyarakatan dan pembangunan
+                        umat.
                     </p>
                     <div class="card-highlight">
                         <i class="fas fa-star"></i>
@@ -1989,7 +1996,8 @@
             <div class="history-section slide-up" style="animation-delay: 0.6s">
                 <h3 class="history-title"><i class="fas fa-mosque"></i> Visi & Misi Masjid</h3>
                 <div class="history-content">
-                    <p><strong>Visi:</strong> Menjadi masjid yang mandiri, modern, dan menjadi pusat peradaban Islam yang berkontribusi positif bagi pembangunan umat dan bangsa.</p>
+                    <p><strong>Visi:</strong> Menjadi masjid yang mandiri, modern, dan menjadi pusat peradaban Islam
+                        yang berkontribusi positif bagi pembangunan umat dan bangsa.</p>
                     <p><strong>Misi:</strong></p>
                     <ul>
                         <li>Menyelenggarakan ibadah yang khusyuk dan bermakna</li>
@@ -2162,16 +2170,19 @@
 
         // Update totals with animation
         document.addEventListener('DOMContentLoaded', function() {
+            const saldoSaatIni = {{ $saldoSaatIni ?? 0 }};
+            const totalPemasukanTahunIni = {{ $totalPemasukanTahunIni ?? 0 }};
+            const totalPengeluaranTahunIni = {{ $totalPengeluaranTahunIni ?? 0 }};
+            const tanggalUpdate = "{{ $tanggalUpdate ?? date('d F Y') }}";
             const balanceElement = document.querySelector('.total-balance .amount');
             const incomeElement = document.querySelector('.financial-card.income .value');
             const expenseElement = document.querySelector('.financial-card.expense .value');
+            const dateElement = document.querySelector('.total-balance .subtext');
 
-            // These values should come from your backend
-            const totals = {
-                balance: 125450750,
-                income: 189250500,
-                expense: 63799750
-            };
+            if (balanceElement) balanceElement.textContent = formatCurrency(saldoSaatIni);
+            if (incomeElement) incomeElement.textContent = formatCurrency(totalPemasukanTahunIni);
+            if (expenseElement) expenseElement.textContent = formatCurrency(totalPengeluaranTahunIni);
+            if (dateElement) dateElement.textContent = `Terakhir diperbarui: ${tanggalUpdate}`;
 
             // Animate numbers (optional - can be removed if not needed)
             [balanceElement, incomeElement, expenseElement].forEach((el, index) => {
@@ -2202,7 +2213,7 @@
         function handleResponsiveAdjustments() {
             const isMobile = window.innerWidth <= 767;
             const financialDetails = document.querySelector('.financial-details');
-            
+
             if (isMobile) {
                 // Adjust layout for mobile
                 if (financialDetails) {

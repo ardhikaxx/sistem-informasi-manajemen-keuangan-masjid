@@ -10,11 +10,19 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Statistik dasar
+        // Ambil transaksi terakhir untuk saldo saat ini
+        $transaksiAkhir = Transaksi::latest('tanggal')->latest('id')->first();
+
+        if ($transaksiAkhir) {
+            $saldoSaatIni = $transaksiAkhir->saldo_sesudah;
+        } else {
+            $saldoSaatIni = 0;
+        }
+
+        // Hitung total keseluruhan untuk statistik
         $totalPemasukan = Transaksi::pemasukan()->sum('jumlah');
         $totalPengeluaran = Transaksi::pengeluaran()->sum('jumlah');
-        $saldoSaatIni = $totalPemasukan - $totalPengeluaran;
-        
+
         // Hitung perubahan bulan lalu vs sekarang
         $pemasukanBulanIni = Transaksi::pemasukan()->bulanIni()->sum('jumlah');
         $pemasukanBulanLalu = Transaksi::pemasukan()
@@ -23,8 +31,8 @@ class DashboardController extends Controller
                 Carbon::now()->subMonth()->endOfMonth()
             ])
             ->sum('jumlah');
-        $perubahanPemasukan = $pemasukanBulanLalu > 0 
-            ? (($pemasukanBulanIni - $pemasukanBulanLalu) / $pemasukanBulanLalu) * 100 
+        $perubahanPemasukan = $pemasukanBulanLalu > 0
+            ? (($pemasukanBulanIni - $pemasukanBulanLalu) / $pemasukanBulanLalu) * 100
             : 100;
 
         $pengeluaranBulanIni = Transaksi::pengeluaran()->bulanIni()->sum('jumlah');
@@ -34,8 +42,8 @@ class DashboardController extends Controller
                 Carbon::now()->subMonth()->endOfMonth()
             ])
             ->sum('jumlah');
-        $perubahanPengeluaran = $pengeluaranBulanLalu > 0 
-            ? (($pengeluaranBulanIni - $pengeluaranBulanLalu) / $pengeluaranBulanLalu) * 100 
+        $perubahanPengeluaran = $pengeluaranBulanLalu > 0
+            ? (($pengeluaranBulanIni - $pengeluaranBulanLalu) / $pengeluaranBulanLalu) * 100
             : 100;
 
         // Data untuk grafik (6 bulan terakhir)
@@ -46,7 +54,7 @@ class DashboardController extends Controller
         $totalPengeluaranGrafik = array_sum(array_column($dataGrafik, 'pengeluaran'));
 
         return view('admins.dashboard.index', [
-            'saldoSaatIni' => $saldoSaatIni,
+            'saldoSaatIni' => $saldoSaatIni, // Gunakan saldo dari transaksi terakhir
             'totalPemasukan' => $totalPemasukan,
             'totalPengeluaran' => $totalPengeluaran,
             'perubahanPemasukan' => abs($perubahanPemasukan),
@@ -61,8 +69,8 @@ class DashboardController extends Controller
 
     public function getChartData(Request $request)
     {
-        $periode = $request->input('periode', 6); // default 6 bulan
-        
+        $periode = $request->input('periode', 6);
+
         $dataGrafik = $this->getDataGrafik($periode);
 
         return response()->json([
@@ -93,22 +101,22 @@ class DashboardController extends Controller
             $bulan = Carbon::now()->subMonths($i);
             $awalBulan = $bulan->copy()->startOfMonth();
             $akhirBulan = $bulan->copy()->endOfMonth();
-            
+
             $pemasukan = Transaksi::pemasukan()
                 ->whereBetween('tanggal', [$awalBulan, $akhirBulan])
                 ->sum('jumlah');
-                
+
             $pengeluaran = Transaksi::pengeluaran()
                 ->whereBetween('tanggal', [$awalBulan, $akhirBulan])
                 ->sum('jumlah');
-                
+
             $dataGrafik[] = [
                 'label' => $bulan->isoFormat('MMM YYYY'),
                 'pemasukan' => (int)$pemasukan,
                 'pengeluaran' => (int)$pengeluaran
             ];
         }
-        
+
         return $dataGrafik;
     }
 }

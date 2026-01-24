@@ -1,16 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UmumController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PengaturanProfilController;
 use App\Http\Controllers\ManajemenKeuanganController;
 use App\Http\Controllers\ManajemenLaporanController;
-use App\Http\Controllers\DashboardController; // Tambahkan import controller
+use App\Http\Controllers\DashboardController;
 
 // Public routes
-Route::get('/', function () {
-    return view('index');
-})->name('index');
+Route::get('/', [UmumController::class, 'index'])->name('index');
 
 // Admin authentication routes
 Route::prefix('admin')->group(function () {
