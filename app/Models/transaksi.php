@@ -19,6 +19,7 @@ class Transaksi extends Model
         'jumlah',
         'saldo_sebelum',
         'saldo_sesudah',
+        'aliran', 
         'keterangan',
     ];
 
