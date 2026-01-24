@@ -19,7 +19,7 @@ class Transaksi extends Model
         'jumlah',
         'saldo_sebelum',
         'saldo_sesudah',
-        'aliran', 
+        'aliran',
         'keterangan',
     ];
 
@@ -97,15 +97,15 @@ class Transaksi extends Model
     // Methods
     public function hitungSaldo()
     {
-        // Ambil transaksi sebelum tanggal ini
-        $query = self::where('tanggal', '<=', $this->tanggal)
+        $query = self::where(function ($q) {
+            $q->where('tanggal', '<', $this->tanggal)
+                ->orWhere(function ($subQuery) {
+                    $subQuery->where('tanggal', '=', $this->tanggal)
+                        ->where('id', '<', $this->id ?: 0);
+                });
+        })
             ->orderBy('tanggal', 'desc')
             ->orderBy('id', 'desc');
-
-        // Jika transaksi sudah ada (update), exclude transaksi ini
-        if ($this->id) {
-            $query->where('id', '<', $this->id);
-        }
 
         $transaksiTerakhir = $query->first();
 
@@ -118,17 +118,25 @@ class Transaksi extends Model
         }
     }
 
-    // Events
+    public function validateSaldoBeforeSave()
+    {
+        if ($this->jenis_transaksi === 'pengeluaran' && $this->saldo_sebelum < $this->jumlah) {
+            throw new \Exception('Saldo tidak mencukupi untuk pengeluaran ini.');
+        }
+    }
+
     protected static function boot()
     {
         parent::boot();
 
         static::creating(function ($transaksi) {
             $transaksi->hitungSaldo();
+            $transaksi->validateSaldoBeforeSave();
         });
 
         static::updating(function ($transaksi) {
             $transaksi->hitungSaldo();
+            $transaksi->validateSaldoBeforeSave();
         });
 
         static::created(function ($transaksi) {

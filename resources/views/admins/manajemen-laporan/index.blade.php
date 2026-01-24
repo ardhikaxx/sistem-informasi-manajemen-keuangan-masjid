@@ -109,7 +109,7 @@
                                     </td>
                                     <td class="text-end">
                                         @if (!$isIncome)
-                                            <span class="text-warning">Rp {{ number_format($amount, 0, ',', '.') }}</span>
+                                            <span class="text-danger">Rp {{ number_format($amount, 0, ',', '.') }}</span>
                                         @else
                                             <span class="text-muted">-</span>
                                         @endif
@@ -119,7 +119,7 @@
                                     </td>
                                     <td>
                                         <span
-                                            class="badge {{ $isIncome ? 'bg-success bg-opacity-10 text-success' : 'bg-warning bg-opacity-10 text-warning' }}">
+                                            class="badge {{ $isIncome ? 'bg-success bg-opacity-10 text-success' : 'bg-warning bg-opacity-10 text-danger' }}">
                                             {{ $isIncome ? 'Donasi' : 'Operasional' }}
                                         </span>
                                     </td>
@@ -130,7 +130,7 @@
                             <tr>
                                 <th colspan="3" class="text-end">TOTAL</th>
                                 <th class="text-end text-success">Rp 12.750.000</th>
-                                <th class="text-end text-warning">Rp 8.325.000</th>
+                                <th class="text-end text-danger">Rp 8.325.000</th>
                                 <th class="text-end text-primary">Rp 25.450.000</th>
                                 <th></th>
                             </tr>
