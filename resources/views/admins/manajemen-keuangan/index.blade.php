@@ -88,7 +88,7 @@
         <div class="col-md-4">
             <div class="glass-effect p-4 text-center">
                 <h6 class="text-muted mb-2">Total Pengeluaran</h6>
-                <h4 class="text-warning fw-bold">Rp {{ number_format($summary['total_pengeluaran'], 0, ',', '.') }}</h4>
+                <h4 class="text-danger fw-bold">Rp {{ number_format($summary['total_pengeluaran'], 0, ',', '.') }}</h4>
             </div>
         </div>
         <div class="col-md-4">
@@ -112,6 +112,7 @@
                                 <th class="fw-semibold text-dark text-end">Pemasukan</th>
                                 <th class="fw-semibold text-dark text-end">Pengeluaran</th>
                                 <th class="fw-semibold text-dark text-end">Saldo</th>
+                                <th class="fw-semibold text-dark">Aliran Kas</th> <!-- Kolom Aliran Ditambahkan -->
                                 <th class="fw-semibold text-dark">Keterangan</th>
                                 <th class="fw-semibold text-dark">Aksi</th> <!-- Kolom Aksi Ditambahkan -->
                             </tr>
@@ -129,7 +130,6 @@
                                     $isIncome = $transaksi->jenis_transaksi === 'pemasukan';
                                     $amount = $transaksi->jumlah;
                                     $currentBalance = $isIncome ? $currentBalance + $amount : $currentBalance - $amount;
-
                                     if ($isIncome) {
                                         $totalPemasukan += $amount;
                                     } else {
@@ -152,7 +152,7 @@
                                     </td>
                                     <td class="text-end">
                                         @if (!$isIncome)
-                                            <span class="text-warning">Rp {{ number_format($amount, 0, ',', '.') }}</span>
+                                            <span class="text-danger">Rp {{ number_format($amount, 0, ',', '.') }}</span>
                                         @else
                                             <span class="text-muted">-</span>
                                         @endif
@@ -161,9 +161,14 @@
                                         Rp {{ number_format($currentBalance, 0, ',', '.') }}
                                     </td>
                                     <td>
+                                        <span class="fw-medium">
+                                            {{ $transaksi->aliran ?: '-' }}
+                                        </span>
+                                    </td>
+                                    <td>
                                         <span
-                                            class="badge {{ $isIncome ? 'bg-success bg-opacity-10 text-success' : 'bg-warning bg-opacity-10 text-warning' }}">
-                                            {{ $transaksi->keterangan ?: ($isIncome ? 'Donasi' : 'Operasional') }}
+                                            class="badge bg-success bg-opacity-10 text-success">
+                                            {{ $transaksi->keterangan }}
                                         </span>
                                     </td>
                                     <td> <!-- Kolom Aksi -->
@@ -182,7 +187,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="text-center py-4">
+                                    <td colspan="9" class="text-center py-4">
                                         <!-- Colspan disesuaikan dengan jumlah kolom -->
                                         <div class="text-muted">
                                             <i class="fas fa-inbox fa-2x mb-3"></i>
@@ -197,11 +202,12 @@
                                 <th colspan="3" class="text-end">TOTAL</th>
                                 <th class="text-end text-success">Rp {{ number_format($totalPemasukan, 0, ',', '.') }}
                                 </th>
-                                <th class="text-end text-warning">Rp {{ number_format($totalPengeluaran, 0, ',', '.') }}
+                                <th class="text-end text-danger">Rp {{ number_format($totalPengeluaran, 0, ',', '.') }}
                                 </th>
                                 <th class="text-end text-primary">Rp {{ number_format($currentBalance, 0, ',', '.') }}
                                 </th>
-                                <th></th>
+                                <th></th> <!-- Kolom untuk Aliran di footer -->
+                                <th></th> <!-- Kolom untuk Keterangan di footer -->
                                 <th></th> <!-- Kolom untuk Aksi di footer -->
                             </tr>
                         </tfoot>
@@ -211,8 +217,7 @@
         </div>
     </div>
     <!-- END NEW REPORT Table -->
-
-    <!-- Pagination (ID diubah agar tidak bentrok dengan tabel lama) -->
+    <!-- Pagination -->
     @if ($transaksis->hasPages())
         <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center gap-3 mt-4">
             <!-- Informasi Halaman -->
@@ -238,6 +243,7 @@
                             </a>
                         </li>
                     @endif
+
                     {{-- Link Halaman --}}
                     @php
                         $start = max($transaksis->currentPage() - 1, 1);
@@ -249,6 +255,7 @@
                             $start = max($end - 2, 1);
                         }
                     @endphp
+
                     @if ($start > 1)
                         <li class="page-item">
                             <a class="page-link" href="{{ $transaksis->url(1) }}">1</a>
@@ -257,6 +264,7 @@
                             <li class="page-item disabled"><span class="page-link">...</span></li>
                         @endif
                     @endif
+
                     @for ($page = $start; $page <= $end; $page++)
                         @if ($page == $transaksis->currentPage())
                             <li class="page-item active" aria-current="page">
@@ -268,6 +276,7 @@
                             </li>
                         @endif
                     @endfor
+
                     @if ($end < $transaksis->lastPage())
                         @if ($end < $transaksis->lastPage() - 1)
                             <li class="page-item disabled"><span class="page-link">...</span></li>
@@ -277,6 +286,7 @@
                                 href="{{ $transaksis->url($transaksis->lastPage()) }}">{{ $transaksis->lastPage() }}</a>
                         </li>
                     @endif
+
                     {{-- Tombol Berikutnya --}}
                     @if ($transaksis->hasMorePages())
                         <li class="page-item">
@@ -296,8 +306,6 @@
             </nav>
         </div>
     @endif
-
-
     <!-- Modals -->
     <!-- Tambah Pemasukan Modal -->
     <div class="modal fade" id="tambahPemasukanModal" tabindex="-1" aria-hidden="true">
@@ -328,6 +336,18 @@
                             <input type="text" class="form-control currency-input" id="jumlahPemasukan"
                                 name="jumlah" placeholder="0" required>
                         </div>
+                        <!-- Tambahkan dropdown Aliran -->
+                        <div class="mb-3">
+                            <label for="aliranPemasukan" class="form-label">Aliran Kas</label>
+                            <select class="form-select" id="aliranPemasukan" name="aliran" required>
+                                <option value="" disabled selected>Pilih Aliran Kas</option>
+                                <option value="Aktivitas Operasi">Aktivitas Operasi</option>
+                                <option value="Aktivitas Investasi">Aktivitas Investasi</option>
+                                <option value="Aktivitas Pendanaan">Aktivitas Pendanaan</option>
+                                <option value="Aktivitas Pendanaan Lain">Aktivitas Pendanaan Lain</option>
+                            </select>
+                        </div>
+                        <!-- /Tambahkan dropdown Aliran -->
                         <div class="mb-3">
                             <label for="keteranganPemasukan" class="form-label">Keterangan</label>
                             <textarea class="form-control" id="keteranganPemasukan" name="keterangan" rows="3"
@@ -349,7 +369,7 @@
         <div class="modal-dialog">
             <div class="modal-content glass-modal">
                 <div class="modal-header">
-                    <h5 class="modal-title text-warning">
+                    <h5 class="modal-title text-danger">
                         <i class="fas fa-shopping-cart me-2"></i>Tambah Pengeluaran
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -373,6 +393,18 @@
                             <input type="text" class="form-control currency-input" id="jumlahPengeluaran"
                                 name="jumlah" placeholder="0" required>
                         </div>
+                        <!-- Tambahkan dropdown Aliran -->
+                        <div class="mb-3">
+                            <label for="aliranPengeluaran" class="form-label">Aliran Kas</label>
+                            <select class="form-select" id="aliranPengeluaran" name="aliran" required>
+                                <option value="" disabled selected>Pilih Aliran Kas</option>
+                                <option value="Aktivitas Operasi">Aktivitas Operasi</option>
+                                <option value="Aktivitas Investasi">Aktivitas Investasi</option>
+                                <option value="Aktivitas Pendanaan">Aktivitas Pendanaan</option>
+                                <option value="Aktivitas Pendanaan Lain">Aktivitas Pendanaan Lain</option>
+                            </select>
+                        </div>
+                        <!-- /Tambahkan dropdown Aliran -->
                         <div class="mb-3">
                             <label for="keteranganPengeluaran" class="form-label">Keterangan</label>
                             <textarea class="form-control" id="keteranganPengeluaran" name="keterangan" rows="3"
@@ -424,6 +456,17 @@
                             <input type="text" class="form-control currency-input" id="editJumlah" name="jumlah"
                                 required>
                         </div>
+                        <!-- Tambahkan dropdown Aliran -->
+                        <div class="mb-3">
+                            <label for="editAliran" class="form-label">Aliran Kas</label>
+                            <select class="form-select" id="editAliran" name="aliran" required>
+                                <option value="Aktivitas Operasi">Aktivitas Operasi</option>
+                                <option value="Aktivitas Investasi">Aktivitas Investasi</option>
+                                <option value="Aktivitas Pendanaan">Aktivitas Pendanaan</option>
+                                <option value="Aktivitas Pendanaan Lain">Aktivitas Pendanaan Lain</option>
+                            </select>
+                        </div>
+                        <!-- /Tambahkan dropdown Aliran -->
                         <div class="mb-3">
                             <label for="editKeterangan" class="form-label">Keterangan</label>
                             <textarea class="form-control" id="editKeterangan" name="keterangan" rows="3"></textarea>
@@ -582,6 +625,13 @@
                     return;
                 }
                 formData.set('jumlah', jumlahValue);
+
+                // Ambil nilai aliran dari dropdown
+                const aliranSelect = form.querySelector('select[name="aliran"]');
+                if (aliranSelect) {
+                    formData.set('aliran', aliranSelect.value);
+                }
+
                 const url = "{{ route('admins.manajemen-keuangan.store') }}";
                 const modalElement = modalInstance._element; // Dapatkan elemen DOM modal
                 const saveButton = modalElement.querySelector(
@@ -639,6 +689,11 @@
                                 const dateInput = form.querySelector('input[type="date"]');
                                 if (dateInput) {
                                     dateInput.value = new Date().toISOString().split('T')[0];
+                                }
+                                // Reset aliran ke default (pilihan pertama)
+                                const aliranInput = form.querySelector('select[name="aliran"]');
+                                if (aliranInput) {
+                                    aliranInput.selectedIndex = 0; // Pilih placeholder
                                 }
                                 // Reload page after success
                                 window.location.reload();
@@ -706,6 +761,14 @@
                             document.getElementById('editJenis').value = transaksi.jenis_transaksi;
                             document.getElementById('editJumlah').value = formatNumber(transaksi.jumlah);
                             document.getElementById('editKeterangan').value = transaksi.keterangan || '';
+
+                            // Isi dropdown aliran
+                            const editAliranSelect = document.getElementById('editAliran');
+                            if (editAliranSelect) {
+                                editAliranSelect.value = transaksi.aliran ||
+                                'Aktivitas Operasi'; // Default ke operasi jika null
+                            }
+
                             editModalInstance.show(); // Gunakan instance untuk menampilkan modal
                         } else {
                             Swal.fire({
@@ -754,6 +817,13 @@
                     return;
                 }
                 formData.set('jumlah', jumlahValue);
+
+                // Ambil nilai aliran dari dropdown edit
+                const editAliranSelect = document.getElementById('editAliran');
+                if (editAliranSelect) {
+                    formData.set('aliran', editAliranSelect.value);
+                }
+
                 formData.set('_method', 'PUT');
                 const url = `/admin/manajemen-keuangan/update/${id}`;
                 // Tampilkan loading state
@@ -878,7 +948,7 @@
                                     if (!response.ok) {
                                         throw new Error(
                                             `HTTP error! status: ${response.status}`
-                                            );
+                                        );
                                     }
                                     return response.json();
                                 })
@@ -894,7 +964,7 @@
                                             showConfirmButton: false
                                         }).then(() => {
                                             window.location
-                                        .reload(); // Refresh halaman setelah sukses
+                                                .reload(); // Refresh halaman setelah sukses
                                         });
                                     } else {
                                         Swal.fire({
@@ -929,6 +999,11 @@
                     if (dateInput) {
                         dateInput.value = new Date().toISOString().split('T')[0];
                     }
+                    // Reset aliran ke default (pilihan pertama)
+                    const aliranInput = this.querySelector('select[name="aliran"]');
+                    if (aliranInput) {
+                        aliranInput.selectedIndex = 0; // Pilih placeholder
+                    }
                 }
             });
             tambahPengeluaranModalEl.addEventListener('hidden.bs.modal', function() {
@@ -939,6 +1014,11 @@
                     const dateInput = this.querySelector('input[type="date"]');
                     if (dateInput) {
                         dateInput.value = new Date().toISOString().split('T')[0];
+                    }
+                    // Reset aliran ke default (pilihan pertama)
+                    const aliranInput = this.querySelector('select[name="aliran"]');
+                    if (aliranInput) {
+                        aliranInput.selectedIndex = 0; // Pilih placeholder
                     }
                 }
             });

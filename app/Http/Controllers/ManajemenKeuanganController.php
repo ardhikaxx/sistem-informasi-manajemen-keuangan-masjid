@@ -20,6 +20,7 @@ class ManajemenKeuanganController extends Controller
             $bulan = $request->input('bulan');
             $tahun = $request->input('tahun');
             $jenis = $request->input('jenis');
+            $aliran = $request->input('aliran'); // Tambahkan filter aliran jika diperlukan
 
             // Start query
             $query = Transaksi::query();
@@ -40,6 +41,10 @@ class ManajemenKeuanganController extends Controller
             if ($jenis && in_array($jenis, ['pemasukan', 'pengeluaran'])) {
                 $query->where('jenis_transaksi', $jenis);
             }
+            // Tambahkan filter aliran jika diperlukan di sini
+            if ($aliran) {
+                $query->where('aliran', $aliran);
+            }
 
             // Order by date and id
             $query->orderBy('tanggal', 'desc')
@@ -58,6 +63,12 @@ class ManajemenKeuanganController extends Controller
                 ->orderBy('tahun', 'desc')
                 ->pluck('tahun');
 
+            // Define aliran options for filter dropdown (optional)
+            $aliranOptions = Transaksi::select('aliran')
+                ->distinct()
+                ->whereNotNull('aliran')
+                ->pluck('aliran');
+
             // Calculate saldo akhir
             $saldoAkhir = $this->getSaldoAkhir();
 
@@ -69,7 +80,8 @@ class ManajemenKeuanganController extends Controller
                 'search',
                 'bulan',
                 'tahun',
-                'jenis'
+                'jenis',
+                'aliranOptions' // Kirim ke view jika ingin digunakan untuk filter
             ));
         } catch (\Exception $e) {
             Log::error('Error in ManajemenKeuanganController@index: ' . $e->getMessage() . "\nTrace:\n" . $e->getTraceAsString());
@@ -84,13 +96,14 @@ class ManajemenKeuanganController extends Controller
     {
         DB::beginTransaction(); // Mulai transaksi database
         try {
-            // Validasi input
+            // Validasi input - tambahkan aliran
             $validator = Validator::make($request->all(), [
                 'tanggal' => 'required|date',
                 'uraian' => 'required|string|max:255',
                 'jenis_transaksi' => 'required|in:pemasukan,pengeluaran',
                 'jumlah' => 'required|numeric|min:1',
-                'keterangan' => 'nullable|string'
+                'keterangan' => 'nullable|string',
+                'aliran' => 'required|in:Aktivitas Operasi,Aktivitas Investasi,Aktivitas Pendanaan,Aktivitas Pendanaan Lain' // Validasi enum
             ]);
 
             if ($validator->fails()) {
@@ -127,6 +140,7 @@ class ManajemenKeuanganController extends Controller
             $transaksi->jenis_transaksi = $request->jenis_transaksi;
             $transaksi->jumlah = $jumlah;
             $transaksi->keterangan = $request->keterangan;
+            $transaksi->aliran = $request->aliran; // Simpan aliran
             $transaksi->saldo_sebelum = $saldoSebelum;
             $transaksi->saldo_sesudah = $saldoSesudah;
 
@@ -145,6 +159,7 @@ class ManajemenKeuanganController extends Controller
                     'id' => $transaksi->id,
                     'uraian' => $transaksi->uraian,
                     'jumlah' => $transaksi->jumlah,
+                    'aliran' => $transaksi->aliran, // Tambahkan ke response jika perlu
                     'saldo_sesudah' => $transaksi->saldo_sesudah
                 ]
             ], 200);
@@ -198,13 +213,14 @@ class ManajemenKeuanganController extends Controller
         try {
             $transaksi = Transaksi::findOrFail($id);
 
-            // Validasi input
+            // Validasi input - tambahkan aliran
             $validator = Validator::make($request->all(), [
                 'tanggal' => 'required|date',
                 'uraian' => 'required|string|max:255',
                 'jenis_transaksi' => 'required|in:pemasukan,pengeluaran',
                 'jumlah' => 'required|numeric|min:1',
-                'keterangan' => 'nullable|string'
+                'keterangan' => 'nullable|string',
+                'aliran' => 'required|in:Aktivitas Operasi,Aktivitas Investasi,Aktivitas Pendanaan,Aktivitas Pendanaan Lain'
             ]);
 
             if ($validator->fails()) {
@@ -230,6 +246,7 @@ class ManajemenKeuanganController extends Controller
             $transaksi->jenis_transaksi = $request->jenis_transaksi;
             $transaksi->jumlah = $jumlah;
             $transaksi->keterangan = $request->keterangan;
+            $transaksi->aliran = $request->aliran; // Update aliran
 
             // Hitung ulang saldo
             $this->recalculateSaldoFromTransaction($transaksi);
