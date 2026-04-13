@@ -74,6 +74,10 @@
                     </button>
 
                     <div class="login-options">
+                        <a class="back-options" href="{{ route('auth.forgot-pin') }}">
+                            <i class="fas fa-key"></i> Lupa PIN?
+                        </a>
+                        <span class="separator">|</span>
                         <a class="back-options" href="{{ route('index') }}">
                             <i class="fas fa-arrow-left"></i> Kembali ke Beranda
                         </a>

@@ -130,10 +130,31 @@
     border-top: 1px solid #e1e8ed;
 }
 
+.login-options {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.login-options .separator {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+}
+
 .back-options {
     text-align: center;
     text-decoration: none;
     color: var(--primary-color);
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.back-options:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
 }
 
 /* Footer */

@@ -20,6 +20,19 @@ Route::prefix('admin')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])
         ->name('auth.login.post');
 
+    // Forgot PIN routes
+    Route::get('/forgot-pin', [AuthController::class, 'showForgotPin'])
+        ->name('auth.forgot-pin');
+
+    Route::post('/forgot-pin/verify', [AuthController::class, 'verifyPhone'])
+        ->name('auth.verify-phone');
+
+    Route::get('/reset-pin', [AuthController::class, 'showResetPin'])
+        ->name('auth.reset-pin');
+
+    Route::post('/reset-pin', [AuthController::class, 'resetPin'])
+        ->name('auth.reset-pin.post');
+
     // Logout
     Route::post('/logout', [AuthController::class, 'logout'])
         ->name('auth.logout');
