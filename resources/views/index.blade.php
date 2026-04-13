@@ -1203,17 +1203,59 @@
             }
         }
 
-        /* Tablet (576px - 767px) */
+        /* Desktop (>992px) - Lebih jauh dari tepi */
+        @media (min-width: 992px) {
+            .whatsapp-float {
+                bottom: 50px;
+                right: 50px;
+            }
+
+            .whatsapp-float-btn {
+                width: 70px;
+                height: 70px;
+                font-size: 2.2rem;
+            }
+
+            .whatsapp-float-badge {
+                width: 28px;
+                height: 28px;
+                font-size: 0.85rem;
+                top: -7px;
+                right: -7px;
+            }
+        }
+
+        /* Tablet (768px - 991px) */
+        @media (max-width: 991px) and (min-width: 768px) {
+            .whatsapp-float {
+                bottom: 40px;
+                right: 35px;
+            }
+
+            .whatsapp-float-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 1.9rem;
+            }
+
+            .whatsapp-float-badge {
+                width: 24px;
+                height: 24px;
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Mobile Large (576px - 767px) */
         @media (max-width: 767px) and (min-width: 576px) {
             .whatsapp-float {
-                bottom: 100px;
-                right: 20px;
+                bottom: 15px;
+                right: 15px;
             }
 
             .whatsapp-float-btn {
                 width: 55px;
                 height: 55px;
-                font-size: 1.6rem;
+                font-size: 1.7rem;
             }
 
             .whatsapp-float-badge {
@@ -1223,17 +1265,17 @@
             }
         }
 
-        /* Mobile Small (<576px) */
+        /* Mobile Small (<576px) - Jarak aman dari tepi */
         @media (max-width: 575px) {
             .whatsapp-float {
-                bottom: 90px;
+                bottom: 15px;
                 right: 15px;
             }
 
             .whatsapp-float-btn {
                 width: 50px;
                 height: 50px;
-                font-size: 1.4rem;
+                font-size: 1.5rem;
             }
 
             .whatsapp-float-badge {
@@ -1242,28 +1284,6 @@
                 font-size: 0.7rem;
                 top: -4px;
                 right: -4px;
-            }
-        }
-
-        /* Desktop large (>992px) */
-        @media (min-width: 992px) {
-            .whatsapp-float {
-                bottom: 40px;
-                right: 40px;
-            }
-
-            .whatsapp-float-btn {
-                width: 65px;
-                height: 65px;
-                font-size: 2rem;
-            }
-
-            .whatsapp-float-badge {
-                width: 26px;
-                height: 26px;
-                font-size: 0.8rem;
-                top: -6px;
-                right: -6px;
             }
         }
 
