@@ -1253,15 +1253,15 @@
             }
 
             .whatsapp-float-btn {
-                width: 55px;
-                height: 55px;
-                font-size: 1.7rem;
+                width: 60px;
+                height: 60px;
+                font-size: 1.8rem;
             }
 
             .whatsapp-float-badge {
-                width: 22px;
-                height: 22px;
-                font-size: 0.7rem;
+                width: 24px;
+                height: 24px;
+                font-size: 0.75rem;
             }
         }
 
@@ -1273,14 +1273,14 @@
             }
 
             .whatsapp-float-btn {
-                width: 50px;
-                height: 50px;
-                font-size: 1.5rem;
+                width: 58px;
+                height: 58px;
+                font-size: 1.7rem;
             }
 
             .whatsapp-float-badge {
-                width: 20px;
-                height: 20px;
+                width: 22px;
+                height: 22px;
                 font-size: 0.7rem;
                 top: -4px;
                 right: -4px;
