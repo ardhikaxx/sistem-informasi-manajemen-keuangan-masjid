@@ -13,18 +13,30 @@
                         <h5 class="fw-bold text-dark mb-1">Laporan Keuangan Masjid</h5>
                         <p class="text-muted mb-0">Lihat dan cetak laporan keuangan masjid</p>
                     </div>
-                    <!-- Tombol Export PDF -->
-                    <form action="" method="POST" style="display: inline;">
-                        @csrf
-                        <input type="hidden" name="jenis_laporan" value="{{ old('jenis_laporan', $jenisLaporan) }}">
-                        <input type="hidden" name="bulan" value="{{ old('bulan', $bulan) }}">
-                        <input type="hidden" name="tahun" value="{{ old('tahun', $tahun) }}">
-                        <input type="hidden" name="start_date" value="{{ old('start_date', $startDate) }}">
-                        <input type="hidden" name="end_date" value="{{ old('end_date', $endDate) }}">
-                        <button type="submit" class="btn btn-outline-danger d-block">
-                            <i class="fas fa-file-pdf me-2"></i>Export PDF
-                        </button>
-                    </form>
+                    <div class="d-flex flex-wrap gap-2">
+                        <!-- Tombol Export PDF -->
+                        <form action="{{ route('admins.manajemen-laporan.export-pdf') }}" method="GET" style="display: inline;">
+                            <input type="hidden" name="jenis_laporan" value="{{ old('jenis_laporan', $jenisLaporan) }}">
+                            <input type="hidden" name="bulan" value="{{ old('bulan', $bulan) }}">
+                            <input type="hidden" name="tahun" value="{{ old('tahun', $tahun) }}">
+                            <input type="hidden" name="start_date" value="{{ old('start_date', $startDate) }}">
+                            <input type="hidden" name="end_date" value="{{ old('end_date', $endDate) }}">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-file-pdf me-2"></i>Export PDF
+                            </button>
+                        </form>
+                        <!-- Tombol Export Excel -->
+                        <form action="{{ route('admins.manajemen-laporan.export-excel') }}" method="GET" style="display: inline;">
+                            <input type="hidden" name="jenis_laporan" value="{{ old('jenis_laporan', $jenisLaporan) }}">
+                            <input type="hidden" name="bulan" value="{{ old('bulan', $bulan) }}">
+                            <input type="hidden" name="tahun" value="{{ old('tahun', $tahun) }}">
+                            <input type="hidden" name="start_date" value="{{ old('start_date', $startDate) }}">
+                            <input type="hidden" name="end_date" value="{{ old('end_date', $endDate) }}">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-file-excel me-2"></i>Export Excel
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -143,6 +155,7 @@
                                 <th class="fw-semibold text-dark text-end">Pemasukan</th>
                                 <th class="fw-semibold text-dark text-end">Pengeluaran</th>
                                 <th class="fw-semibold text-dark text-end">Saldo</th>
+                                <th class="fw-semibold text-dark">Aliran Kas</th>
                                 <th class="fw-semibold text-dark">Keterangan</th>
                             </tr>
                         </thead>
@@ -173,7 +186,12 @@
                                         Rp {{ number_format($transaksi->saldo_sesudah, 0, ',', '.') }}
                                     </td>
                                     <td>
-                                        <span class="badge 
+                                        <span class="fw-medium">
+                                            {{ $transaksi->aliran ?: '-' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge
                                             {{ $transaksi->jenis_transaksi === 'pemasukan' ? 'bg-success bg-opacity-10 text-success' : 'bg-warning bg-opacity-10 text-danger' }}">
                                             {{ $transaksi->keterangan }}
                                         </span>
@@ -181,7 +199,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center py-4">
+                                    <td colspan="8" class="text-center py-4">
                                         <div class="text-muted">
                                             <i class="fas fa-inbox fa-2x mb-3"></i>
                                             <p>Tidak ada transaksi ditemukan</p>
@@ -197,6 +215,7 @@
                                 <th class="text-end text-success">Rp {{ number_format($summary['total_pemasukan'], 0, ',', '.') }}</th>
                                 <th class="text-end text-danger">Rp {{ number_format($summary['total_pengeluaran'], 0, ',', '.') }}</th>
                                 <th class="text-end text-primary">Rp {{ number_format($summary['saldo_akhir_periode'], 0, ',', '.') }}</th>
+                                <th></th>
                                 <th></th>
                             </tr>
                         </tfoot>

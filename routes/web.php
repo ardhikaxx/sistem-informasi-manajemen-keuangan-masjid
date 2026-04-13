@@ -58,9 +58,12 @@ Route::prefix('admin')->group(function () {
         Route::prefix('manajemen-laporan')->group(function () {
             Route::get('/', [ManajemenLaporanController::class, 'index'])
                 ->name('admins.manajemen-laporan');
-            // Route untuk export PDF akan ditambahkan nanti
-            // Route::post('/export', [ManajemenLaporanController::class, 'exportPDF'])
-            //      ->name('admins.manajemen-laporan.export');
+            
+            Route::get('/export-pdf', [ManajemenLaporanController::class, 'exportPDF'])
+                ->name('admins.manajemen-laporan.export-pdf');
+            
+            Route::get('/export-excel', [ManajemenLaporanController::class, 'exportExcel'])
+                ->name('admins.manajemen-laporan.export-excel');
         });
 
         Route::get('/manajemen-laporan/print', function () {

@@ -6,6 +6,9 @@ use App\Models\Transaksi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\LaporanArusKasExport;
 use Illuminate\Support\Facades\DB;
 
 class ManajemenLaporanController extends Controller
@@ -16,183 +19,230 @@ class ManajemenLaporanController extends Controller
     public function index(Request $request)
     {
         try {
-            // Get filter parameters
             $jenisLaporan = $request->input('jenis_laporan', 'bulanan');
-            $bulan = $request->input('bulan');
-            $tahun = $request->input('tahun');
-            $startDate = $request->input('start_date');
-            $endDate = $request->input('end_date');
+            $bulan        = $request->input('bulan');
+            $tahun        = $request->input('tahun');
+            $startDate    = $request->input('start_date');
+            $endDate      = $request->input('end_date');
 
-            // Start query
-            $query = Transaksi::query();
+            $query = $this->buildQuery($jenisLaporan, $bulan, $tahun, $startDate, $endDate);
 
-            // Apply filters based on jenis_laporan
-            switch ($jenisLaporan) {
-                case 'harian':
-                    if ($startDate && $endDate) {
-                        $query->whereBetween('tanggal', [$startDate, $endDate]);
-                    } elseif ($tahun && $bulan) {
-                        $query->whereYear('tanggal', $tahun)->whereMonth('tanggal', $bulan);
-                    } else {
-                        // Default to today if no specific filter
-                        $query->whereDate('tanggal', Carbon::today());
-                    }
-                    break;
-                case 'mingguan':
-                    if ($startDate && $endDate) {
-                        $query->whereBetween('tanggal', [$startDate, $endDate]);
-                    } elseif ($tahun && $bulan) {
-                        // Example: filter by week within a month if needed
-                        $query->whereYear('tanggal', $tahun)->whereMonth('tanggal', $bulan);
-                    } else {
-                        // Default to this week
-                        $query->whereBetween('tanggal', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
-                    }
-                    break;
-                case 'bulanan':
-                    if ($bulan && $tahun) {
-                        $query->whereYear('tanggal', $tahun)->whereMonth('tanggal', $bulan);
-                    } else {
-                        // Default to current month/year
-                        $query->whereYear('tanggal', Carbon::now()->year)->whereMonth('tanggal', Carbon::now()->month);
-                    }
-                    break;
-                case 'tahunan':
-                    if ($tahun) {
-                        $query->whereYear('tanggal', $tahun);
-                    } else {
-                        // Default to current year
-                        $query->whereYear('tanggal', Carbon::now()->year);
-                    }
-                    break;
-                case 'custom':
-                    if ($startDate && $endDate) {
-                        $query->whereBetween('tanggal', [$startDate, $endDate]);
-                    }
-                    // If no start/end date for custom, might want to apply default
-                    break;
-                default: // fallback to 'bulanan'
-                    if ($bulan && $tahun) {
-                        $query->whereYear('tanggal', $tahun)->whereMonth('tanggal', $bulan);
-                    } else {
-                        $query->whereYear('tanggal', Carbon::now()->year)->whereMonth('tanggal', Carbon::now()->month);
-                    }
-                    break;
-            }
+            $transaksis = $query->orderBy('tanggal')->orderBy('id')->paginate(15)->withQueryString();
 
-            // Order by date and id
-            $query->orderBy('tanggal', 'asc') // Ascending for reports typically
-                ->orderBy('id', 'asc');
+            // Ambil SEMUA data periode (tanpa paginasi) untuk summary & laporan arus kas
+            $queryAll   = $this->buildQuery($jenisLaporan, $bulan, $tahun, $startDate, $endDate);
+            $allData    = $queryAll->orderBy('tanggal')->orderBy('id')->get();
 
-            // Get paginated results
-            $perPage = 15; // Adjust as needed
-            $transaksis = $query->paginate($perPage);
+            $summary         = $this->calculateSummary($allData);
+            $laporanArusKas  = $this->buildLaporanArusKas($allData, $summary);
+            $periodeLabel    = $this->generatePeriodLabel($jenisLaporan, $bulan, $tahun, $startDate, $endDate);
 
-            // Calculate summary statistics for the filtered period
-            $summary = $this->calculateSummary($transaksis);
-
-            // Get years for filter dropdown
             $tahunList = Transaksi::selectRaw('YEAR(tanggal) as tahun')
-                ->groupBy('tahun')
-                ->orderBy('tahun', 'desc')
-                ->pluck('tahun');
-
-            // Generate label for the selected period
-            $periodeLabel = $this->generatePeriodLabel($jenisLaporan, $bulan, $tahun, $startDate, $endDate);
+                ->groupBy('tahun')->orderBy('tahun', 'desc')->pluck('tahun');
 
             return view('admins.manajemen-laporan.index', compact(
-                'transaksis',
-                'summary',
-                'tahunList',
-                'jenisLaporan',
-                'bulan',
-                'tahun',
-                'startDate',
-                'endDate',
-                'periodeLabel'
+                'transaksis', 'summary', 'laporanArusKas',
+                'tahunList', 'jenisLaporan', 'bulan', 'tahun',
+                'startDate', 'endDate', 'periodeLabel'
             ));
-
         } catch (\Exception $e) {
-            Log::error('Error in ManajemenLaporanController@index: ' . $e->getMessage() . "\nTrace: " . $e->getTraceAsString());
+            Log::error('ManajemenLaporanController@index: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Terjadi kesalahan saat memuat laporan.');
         }
     }
 
-    /**
-     * Calculate summary statistics for the given transactions collection.
-     */
-    private function calculateSummary($transactions)
+    // ──────────────────────────────────────────────
+    // EXPORT PDF
+    // ──────────────────────────────────────────────
+    public function exportPDF(Request $request)
     {
-        $totalPemasukan = $transactions->where('jenis_transaksi', 'pemasukan')->sum('jumlah');
-        $totalPengeluaran = $transactions->where('jenis_transaksi', 'pengeluaran')->sum('jumlah');
-        $selisih = $totalPemasukan - $totalPengeluaran;
+        $jenisLaporan = $request->input('jenis_laporan', 'bulanan');
+        $bulan        = $request->input('bulan');
+        $tahun        = $request->input('tahun');
+        $startDate    = $request->input('start_date');
+        $endDate      = $request->input('end_date');
 
-        $periodeAwal = $transactions->min('tanggal');
-        $periodeAkhir = $transactions->max('tanggal');
+        $allData         = $this->buildQuery($jenisLaporan, $bulan, $tahun, $startDate, $endDate)
+                               ->orderBy('tanggal')->orderBy('id')->get();
+        $summary         = $this->calculateSummary($allData);
+        $laporanArusKas  = $this->buildLaporanArusKas($allData, $summary);
+        $periodeLabel    = $this->generatePeriodLabel($jenisLaporan, $bulan, $tahun, $startDate, $endDate);
 
-        $saldoSebelumPeriode = 0;
-        if ($periodeAwal) {
-            $transaksiSebelumnya = Transaksi::where('tanggal', '<', $periodeAwal)
-                ->orderBy('tanggal', 'desc')
-                ->orderBy('id', 'desc')
-                ->first();
-            $saldoSebelumPeriode = $transaksiSebelumnya ? $transaksiSebelumnya->saldo_sesudah : 0;
+        $pdf = Pdf::loadView('admins.manajemen-laporan.pdf', compact(
+            'laporanArusKas', 'summary', 'periodeLabel'
+        ))->setPaper('a4', 'portrait');
+
+        return $pdf->download('laporan-arus-kas-' . now()->format('Ymd') . '.pdf');
+    }
+
+    // ──────────────────────────────────────────────
+    // EXPORT EXCEL
+    // ──────────────────────────────────────────────
+    public function exportExcel(Request $request)
+    {
+        $jenisLaporan = $request->input('jenis_laporan', 'bulanan');
+        $bulan        = $request->input('bulan');
+        $tahun        = $request->input('tahun');
+        $startDate    = $request->input('start_date');
+        $endDate      = $request->input('end_date');
+
+        $allData         = $this->buildQuery($jenisLaporan, $bulan, $tahun, $startDate, $endDate)
+                               ->orderBy('tanggal')->orderBy('id')->get();
+        $summary         = $this->calculateSummary($allData);
+        $laporanArusKas  = $this->buildLaporanArusKas($allData, $summary);
+        $periodeLabel    = $this->generatePeriodLabel($jenisLaporan, $bulan, $tahun, $startDate, $endDate);
+
+        $filename = 'laporan-arus-kas-' . now()->format('Ymd') . '.xlsx';
+
+        return Excel::download(
+            new LaporanArusKasExport($laporanArusKas, $summary, $periodeLabel),
+            $filename
+        );
+    }
+
+    // ──────────────────────────────────────────────
+    // PRIVATE HELPERS
+    // ──────────────────────────────────────────────
+
+    private function buildQuery($jenisLaporan, $bulan, $tahun, $startDate, $endDate)
+    {
+        $query = Transaksi::query();
+
+        switch ($jenisLaporan) {
+            case 'harian':
+                if ($startDate && $endDate) {
+                    $query->whereBetween('tanggal', [$startDate, $endDate]);
+                } elseif ($tahun && $bulan) {
+                    $query->whereYear('tanggal', $tahun)->whereMonth('tanggal', $bulan);
+                } else {
+                    $query->whereDate('tanggal', Carbon::today());
+                }
+                break;
+            case 'mingguan':
+                if ($startDate && $endDate) {
+                    $query->whereBetween('tanggal', [$startDate, $endDate]);
+                } else {
+                    $query->whereBetween('tanggal', [
+                        Carbon::now()->startOfWeek(),
+                        Carbon::now()->endOfWeek(),
+                    ]);
+                }
+                break;
+            case 'tahunan':
+                $query->whereYear('tanggal', $tahun ?? Carbon::now()->year);
+                break;
+            case 'custom':
+                if ($startDate && $endDate) {
+                    $query->whereBetween('tanggal', [$startDate, $endDate]);
+                }
+                break;
+            default: // bulanan
+                if ($bulan && $tahun) {
+                    $query->whereYear('tanggal', $tahun)->whereMonth('tanggal', $bulan);
+                } else {
+                    $query->whereYear('tanggal', Carbon::now()->year)
+                          ->whereMonth('tanggal', Carbon::now()->month);
+                }
+                break;
         }
 
-        $saldoAkhir = $saldoSebelumPeriode + $selisih;
+        return $query;
+    }
+
+    private function calculateSummary($transactions)
+    {
+        $totalPemasukan   = $transactions->where('jenis_transaksi', 'pemasukan')->sum('jumlah');
+        $totalPengeluaran = $transactions->where('jenis_transaksi', 'pengeluaran')->sum('jumlah');
+        $selisih          = $totalPemasukan - $totalPengeluaran;
+
+        $periodeAwal          = $transactions->min('tanggal');
+        $saldoSebelumPeriode  = 0;
+
+        if ($periodeAwal) {
+            $prev = Transaksi::where('tanggal', '<', $periodeAwal)
+                ->orderBy('tanggal', 'desc')->orderBy('id', 'desc')->first();
+            $saldoSebelumPeriode = $prev ? $prev->saldo_sesudah : 0;
+        }
 
         return [
-            'total_pemasukan' => $totalPemasukan,
-            'total_pengeluaran' => $totalPengeluaran,
-            'selisih' => $selisih, // Net difference
-            'saldo_akhir_periode' => $saldoAkhir
+            'total_pemasukan'      => $totalPemasukan,
+            'total_pengeluaran'    => $totalPengeluaran,
+            'selisih'              => $selisih,
+            'saldo_awal_periode'   => $saldoSebelumPeriode,
+            'saldo_akhir_periode'  => $saldoSebelumPeriode + $selisih,
         ];
     }
 
     /**
-     * Generate a label for the selected period.
+     * Bangun struktur laporan arus kas per 4 kategori aliran.
+     *
+     * Return:
+     * [
+     *   'operasi'        => ['items' => [...], 'total' => 0],
+     *   'investasi'      => ['items' => [...], 'total' => 0],
+     *   'pendanaan'      => ['items' => [...], 'total' => 0],
+     *   'pendanaan_lain' => ['items' => [...], 'total' => 0],
+     * ]
+     * Setiap item: ['uraian' => '...', 'jumlah' => signed_number]
      */
-    private function generatePeriodLabel($jenisLaporan, $bulan, $tahun, $startDate, $endDate)
+    private function buildLaporanArusKas($transactions, $summary)
     {
-        $labels = [
-            'harian' => 'Harian',
-            'mingguan' => 'Mingguan',
-            'bulanan' => 'Bulanan',
-            'tahunan' => 'Tahunan',
-            'custom' => 'Custom'
+        $map = [
+            'operasi'        => 'Aktivitas Operasi',
+            'investasi'      => 'Aktivitas Investasi',
+            'pendanaan'      => 'Aktivitas Pendanaan',
+            'pendanaan_lain' => 'Aktivitas Pendanaan Lain',
         ];
 
+        $result = [];
+
+        foreach ($map as $key => $aliranLabel) {
+            $filtered = $transactions->filter(fn($t) => $t->aliran === $aliranLabel);
+
+            // Kelompokkan berdasarkan uraian lalu jumlahkan (pemasukan +, pengeluaran -)
+            $grouped = $filtered->groupBy('uraian')->map(function ($rows) {
+                return $rows->sum(function ($t) {
+                    return $t->jenis_transaksi === 'pemasukan'
+                        ? $t->jumlah
+                        : -$t->jumlah;
+                });
+            });
+
+            $items = $grouped->map(fn($jumlah, $uraian) => [
+                'uraian' => $uraian,
+                'jumlah' => $jumlah,
+            ])->values()->toArray();
+
+            $total = array_sum(array_column($items, 'jumlah'));
+
+            $result[$key] = compact('items', 'total');
+        }
+
+        return $result;
+    }
+
+    private function generatePeriodLabel($jenisLaporan, $bulan, $tahun, $startDate, $endDate): string
+    {
+        $labels   = ['harian'=>'Harian','mingguan'=>'Mingguan','bulanan'=>'Bulanan','tahunan'=>'Tahunan','custom'=>'Custom'];
         $jenisText = $labels[$jenisLaporan] ?? 'Unknown';
 
         if ($jenisLaporan === 'custom' && $startDate && $endDate) {
-            $startDateFormatted = Carbon::parse($startDate)->translatedFormat('d F Y');
-            $endDateFormatted = Carbon::parse($endDate)->translatedFormat('d F Y');
-            return "$jenisText: $startDateFormatted - $endDateFormatted";
+            return $jenisText . ': ' . Carbon::parse($startDate)->translatedFormat('d F Y')
+                . ' - ' . Carbon::parse($endDate)->translatedFormat('d F Y');
         }
-
         if ($bulan && $tahun) {
-            $bulanName = Carbon::create(null, $bulan, 1)->translatedFormat('F');
-            return "$jenisText: $bulanName $tahun";
+            return $jenisText . ': ' . Carbon::create(null, $bulan, 1)->translatedFormat('F') . ' ' . $tahun;
         }
-
         if ($tahun) {
-            return "$jenisText: $tahun";
+            return $jenisText . ': ' . $tahun;
         }
-
-        if ($jenisLaporan === 'harian' && !($bulan && $tahun)) {
-            return "$jenisText: " . Carbon::today()->translatedFormat('d F Y');
+        if ($jenisLaporan === 'harian') {
+            return $jenisText . ': ' . Carbon::today()->translatedFormat('d F Y');
         }
-
-        if ($jenisLaporan === 'mingguan' && !($bulan && $tahun)) {
-            $startWeek = Carbon::now()->startOfWeek()->translatedFormat('d F Y');
-            $endWeek = Carbon::now()->endOfWeek()->translatedFormat('d F Y');
-            return "$jenisText: $startWeek - $endWeek";
+        if ($jenisLaporan === 'mingguan') {
+            return $jenisText . ': ' . Carbon::now()->startOfWeek()->translatedFormat('d F Y')
+                . ' - ' . Carbon::now()->endOfWeek()->translatedFormat('d F Y');
         }
-
-        // Fallback
         return $jenisText;
     }
-
-    // --- Export PDF function will be added later ---
-    // public function exportPDF(Request $request) { ... }
 }

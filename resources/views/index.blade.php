@@ -1018,6 +1018,223 @@
         }
 
         /* Update existing styles */
+        /* =================== WHATSAPP CONTACT SECTION =================== */
+        .whatsapp-contact {
+            width: 100%;
+            margin-top: 40px;
+            margin-bottom: 30px;
+            padding: 0 15px;
+        }
+
+        .whatsapp-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border: 2px solid #25D366;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .whatsapp-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #25D366, #128C7E);
+        }
+
+        .whatsapp-icon-header {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+            color: white;
+            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+        }
+
+        .whatsapp-card h3 {
+            color: var(--dark-color);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .whatsapp-card p {
+            color: var(--text-light);
+            font-size: 1rem;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .whatsapp-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            padding: 14px 35px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-decoration: none;
+            transition: var(--transition);
+            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+        }
+
+        .whatsapp-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
+            color: white;
+        }
+
+        .whatsapp-btn i {
+            font-size: 1.3rem;
+        }
+
+        /* =================== FLOATING WHATSAPP BUTTON =================== */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 999;
+        }
+
+        .whatsapp-float-btn {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+            text-decoration: none;
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+            transition: var(--transition);
+            position: relative;
+            animation: pulse-whatsapp 2s infinite;
+        }
+
+        .whatsapp-float-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(37, 211, 102, 0.5);
+            color: white;
+        }
+
+        .whatsapp-float-btn i {
+            z-index: 1;
+        }
+
+        .whatsapp-float-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #FF4444;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border: 2px solid white;
+            animation: bounce-badge 1.5s infinite;
+        }
+
+        @keyframes pulse-whatsapp {
+            0%, 100% {
+                box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+            }
+            50% {
+                box-shadow: 0 6px 30px rgba(37, 211, 102, 0.6), 0 0 0 10px rgba(37, 211, 102, 0.1);
+            }
+        }
+
+        @keyframes bounce-badge {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        /* Responsive for WhatsApp section */
+        @media (max-width: 767px) {
+            .whatsapp-contact {
+                margin-top: 30px;
+                margin-bottom: 20px;
+            }
+
+            .whatsapp-card {
+                padding: 25px 20px;
+            }
+
+            .whatsapp-icon-header {
+                width: 60px;
+                height: 60px;
+                font-size: 1.6rem;
+            }
+
+            .whatsapp-card h3 {
+                font-size: 1.3rem;
+            }
+
+            .whatsapp-card p {
+                font-size: 0.95rem;
+            }
+
+            .whatsapp-btn {
+                padding: 12px 25px;
+                font-size: 1rem;
+            }
+
+            .whatsapp-float {
+                bottom: 90px;
+                right: 20px;
+            }
+
+            .whatsapp-float-btn {
+                width: 55px;
+                height: 55px;
+                font-size: 1.6rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .whatsapp-float {
+                bottom: 85px;
+                right: 15px;
+            }
+
+            .whatsapp-float-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.4rem;
+            }
+
+            .whatsapp-float-badge {
+                width: 20px;
+                height: 20px;
+                font-size: 0.7rem;
+            }
+        }
+
+        /* =================== END WHATSAPP CONTACT SECTION =================== */
+
         .footer {
             margin-top: 50px;
             color: white;
@@ -2029,10 +2246,43 @@
         </section>
         <!-- =================== END SECTION TENTANG MASJID =================== -->
 
+        <!-- =================== WHATSAPP CONTACT SECTION =================== -->
+        <section class="whatsapp-contact fade-in">
+            <div class="whatsapp-card">
+                <div class="whatsapp-icon-header">
+                    <i class="fab fa-whatsapp"></i>
+                </div>
+                <h3>Ingin Mengetahui Informasi Lebih Rinci?</h3>
+                <p>
+                    Untuk informasi lebih detail mengenai pengelolaan keuangan masjid, 
+                    laporan keuangan, atau pertanyaan lainnya, silakan menghubungi kami melalui WhatsApp.
+                </p>
+                <a href="https://wa.me/6281234567890?text=Assalamu'alaikum,%20saya%20ingin%20menanyakan%20informasi%20mengenai%20keuangan%20masjid" 
+                   target="_blank" 
+                   class="whatsapp-btn">
+                    <i class="fab fa-whatsapp"></i>
+                    <span>Hubungi Kami via WhatsApp</span>
+                </a>
+            </div>
+        </section>
+        <!-- =================== END WHATSAPP CONTACT SECTION =================== -->
+
         <div class="footer fade-in">
             <p>&copy; {{ date('Y') }} Masjid Jami' Al-Muttaqiin. All rights reserved.</p>
         </div>
     </div>
+
+    <!-- Floating WhatsApp Button -->
+    <div class="whatsapp-float">
+        <a href="https://wa.me/6281234567890?text=Assalamu'alaikum,%20saya%20ingin%20menanyakan%20informasi%20mengenai%20keuangan%20masjid" 
+           target="_blank" 
+           class="whatsapp-float-btn" 
+           aria-label="Chat WhatsApp">
+            <i class="fab fa-whatsapp"></i>
+            <span class="whatsapp-float-badge">1</span>
+        </a>
+    </div>
+    <!-- End Floating WhatsApp Button -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
