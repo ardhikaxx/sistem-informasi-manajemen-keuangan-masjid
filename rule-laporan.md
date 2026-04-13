@@ -606,16 +606,3 @@ tabel transaksi
     ├─ selisih (net)   = total_pemasukan - total_pengeluaran
     └─ saldo_akhir     = saldo_awal + selisih
 ```
-
----
-
-## 9. Checklist Implementasi
-
-- [ ] Pastikan kolom `aliran` pada tabel `transaksi` terisi dengan salah satu dari 4 nilai enum
-- [ ] Install `barryvdh/laravel-dompdf` dan `maatwebsite/excel`
-- [ ] Buat file `app/Exports/LaporanArusKasExport.php`
-- [ ] Update `ManajemenLaporanController.php` sesuai kode di atas
-- [ ] Tambah routes `export-pdf` dan `export-excel`
-- [ ] Buat view `pdf.blade.php`
-- [ ] Update view `index.blade.php` (tambah tombol export + tabel laporan arus kas preview)
-- [ ] Pastikan `Carbon::setLocale('id')` di `AppServiceProvider` agar nama bulan berbahasa Indonesia

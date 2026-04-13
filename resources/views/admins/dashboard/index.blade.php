@@ -7,86 +7,42 @@
     <!-- SweetAlert CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <style>
-        .smaller {
-            font-size: 0.75rem;
-        }
-        
-        .card {
-            border-radius: 12px;
-            transition: transform 0.2s;
-        }
-        
-        .card:hover {
-            transform: translateY(-2px);
-        }
-        
-        .badge {
-            font-size: 0.75rem;
-            padding: 0.35em 0.65em;
-        }
-        
-        .table th {
-            border-bottom-width: 1px;
-            font-weight: 600;
-        }
-        
-        .table td {
-            vertical-align: middle;
-        }
-    </style>
-
     <!-- Main Stats Cards -->
     <div class="row g-3 mb-4">
         <!-- Saldo Card -->
         <div class="col-12 fade-in-up">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="text-muted mb-1 small text-uppercase fw-semibold">Saldo Saat Ini</p>
-                            <h2 class="fw-bold text-dark mb-2">Rp {{ number_format($saldoSaatIni, 0, ',', '.') }}</h2>
-                            <div class="d-flex align-items-center">
-                                <span class="badge bg-{{ $arahPemasukan == 'naik' ? 'success' : 'danger' }} me-2">
-                                    <i class="fas fa-arrow-{{ $arahPemasukan == 'naik' ? 'up' : 'down' }}"></i>
-                                    {{ round($perubahanPemasukan, 1) }}%
-                                </span>
-                                <span class="text-muted small">vs bulan lalu</span>
-                            </div>
+            <div class="glass-effect p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-muted mb-2">Saldo Saat Ini</h6>
+                        <h3 class="fw-bold text-primary mb-2">Rp {{ number_format($saldoSaatIni, 0, ',', '.') }}</h3>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-{{ $arahPemasukan == 'naik' ? 'success' : 'danger' }} bg-opacity-10 text-{{ $arahPemasukan == 'naik' ? 'success' : 'danger' }} me-2">
+                                <i class="fas fa-arrow-{{ $arahPemasukan == 'naik' ? 'up' : 'down' }} me-1"></i>{{ round($perubahanPemasukan, 1) }}%
+                            </span>
+                            <span class="text-muted small">Dari bulan lalu</span>
                         </div>
-                        <div class="bg-primary bg-opacity-10 rounded-circle p-3">
-                            <i class="fas fa-wallet text-primary fa-2x"></i>
-                        </div>
+                    </div>
+                    <div class="rounded-circle bg-primary bg-opacity-10 p-3">
+                        <i class="fas fa-wallet fa-2x text-primary"></i>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Pemasukan Card -->
-        <div class="col-6 fade-in-up" style="animation-delay: 0.1s;">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body p-3">
-                    <div class="mb-2">
-                        <i class="fas fa-arrow-trend-up text-success fa-lg"></i>
-                    </div>
-                    <p class="text-muted mb-1 small">Pemasukan</p>
-                    <h5 class="fw-bold text-success mb-1">Rp {{ number_format($pemasukanBulanIni, 0, ',', '.') }}</h5>
-                    <p class="text-muted mb-0 smaller">Bulan ini</p>
-                </div>
+        <div class="col-md-6 fade-in-up" style="animation-delay: 0.1s;">
+            <div class="glass-effect p-4 text-center h-100">
+                <h6 class="text-muted mb-2">Pemasukan Bulan Ini</h6>
+                <h4 class="text-success fw-bold">Rp {{ number_format($pemasukanBulanIni, 0, ',', '.') }}</h4>
             </div>
         </div>
 
         <!-- Pengeluaran Card -->
-        <div class="col-6 fade-in-up" style="animation-delay: 0.15s;">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body p-3">
-                    <div class="mb-2">
-                        <i class="fas fa-arrow-trend-down text-danger fa-lg"></i>
-                    </div>
-                    <p class="text-muted mb-1 small">Pengeluaran</p>
-                    <h5 class="fw-bold text-danger mb-1">Rp {{ number_format($pengeluaranBulanIni, 0, ',', '.') }}</h5>
-                    <p class="text-muted mb-0 smaller">Bulan ini</p>
-                </div>
+        <div class="col-md-6 fade-in-up" style="animation-delay: 0.15s;">
+            <div class="glass-effect p-4 text-center h-100">
+                <h6 class="text-muted mb-2">Pengeluaran Bulan Ini</h6>
+                <h4 class="text-danger fw-bold">Rp {{ number_format($pengeluaranBulanIni, 0, ',', '.') }}</h4>
             </div>
         </div>
     </div>
@@ -94,30 +50,44 @@
     <!-- Chart Section -->
     <div class="row mb-4">
         <div class="col-12 fade-in-up" style="animation-delay: 0.2s;">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-3 p-md-4">
-                    <!-- Chart Header -->
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div>
-                            <h6 class="fw-bold mb-0">Grafik Keuangan</h6>
-                            <p class="text-muted mb-0 small">6 bulan terakhir</p>
-                        </div>
-                        <div class="btn-group btn-group-sm" role="group">
-                            <input type="radio" class="btn-check" name="chartType" id="barChart" value="bar" checked>
-                            <label class="btn btn-outline-primary" for="barChart">
-                                <i class="fas fa-chart-bar"></i>
-                            </label>
-                            
-                            <input type="radio" class="btn-check" name="chartType" id="lineChart" value="trend">
-                            <label class="btn btn-outline-primary" for="lineChart">
-                                <i class="fas fa-chart-line"></i>
-                            </label>
+            <div class="glass-effect p-4">
+                <!-- Chart Header -->
+                <div class="d-flex flex-column flex-md-row justify-content-md-between gap-2 align-items-md-center mb-4">
+                    <div>
+                        <h5 class="fw-bold text-dark mb-1">Grafik Keuangan</h5>
+                        <p class="text-muted mb-0">Pemasukan dan pengeluaran bulanan</p>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <input type="radio" class="btn-check" name="chartType" id="barChart" value="bar" checked>
+                        <label class="btn btn-outline-primary btn-sm" for="barChart">
+                            <i class="fas fa-chart-bar me-1"></i>Bar
+                        </label>
+                        
+                        <input type="radio" class="btn-check" name="chartType" id="lineChart" value="trend">
+                        <label class="btn btn-outline-primary btn-sm" for="lineChart">
+                            <i class="fas fa-chart-line me-1"></i>Tren
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Chart Canvas -->
+                <div style="position: relative; height: 300px;">
+                    <canvas id="mainChart"></canvas>
+                </div>
+
+                <!-- Summary -->
+                <div class="mt-4 row text-center g-3">
+                    <div class="col-md-6">
+                        <div class="p-3">
+                            <h6 class="text-muted mb-2">Total Pemasukan Periode</h6>
+                            <h4 class="fw-bold text-success mb-0 total-income">Rp {{ number_format($totalPemasukanGrafik, 0, ',', '.') }}</h4>
                         </div>
                     </div>
-
-                    <!-- Chart Canvas -->
-                    <div style="position: relative; height: 220px;">
-                        <canvas id="mainChart"></canvas>
+                    <div class="col-md-6">
+                        <div class="p-3">
+                            <h6 class="text-muted mb-2">Total Pengeluaran Periode</h6>
+                            <h4 class="fw-bold text-danger mb-0 total-expense">Rp {{ number_format($totalPengeluaranGrafik, 0, ',', '.') }}</h4>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -128,60 +98,62 @@
     <div class="row g-3 mb-4">
         <!-- Aliran Kas Distribution -->
         <div class="col-md-6 fade-in-up" style="animation-delay: 0.3s;">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body p-3 p-md-4">
-                    <h6 class="fw-bold mb-3">Aliran Kas Bulan Ini</h6>
-                    
-                    <!-- Pie Chart -->
-                    <div style="position: relative; height: 180px;" class="mb-3">
-                        <canvas id="aliranChart"></canvas>
-                    </div>
+            <div class="glass-effect p-4 h-100">
+                <h5 class="fw-bold text-dark mb-3">
+                    <i class="fas fa-chart-pie me-2 text-primary"></i>
+                    Distribusi Aliran Kas
+                </h5>
+                
+                <!-- Pie Chart -->
+                <div style="position: relative; height: 220px;" class="mb-3">
+                    <canvas id="aliranChart"></canvas>
+                </div>
 
-                    <!-- Legend -->
-                    <div id="aliranLegend" class="small">
-                        <!-- Populated by JS -->
-                    </div>
+                <!-- Legend -->
+                <div id="aliranLegend">
+                    <!-- Populated by JS -->
                 </div>
             </div>
         </div>
 
         <!-- Top Transaksi -->
         <div class="col-md-6 fade-in-up" style="animation-delay: 0.35s;">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body p-3 p-md-4">
-                    <h6 class="fw-bold mb-3">Top Transaksi Bulan Ini</h6>
-                    
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
+            <div class="glass-effect p-4 h-100">
+                <h5 class="fw-bold text-dark mb-3">
+                    <i class="fas fa-trophy me-2 text-warning"></i>
+                    Top 5 Uraian Bulan Ini
+                </h5>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="fw-semibold text-dark">#</th>
+                                <th class="fw-semibold text-dark">Uraian</th>
+                                <th class="fw-semibold text-dark text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($topTransaksi as $index => $top)
                                 <tr>
-                                    <th class="small text-muted">#</th>
-                                    <th class="small text-muted">Uraian</th>
-                                    <th class="small text-muted text-end">Total</th>
+                                    <td>
+                                        <span class="badge bg-{{ $index < 3 ? 'primary' : 'secondary' }}">
+                                            {{ $index + 1 }}
+                                        </span>
+                                    </td>
+                                    <td>{{ Str::limit($top->uraian, 35) }}</td>
+                                    <td class="text-end fw-bold text-success">Rp {{ number_format($top->total, 0, ',', '.') }}</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($topTransaksi as $index => $top)
-                                    <tr>
-                                        <td>
-                                            <span class="badge bg-{{ $index < 3 ? 'primary' : 'secondary' }}">
-                                                {{ $index + 1 }}
-                                            </span>
-                                        </td>
-                                        <td class="small">{{ Str::limit($top->uraian, 35) }}</td>
-                                        <td class="text-end small fw-semibold">Rp {{ number_format($top->total, 0, ',', '.') }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="3" class="text-center text-muted py-4">
-                                            <i class="fas fa-inbox fa-2x mb-2 d-block opacity-25"></i>
-                                            <span class="small">Belum ada transaksi</span>
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+                            @empty
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted py-4">
+                                        <i class="fas fa-inbox fa-2x mb-2 d-block opacity-25"></i>
+                                        Belum ada transaksi bulan ini
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -189,40 +161,24 @@
 
     <!-- Quick Stats -->
     <div class="row g-3 mb-4">
-        <div class="col-12 fade-in-up" style="animation-delay: 0.4s;">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-3 p-md-4">
-                    <h6 class="fw-bold mb-3">Ringkasan</h6>
-                    
-                    <div class="row g-3">
-                        <div class="col-6 col-md-3">
-                            <div class="text-center p-2">
-                                <p class="text-muted mb-1 small">Rata-rata Pemasukan</p>
-                                <h6 class="fw-bold text-success mb-0">Rp {{ number_format($rataPemasukan, 0, ',', '.') }}</h6>
-                            </div>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <div class="text-center p-2">
-                                <p class="text-muted mb-1 small">Rata-rata Pengeluaran</p>
-                                <h6 class="fw-bold text-danger mb-0">Rp {{ number_format($rataPengeluaran, 0, ',', '.') }}</h6>
-                            </div>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <div class="text-center p-2">
-                                <p class="text-muted mb-1 small">Total Pemasukan</p>
-                                <h6 class="fw-bold text-success mb-0">Rp {{ number_format($totalPemasukan, 0, ',', '.') }}</h6>
-                            </div>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <div class="text-center p-2">
-                                <p class="text-muted mb-1 small">Selisih Bersih</p>
-                                <h6 class="fw-bold {{ ($totalPemasukan - $totalPengeluaran) >= 0 ? 'text-success' : 'text-danger' }} mb-0">
-                                    Rp {{ number_format($totalPemasukan - $totalPengeluaran, 0, ',', '.') }}
-                                </h6>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="col-md-4 fade-in-up" style="animation-delay: 0.4s;">
+            <div class="glass-effect p-4 text-center h-100">
+                <h6 class="text-muted mb-2">Rata-rata Pemasukan</h6>
+                <h4 class="text-success fw-bold">Rp {{ number_format($rataPemasukan, 0, ',', '.') }}</h4>
+            </div>
+        </div>
+        <div class="col-md-4 fade-in-up" style="animation-delay: 0.45s;">
+            <div class="glass-effect p-4 text-center h-100">
+                <h6 class="text-muted mb-2">Rata-rata Pengeluaran</h6>
+                <h4 class="text-danger fw-bold">Rp {{ number_format($rataPengeluaran, 0, ',', '.') }}</h4>
+            </div>
+        </div>
+        <div class="col-md-4 fade-in-up" style="animation-delay: 0.5s;">
+            <div class="glass-effect p-4 text-center h-100">
+                <h6 class="text-muted mb-2">Selisih Bersih</h6>
+                <h4 class="fw-bold {{ ($totalPemasukan - $totalPengeluaran) >= 0 ? 'text-success' : 'text-danger' }}">
+                    Rp {{ number_format($totalPemasukan - $totalPengeluaran, 0, ',', '.') }}
+                </h4>
             </div>
         </div>
     </div>
