@@ -1884,12 +1884,12 @@
             }
 
             .modal-actions {
-                flex-direction: column;
+                flex-direction: row;
                 gap: 8px;
             }
 
             .modal-btn {
-                width: 100%;
+                flex: 1;
                 padding: 10px 15px;
                 font-size: 0.9rem;
                 justify-content: center;
