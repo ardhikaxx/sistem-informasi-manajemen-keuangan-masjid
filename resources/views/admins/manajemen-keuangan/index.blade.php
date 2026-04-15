@@ -13,6 +13,9 @@
                         <p class="text-muted mb-0">Kelola pemasukan dan pengeluaran keuangan masjid</p>
                     </div>
                     <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-info text-white" data-bs-toggle="modal" data-bs-target="#importModal">
+                            <i class="fas fa-file-import me-2"></i>Import
+                        </button>
                         <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#tambahPemasukanModal">
                             <i class="fas fa-plus-circle me-2"></i>Tambah Pemasukan
                         </button>
@@ -477,6 +480,45 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                     <button type="button" class="btn btn-primary" id="simpanEdit">
                         <i class="fas fa-save me-2"></i>Simpan Perubahan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Import Modal -->
+    <div class="modal fade" id="importModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content glass-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title text-info">
+                        <i class="fas fa-file-import me-2"></i>Import Transaksi
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formImport" enctype="multipart/form-data">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="importFile" class="form-label">Pilih File (CSV/Excel)</label>
+                            <input type="file" class="form-control" id="importFile" name="file" 
+                                accept=".csv,.xlsx,.xls" required>
+                            <div class="form-text">Format yang didukung: CSV, XLSX, XLS (max 2MB)</div>
+                        </div>
+                        <div class="alert alert-info small">
+                            <strong>Format kolom yang diharapkan:</strong><br>
+                            - Tanggal<br>
+                            - Uraian<br>
+                            - Jenis Transaksi (pemasukan/pengeluaran)<br>
+                            - Jumlah<br>
+                            - Keterangan (opsional)<br>
+                            - Aliran Kas (opsional)
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-info text-white" id="importBtn">
+                        <i class="fas fa-upload me-2"></i>Import
                     </button>
                 </div>
             </div>
@@ -1026,6 +1068,127 @@
                 const form = document.getElementById('formEdit');
                 if (form) {
                     form.reset();
+                }
+            });
+
+            // Import functionality
+            const importModalEl = document.getElementById('importModal');
+            const importModalInstance = new bootstrap.Modal(importModalEl);
+            
+            document.getElementById('importBtn').addEventListener('click', function() {
+                const fileInput = document.getElementById('importFile');
+                const file = fileInput.files[0];
+                
+                if (!file) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Peringatan',
+                        text: 'Pilih file terlebih dahulu!',
+                        background: '#f8f9fa',
+                        backdrop: 'rgba(0,0,0,0.1)'
+                    });
+                    return;
+                }
+
+                const validExtensions = ['csv', 'xlsx', 'xls'];
+                const extension = file.name.split('.').pop().toLowerCase();
+                if (!validExtensions.includes(extension)) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Peringatan',
+                        text: 'Format file tidak valid. Gunakan CSV atau Excel!',
+                        background: '#f8f9fa',
+                        backdrop: 'rgba(0,0,0,0.1)'
+                    });
+                    return;
+                }
+
+                const maxSize = 2 * 1024 * 1024; // 2MB
+                if (file.size > maxSize) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Peringatan',
+                        text: 'Ukuran file maksimal 2MB!',
+                        background: '#f8f9fa',
+                        backdrop: 'rgba(0,0,0,0.1)'
+                    });
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                const url = "{{ route('admins.manajemen-keuangan.import') }}";
+
+                const saveButton = this;
+                const originalText = saveButton.innerHTML;
+                saveButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Mengimport...';
+                saveButton.disabled = true;
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    saveButton.innerHTML = originalText;
+                    saveButton.disabled = false;
+
+                    if (data.success) {
+                        let message = data.message;
+                        if (data.data?.errors?.length > 0) {
+                            message += '<br><small class="text-warning">Beberapa baris gagal diimport: ' + data.data.errors.join(', ') + '</small>';
+                        }
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            html: message,
+                            timer: 2500,
+                            showConfirmButton: false,
+                            background: '#f8f9fa',
+                            backdrop: 'rgba(0,0,0,0.1)'
+                        }).then(() => {
+                            importModalInstance.hide();
+                            fileInput.value = '';
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: data.message || 'Gagal mengimport transaksi.',
+                            background: '#f8f9fa',
+                            backdrop: 'rgba(0,0,0,0.1)'
+                        });
+                    }
+                })
+                .catch(error => {
+                    saveButton.innerHTML = originalText;
+                    saveButton.disabled = false;
+                    console.error('Import Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Kesalahan',
+                        text: 'Terjadi kesalahan saat mengimport file.',
+                        background: '#f8f9fa',
+                        backdrop: 'rgba(0,0,0,0.1)'
+                    });
+                });
+            });
+
+            importModalEl.addEventListener('hidden.bs.modal', function() {
+                const fileInput = document.getElementById('importFile');
+                if (fileInput) {
+                    fileInput.value = '';
                 }
             });
         });

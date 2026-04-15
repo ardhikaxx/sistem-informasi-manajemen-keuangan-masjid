@@ -66,6 +66,9 @@ Route::prefix('admin')->group(function () {
 
             Route::get('/statistics', [ManajemenKeuanganController::class, 'getStatistics'])
                 ->name('admins.manajemen-keuangan.statistics');
+
+            Route::post('/import', [ManajemenKeuanganController::class, 'import'])
+                ->name('admins.manajemen-keuangan.import');
         });
 
         Route::prefix('manajemen-laporan')->group(function () {

@@ -2311,8 +2311,8 @@
                     Untuk informasi lebih detail mengenai pengelolaan keuangan masjid, 
                     laporan keuangan, atau pertanyaan lainnya, silakan menghubungi kami melalui WhatsApp.
                 </p>
-                <a href="https://wa.me/6281234567890?text=Assalamu'alaikum,%20saya%20ingin%20menanyakan%20informasi%20mengenai%20keuangan%20masjid" 
-                   target="_blank" 
+                <a href="https://wa.me/6281259222730?text=Assalamu'alaikum,%20saya%20ingin%20menanyakan%20informasi%20mengenai%20keuangan%20masjid"
+                   target="_blank"
                    class="whatsapp-btn">
                     <i class="fab fa-whatsapp"></i>
                     <span>Hubungi Kami via WhatsApp</span>
@@ -2328,9 +2328,9 @@
 
     <!-- Floating WhatsApp Button -->
     <div class="whatsapp-float">
-        <a href="https://wa.me/6281234567890?text=Assalamu'alaikum,%20saya%20ingin%20menanyakan%20informasi%20mengenai%20keuangan%20masjid" 
-           target="_blank" 
-           class="whatsapp-float-btn" 
+        <a href="https://wa.me/6281259222730?text=Assalamu'alaikum,%20saya%20ingin%20menanyakan%20informasi%20mengenai%20keuangan%20masjid"
+           target="_blank"
+           class="whatsapp-float-btn"
            aria-label="Chat WhatsApp">
             <i class="fab fa-whatsapp"></i>
             <span class="whatsapp-float-badge">1</span>

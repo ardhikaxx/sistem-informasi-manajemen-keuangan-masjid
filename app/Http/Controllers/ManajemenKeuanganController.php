@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ManajemenKeuanganController extends Controller
 {
@@ -454,6 +455,183 @@ class ManajemenKeuanganController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengambil statistik. Silakan coba lagi nanti.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Import transactions from CSV/Excel file.
+     */
+    public function import(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($request->all(), [
+                'file' => 'required|file|mimes:csv,xlsx,xls|max:2048',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validasi gagal',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $file = $request->file('file');
+            $extension = $file->getClientOriginalExtension();
+            $rows = [];
+
+            if ($extension === 'csv') {
+                $handle = fopen($file->getPathname(), 'r');
+                $headers = fgetcsv($handle);
+                $headers = array_map(function($h) {
+                    return strtolower(trim($h));
+                }, $headers);
+                
+                while (($row = fgetcsv($handle)) !== false) {
+                    $rowData = [];
+                    foreach ($headers as $index => $header) {
+                        $rowData[$header] = $row[$index] ?? null;
+                    }
+                    $rows[] = $rowData;
+                }
+                fclose($handle);
+            } else {
+                $data = Excel::toArray([], $file);
+                $rows = $data[0] ?? [];
+                
+                $headers = array_map(function($h) {
+                    return strtolower(trim($h));
+                }, array_shift($rows));
+                
+                $rows = array_map(function($row) use ($headers) {
+                    $rowData = [];
+                    foreach ($headers as $index => $header) {
+                        $rowData[$header] = $row[$index] ?? null;
+                    }
+                    return $rowData;
+                }, $rows);
+            }
+
+            $columnMapping = [
+                'tanggal' => 'tanggal',
+                'date' => 'tanggal',
+                'uraian' => 'uraian',
+                'description' => 'uraian',
+                'keterangan' => 'keterangan',
+                'jenis_transaksi' => 'jenis_transaksi',
+                'jenis' => 'jenis_transaksi',
+                'type' => 'jenis_transaksi',
+                'jumlah' => 'jumlah',
+                'amount' => 'jumlah',
+                'nominal' => 'jumlah',
+                'aliran' => 'aliran',
+                'flow' => 'aliran',
+            ];
+
+            $importedCount = 0;
+            $errors = [];
+
+            foreach ($rows as $index => $row) {
+                $firstValue = strtolower(trim($row[$columnMapping['tanggal']] ?? $row['tanggal'] ?? ''));
+                if ($index === 0 && in_array($firstValue, ['tanggal', 'date', 'uraian'])) {
+                    continue;
+                }
+
+                $mappedRow = [];
+                foreach ($columnMapping as $expectedCol => $csvCol) {
+                    $mappedRow[$expectedCol] = $row[$csvCol] ?? null;
+                }
+
+                if (empty($mappedRow['tanggal']) || empty($mappedRow['uraian']) || empty($mappedRow['jumlah'])) {
+                    $errors[] = "Baris " . ($index + 1) . ": Data tidak lengkap";
+                    continue;
+                }
+
+                $jenisInput = strtolower(trim($mappedRow['jenis_transaksi'] ?? ''));
+                if (!in_array($jenisInput, ['pemasukan', 'pengeluaran', 'income', 'expense'])) {
+                    $errors[] = "Baris " . ($index + 1) . ": Jenis transaksi tidak valid";
+                    continue;
+                }
+
+                $jenis_transaksi = ($jenisInput === 'pengeluaran' || $jenisInput === 'expense') ? 'pengeluaran' : 'pemasukan';
+
+                $jumlah = $mappedRow['jumlah'];
+                if (is_string($jumlah)) {
+                    $jumlah = str_replace(['Rp', ' ', '.'], ['', '', ''], $jumlah);
+                    $jumlah = str_replace(',', '.', $jumlah);
+                    $jumlah = (float) trim($jumlah);
+                }
+                $jumlah = floatval($jumlah);
+
+                if ($jumlah <= 0) {
+                    $errors[] = "Baris " . ($index + 1) . ": Jumlah harus lebih dari 0";
+                    continue;
+                }
+
+                $tanggal = $mappedRow['tanggal'];
+                if (is_string($tanggal)) {
+                    $tanggal = trim($tanggal);
+                    try {
+                        $date = Carbon::createFromFormat('d/m/Y', $tanggal);
+                    } catch (\Exception $e) {
+                        try {
+                            $date = Carbon::createFromFormat('Y-m-d', $tanggal);
+                        } catch (\Exception $e) {
+                            try {
+                                $date = Carbon::createFromFormat('d-m-Y', $tanggal);
+                            } catch (\Exception $e) {
+                                $date = Carbon::parse($tanggal);
+                            }
+                        }
+                    }
+                    $tanggal = $date->format('Y-m-d');
+                }
+
+                $aliran = $mappedRow['aliran'] ?? 'Aktivitas Operasi';
+                $validAliran = ['Aktivitas Operasi', 'Aktivitas Investasi', 'Aktivitas Pendanaan', 'Aktivitas Pendanaan Lain'];
+                if (!in_array($aliran, $validAliran)) {
+                    $aliran = 'Aktivitas Operasi';
+                }
+
+                $transaksi = new Transaksi();
+                $transaksi->tanggal = $tanggal;
+                $transaksi->uraian = trim($mappedRow['uraian']);
+                $transaksi->jenis_transaksi = $jenis_transaksi;
+                $transaksi->jumlah = $jumlah;
+                $transaksi->keterangan = trim($mappedRow['keterangan'] ?? '');
+                $transaksi->aliran = $aliran;
+                $transaksi->save();
+
+                $importedCount++;
+            }
+
+            DB::commit();
+
+            if ($importedCount > 0) {
+                return response()->json([
+                    'success' => true,
+                    'message' => "Berhasil mengimpor {$importedCount} transaksi!",
+                    'data' => [
+                        'imported' => $importedCount,
+                        'errors' => $errors
+                    ]
+                ], 200);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada transaksi yang dapat diimpor.',
+                    'errors' => $errors
+                ], 422);
+            }
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::error('Error mengimpor transaksi: ' . $e->getMessage() . "\nTrace:\n" . $e->getTraceAsString());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mengimpor transaksi: ' . $e->getMessage()
             ], 500);
         }
     }
