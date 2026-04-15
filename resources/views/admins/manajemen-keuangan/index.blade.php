@@ -13,13 +13,13 @@
                         <p class="text-muted mb-0">Kelola pemasukan dan pengeluaran keuangan masjid</p>
                     </div>
                     <div class="d-flex flex-wrap gap-2">
-                        <button class="btn btn-info text-white" data-bs-toggle="modal" data-bs-target="#importModal">
+                        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#importModal">
                             <i class="fas fa-file-import me-2"></i>Import
                         </button>
-                        <button class="btn btn-primary" id="exportBtn">
+                        <button class="btn btn-success" id="exportBtn">
                             <i class="fas fa-file-export me-2"></i>Export
                         </button>
-                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#tambahPemasukanModal">
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambahPemasukanModal">
                             <i class="fas fa-plus-circle me-2"></i>Tambah Pemasukan
                         </button>
                         <button class="btn btn-secondary text-white" data-bs-toggle="modal"
