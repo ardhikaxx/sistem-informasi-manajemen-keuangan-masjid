@@ -81,6 +81,9 @@ Route::prefix('admin')->group(function () {
 
             Route::post('/bulk-delete', [ManajemenKeuanganController::class, 'bulkDelete'])
                 ->name('admins.manajemen-keuangan.bulk-delete');
+
+            Route::get('/print/{id}', [ManajemenKeuanganController::class, 'print'])
+                ->name('admins.manajemen-keuangan.print');
         });
 
         Route::prefix('manajemen-laporan')->group(function () {

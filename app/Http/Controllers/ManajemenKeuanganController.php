@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TransaksiExport;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ManajemenKeuanganController extends Controller
 {
@@ -892,6 +893,24 @@ class ManajemenKeuanganController extends Controller
                 'success' => false,
                 'message' => 'Gagal menghapus transaksi: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Print transaction receipt.
+     */
+    public function print($id)
+    {
+        try {
+            $transaksi = Transaksi::findOrFail($id);
+            
+            $pdf = Pdf::loadView('admins.manajemen-keuangan.print', compact('transaksi'))
+                ->setPaper([0, 0, 280, 400], 'portrait');
+            
+            return $pdf->download('struk-transaksi-' . $transaksi->id . '.pdf');
+        } catch (\Exception $e) {
+            Log::error('Error print transaksi: ' . $e->getMessage());
+            return back()->with('error', 'Gagal mencetak struk transaksi.');
         }
     }
 }

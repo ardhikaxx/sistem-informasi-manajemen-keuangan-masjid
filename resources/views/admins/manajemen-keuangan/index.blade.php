@@ -60,7 +60,7 @@
                 </div>
                 <form method="GET" action="{{ route('admins.manajemen-keuangan') }}" id="filterForm">
                     <div class="row g-3">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="input-group">
                                 <span class="input-group-text bg-transparent border-end-0">
                                     <i class="fas fa-search text-muted"></i>
@@ -69,13 +69,22 @@
                                     class="form-control border-start-0" placeholder="Cari transaksi...">
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <select name="jenis" class="form-select" onchange="this.form.submit()">
                                 <option value="">Semua Jenis</option>
                                 <option value="pemasukan" {{ request('jenis') == 'pemasukan' ? 'selected' : '' }}>Pemasukan
                                 </option>
                                 <option value="pengeluaran" {{ request('jenis') == 'pengeluaran' ? 'selected' : '' }}>
                                     Pengeluaran</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select name="aliran" class="form-select" onchange="this.form.submit()">
+                                <option value="">Semua Aliran Kas</option>
+                                <option value="Aktivitas Operasi" {{ request('aliran') == 'Aktivitas Operasi' ? 'selected' : '' }}>Aktivitas Operasi</option>
+                                <option value="Aktivitas Investasi" {{ request('aliran') == 'Aktivitas Investasi' ? 'selected' : '' }}>Aktivitas Investasi</option>
+                                <option value="Aktivitas Pendanaan" {{ request('aliran') == 'Aktivitas Pendanaan' ? 'selected' : '' }}>Aktivitas Pendanaan</option>
+                                <option value="Aktivitas Pendanaan Lain" {{ request('aliran') == 'Aktivitas Pendanaan Lain' ? 'selected' : '' }}>Aktivitas Pendanaan Lain</option>
                             </select>
                         </div>
                         <div class="col-md-2">
@@ -216,6 +225,13 @@
                                     </td>
                                     <td> <!-- Kolom Aksi -->
                                         <div class="d-flex gap-1 justify-content-center">
+                                            <a href="{{ route('admins.manajemen-keuangan.print', $transaksi->id) }}" 
+                                                class="btn btn-sm btn-outline-info" 
+                                                target="_blank"
+                                                data-bs-toggle="tooltip" 
+                                                title="Cetak Struk">
+                                                <i class="fas fa-print"></i>
+                                            </a>
                                             <button type="button" class="btn btn-sm btn-outline-primary edit-btn"
                                                 data-id="{{ $transaksi->id }}" data-bs-toggle="tooltip" title="Edit">
                                                 <i class="fas fa-edit"></i>
