@@ -69,6 +69,15 @@ Route::prefix('admin')->group(function () {
 
             Route::post('/import', [ManajemenKeuanganController::class, 'import'])
                 ->name('admins.manajemen-keuangan.import');
+
+            Route::get('/export', [ManajemenKeuanganController::class, 'export'])
+                ->name('admins.manajemen-keuangan.export');
+
+            Route::get('/download-template', [ManajemenKeuanganController::class, 'downloadTemplate'])
+                ->name('admins.manajemen-keuangan.download-template');
+
+            Route::post('/preview-import', [ManajemenKeuanganController::class, 'previewImport'])
+                ->name('admins.manajemen-keuangan.preview-import');
         });
 
         Route::prefix('manajemen-laporan')->group(function () {

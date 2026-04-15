@@ -16,6 +16,9 @@
                         <button class="btn btn-info text-white" data-bs-toggle="modal" data-bs-target="#importModal">
                             <i class="fas fa-file-import me-2"></i>Import
                         </button>
+                        <button class="btn btn-primary" id="exportBtn">
+                            <i class="fas fa-file-export me-2"></i>Export
+                        </button>
                         <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#tambahPemasukanModal">
                             <i class="fas fa-plus-circle me-2"></i>Tambah Pemasukan
                         </button>
@@ -487,7 +490,7 @@
     </div>
     <!-- Import Modal -->
     <div class="modal fade" id="importModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content glass-modal">
                 <div class="modal-header">
                     <h5 class="modal-title text-info">
@@ -504,9 +507,40 @@
                                 accept=".csv,.xlsx,.xls" required>
                             <div class="form-text">Format yang didukung: CSV, XLSX, XLS (max 2MB)</div>
                         </div>
-                        <div class="alert alert-info small">
+                        <div class="d-flex gap-2 mb-3">
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="previewBtn" disabled>
+                                <i class="fas fa-eye me-1"></i>Preview Data
+                            </button>
+                            <a href="{{ route('admins.manajemen-keuangan.download-template') }}" class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-download me-1"></i>Download Template
+                            </a>
+                        </div>
+                        <div id="previewSection" class="d-none">
+                            <h6 class="fw-bold mb-2">Preview Data (<span id="previewCount">0</span> baris)</h6>
+                            <div class="table-responsive" style="max-height: 300px;">
+                                <table class="table table-sm table-bordered" id="previewTable">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Tanggal</th>
+                                            <th>Uraian</th>
+                                            <th>Jenis</th>
+                                            <th>Jumlah</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="previewTableBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="mt-2 text-muted small">
+                                <span id="validCount" class="text-success"></span> 
+                                <span id="invalidCount" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="alert alert-info small mt-3">
                             <strong>Format kolom yang diharapkan:</strong><br>
-                            - Tanggal<br>
+                            - Tanggal (contoh: 15/04/2026)<br>
                             - Uraian<br>
                             - Jenis Transaksi (pemasukan/pengeluaran)<br>
                             - Jumlah<br>
@@ -517,7 +551,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-info text-white" id="importBtn">
+                    <button type="button" class="btn btn-info text-white" id="importBtn" disabled>
                         <i class="fas fa-upload me-2"></i>Import
                     </button>
                 </div>
@@ -1071,11 +1105,105 @@
                 }
             });
 
+            // Export functionality
+            document.getElementById('exportBtn').addEventListener('click', function() {
+                const url = new URL("{{ route('admins.manajemen-keuangan.export') }}");
+                const params = new URLSearchParams(window.location.search);
+                
+                if (params.get('bulan')) url.searchParams.append('bulan', params.get('bulan'));
+                if (params.get('tahun')) url.searchParams.append('tahun', params.get('tahun'));
+                if (params.get('jenis')) url.searchParams.append('jenis', params.get('jenis'));
+                
+                window.location.href = url.toString();
+            });
+
             // Import functionality
             const importModalEl = document.getElementById('importModal');
             const importModalInstance = new bootstrap.Modal(importModalEl);
+            const fileInput = document.getElementById('importFile');
+            const previewBtn = document.getElementById('previewBtn');
+            const importBtn = document.getElementById('importBtn');
+            const previewSection = document.getElementById('previewSection');
             
-            document.getElementById('importBtn').addEventListener('click', function() {
+            fileInput.addEventListener('change', function() {
+                if (this.files[0]) {
+                    previewBtn.disabled = false;
+                    importBtn.disabled = true;
+                    previewSection.classList.add('d-none');
+                } else {
+                    previewBtn.disabled = true;
+                    importBtn.disabled = true;
+                }
+            });
+
+            // Preview functionality
+            previewBtn.addEventListener('click', function() {
+                const file = fileInput.files[0];
+                if (!file) return;
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                const originalText = previewBtn.innerHTML;
+                previewBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Loading...';
+                previewBtn.disabled = true;
+
+                fetch("{{ route('admins.manajemen-keuangan.preview-import') }}", {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    previewBtn.innerHTML = originalText;
+                    previewBtn.disabled = false;
+
+                    if (data.success) {
+                        const preview = data.data.preview;
+                        const validCount = data.data.valid_rows;
+                        const totalRows = data.data.total_rows;
+
+                        document.getElementById('previewCount').textContent = totalRows;
+                        document.getElementById('validCount').textContent = `${validCount} data valid`;
+                        document.getElementById('invalidCount').textContent = ` | ${preview.length - validCount} invalid`;
+
+                        const tbody = document.getElementById('previewTableBody');
+                        tbody.innerHTML = '';
+
+                        preview.forEach((row, idx) => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td>${idx + 1}</td>
+                                <td>${row.tanggal || '-'}</td>
+                                <td>${row.uraian || '-'}</td>
+                                <td><span class="badge bg-${row.jenis_transaksi === 'pemasukan' ? 'success' : 'danger'}">${row.jenis_transaksi || '-'}</span></td>
+                                <td>${formatNumber(row.jumlah || 0)}</td>
+                                <td>${row.valid ? '<span class="text-success"><i class="fas fa-check"></i></span>' : '<span class="text-danger"><i class="fas fa-times"></i> ' + row.errors.join(', ') + '</span>'}</td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+
+                        previewSection.classList.remove('d-none');
+                        importBtn.disabled = validCount === 0;
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal',
+                            text: data.message,
+                            background: '#f8f9fa'
+                        });
+                    }
+                })
+                .catch(error => {
+                    previewBtn.innerHTML = originalText;
+                    previewBtn.disabled = false;
+                    console.error('Preview Error:', error);
+                });
+            });
+
+            // Import button click
+            importBtn.addEventListener('click', function() {
                 const fileInput = document.getElementById('importFile');
                 const file = fileInput.files[0];
                 
@@ -1190,6 +1318,10 @@
                 if (fileInput) {
                     fileInput.value = '';
                 }
+                previewBtn.disabled = true;
+                importBtn.disabled = true;
+                previewSection.classList.add('d-none');
+                document.getElementById('previewTableBody').innerHTML = '';
             });
         });
     </script>

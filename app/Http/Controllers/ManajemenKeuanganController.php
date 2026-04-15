@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\TransaksiExport;
 
 class ManajemenKeuanganController extends Controller
 {
@@ -632,6 +633,183 @@ class ManajemenKeuanganController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat mengimpor transaksi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Export transactions to Excel.
+     */
+    public function export(Request $request)
+    {
+        try {
+            $bulan = $request->input('bulan');
+            $tahun = $request->input('tahun');
+            $jenis = $request->input('jenis');
+
+            $query = Transaksi::query();
+
+            if ($bulan && $tahun) {
+                $query->whereYear('tanggal', $tahun)->whereMonth('tanggal', $bulan);
+            } elseif ($tahun) {
+                $query->whereYear('tanggal', $tahun);
+            }
+            if ($jenis && in_array($jenis, ['pemasukan', 'pengeluaran'])) {
+                $query->where('jenis_transaksi', $jenis);
+            }
+
+            $transaksis = $query->orderBy('tanggal', 'asc')->orderBy('id', 'asc')->get();
+
+            $filename = 'transaksi_' . ($bulan ? $bulan : 'all') . '_' . ($tahun ? $tahun : date('Y')) . '.xlsx';
+
+            return Excel::download(new TransaksiExport($transaksis), $filename);
+        } catch (\Exception $e) {
+            Log::error('Error export transaksi: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal export transaksi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Download import template.
+     */
+    public function downloadTemplate()
+    {
+        try {
+            $templateData = [
+                ['tanggal' => '15/04/2026', 'uraian' => 'Contoh Pemasukan', 'jenis_transaksi' => 'pemasukan', 'jumlah' => '100000', 'keterangan' => 'Donasi dari Jamaah', 'aliran' => 'Aktivitas Operasi'],
+                ['tanggal' => '16/04/2026', 'uraian' => 'Contoh Pengeluaran', 'jenis_transaksi' => 'pengeluaran', 'jumlah' => '50000', 'keterangan' => 'PembelianATK', 'aliran' => 'Aktivitas Operasi'],
+            ];
+
+            return Excel::download(new \App\Exports\TemplateExport($templateData), 'template_import_transaksi.xlsx');
+        } catch (\Exception $e) {
+            Log::error('Error download template: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal download template: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Preview import data before importing.
+     */
+    public function previewImport(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'file' => 'required|file|mimes:csv,xlsx,xls|max:2048',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validasi gagal',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $file = $request->file('file');
+            $extension = $file->getClientOriginalExtension();
+            $rows = [];
+
+            if ($extension === 'csv') {
+                $handle = fopen($file->getPathname(), 'r');
+                $headers = fgetcsv($handle);
+                $headers = array_map(function($h) {
+                    return strtolower(trim($h));
+                }, $headers);
+                
+                while (($row = fgetcsv($handle)) !== false) {
+                    $rowData = [];
+                    foreach ($headers as $index => $header) {
+                        $rowData[$header] = $row[$index] ?? null;
+                    }
+                    $rows[] = $rowData;
+                }
+                fclose($handle);
+            } else {
+                $data = Excel::toArray([], $file);
+                $rows = $data[0] ?? [];
+                
+                $headers = array_map(function($h) {
+                    return strtolower(trim($h));
+                }, array_shift($rows));
+                
+                $rows = array_map(function($row) use ($headers) {
+                    $rowData = [];
+                    foreach ($headers as $index => $header) {
+                        $rowData[$header] = $row[$index] ?? null;
+                    }
+                    return $rowData;
+                }, $rows);
+            }
+
+            $previewData = [];
+            $errors = [];
+            $maxPreview = 10;
+
+            foreach ($rows as $index => $row) {
+                if ($index >= $maxPreview) break;
+
+                $firstValue = strtolower(trim($row['tanggal'] ?? $row['date'] ?? ''));
+                if ($index === 0 && in_array($firstValue, ['tanggal', 'date', 'uraian'])) {
+                    continue;
+                }
+
+                $isValid = true;
+                $rowErrors = [];
+
+                $tanggal = $row['tanggal'] ?? $row['date'] ?? '';
+                $uraian = $row['uraian'] ?? $row['description'] ?? '';
+                $jenis = strtolower($row['jenis_transaksi'] ?? $row['jenis'] ?? $row['type'] ?? '');
+                $jumlah = $row['jumlah'] ?? $row['amount'] ?? $row['nominal'] ?? '';
+
+                if (empty($tanggal) || empty($uraian) || empty($jumlah)) {
+                    $isValid = false;
+                    $rowErrors[] = 'Data tidak lengkap';
+                }
+
+                if (!in_array($jenis, ['pemasukan', 'pengeluaran'])) {
+                    $isValid = false;
+                    $rowErrors[] = 'Jenis tidak valid';
+                }
+
+                $jumlahNum = is_string($jumlah) ? (float) str_replace(['Rp', ' ', '.'], ['', '', ''], $jumlah) : (float) $jumlah;
+                if ($jumlahNum <= 0) {
+                    $isValid = false;
+                    $rowErrors[] = 'Jumlah tidak valid';
+                }
+
+                $previewData[] = [
+                    'row' => $index + 1,
+                    'tanggal' => $tanggal,
+                    'uraian' => $uraian,
+                    'jenis_transaksi' => $jenis,
+                    'jumlah' => $jumlahNum,
+                    'keterangan' => $row['keterangan'] ?? '',
+                    'aliran' => $row['aliran'] ?? 'Aktivitas Operasi',
+                    'valid' => $isValid,
+                    'errors' => $rowErrors
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'preview' => $previewData,
+                    'total_rows' => count($rows),
+                    'valid_rows' => collect($previewData)->where('valid', true)->count()
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Error preview import: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat preview: ' . $e->getMessage()
             ], 500);
         }
     }
