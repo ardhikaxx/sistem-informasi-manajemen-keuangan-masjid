@@ -78,6 +78,9 @@ Route::prefix('admin')->group(function () {
 
             Route::post('/preview-import', [ManajemenKeuanganController::class, 'previewImport'])
                 ->name('admins.manajemen-keuangan.preview-import');
+
+            Route::post('/bulk-delete', [ManajemenKeuanganController::class, 'bulkDelete'])
+                ->name('admins.manajemen-keuangan.bulk-delete');
         });
 
         Route::prefix('manajemen-laporan')->group(function () {

@@ -35,6 +35,30 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="glass-effect p-4">
+                <!-- Quick Filters -->
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <span class="text-muted small fw-medium">Filter Cepat:</span>
+                    <a href="{{ route('admins.manajemen-keuangan', array_merge(request()->query(), ['filter' => 'today', 'bulan' => '', 'tahun' => ''])) }}" 
+                        class="btn btn-sm {{ request('filter') == 'today' ? 'btn-primary' : 'btn-outline-secondary' }}">
+                        Hari Ini
+                    </a>
+                    <a href="{{ route('admins.manajemen-keuangan', array_merge(request()->query(), ['filter' => 'week', 'bulan' => '', 'tahun' => ''])) }}" 
+                        class="btn btn-sm {{ request('filter') == 'week' ? 'btn-primary' : 'btn-outline-secondary' }}">
+                        Minggu Ini
+                    </a>
+                    <a href="{{ route('admins.manajemen-keuangan', array_merge(request()->query(), ['filter' => 'month', 'bulan' => date('m'), 'tahun' => date('Y')])) }}" 
+                        class="btn btn-sm {{ request('filter') == 'month' ? 'btn-primary' : 'btn-outline-secondary' }}">
+                        Bulan Ini
+                    </a>
+                    <a href="{{ route('admins.manajemen-keuangan', array_merge(request()->query(), ['filter' => 'year', 'bulan' => '', 'tahun' => date('Y')])) }}" 
+                        class="btn btn-sm {{ request('filter') == 'year' ? 'btn-primary' : 'btn-outline-secondary' }}">
+                        Tahun Ini
+                    </a>
+                    <a href="{{ route('admins.manajemen-keuangan') }}" 
+                        class="btn btn-sm btn-outline-secondary">
+                        Semua
+                    </a>
+                </div>
                 <form method="GET" action="{{ route('admins.manajemen-keuangan') }}" id="filterForm">
                     <div class="row g-3">
                         <div class="col-md-4">
@@ -108,19 +132,30 @@
     <div class="row fade-in-up mb-5">
         <div class="col-12">
             <div class="glass-effect p-4">
+                <!-- Bulk Actions Toolbar -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <input type="checkbox" id="selectAll" class="form-check-input">
+                        <label for="selectAll" class="form-check-label ms-1">Pilih Semua</label>
+                    </div>
+                    <button type="button" class="btn btn-danger btn-sm d-none" id="bulkDeleteBtn">
+                        <i class="fas fa-trash-alt me-1"></i>Hapus Terpilih (<span id="selectedCount">0</span>)
+                    </button>
+                </div>
                 <div class="table-responsive">
                     <table class="table table-bordered" id="reportTable">
                         <thead class="table-light">
                             <tr>
+                                <th class="fw-semibold text-dark" style="width: 40px;"></th>
                                 <th class="fw-semibold text-dark">No</th>
                                 <th class="fw-semibold text-dark">Tanggal</th>
                                 <th class="fw-semibold text-dark">Uraian</th>
                                 <th class="fw-semibold text-dark text-end">Pemasukan</th>
                                 <th class="fw-semibold text-dark text-end">Pengeluaran</th>
                                 <th class="fw-semibold text-dark text-end">Saldo</th>
-                                <th class="fw-semibold text-dark">Aliran Kas</th> <!-- Kolom Aliran Ditambahkan -->
+                                <th class="fw-semibold text-dark">Aliran Kas</th>
                                 <th class="fw-semibold text-dark">Keterangan</th>
-                                <th class="fw-semibold text-dark">Aksi</th> <!-- Kolom Aksi Ditambahkan -->
+                                <th class="fw-semibold text-dark">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -143,6 +178,9 @@
                                     }
                                 @endphp
                                 <tr>
+                                    <td>
+                                        <input type="checkbox" class="form-check-input transaction-checkbox" value="{{ $transaksi->id }}">
+                                    </td>
                                     <td>{{ $no }}</td>
                                     <td class="text-nowrap">
                                         {{ \Carbon\Carbon::parse($transaksi->tanggal)->format('d/m/Y') }}</td>
@@ -1115,6 +1153,95 @@
                 if (params.get('jenis')) url.searchParams.append('jenis', params.get('jenis'));
                 
                 window.location.href = url.toString();
+            });
+
+            // Bulk delete functionality
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.transaction-checkbox');
+            const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+            const selectedCountSpan = document.getElementById('selectedCount');
+
+            function updateBulkDeleteButton() {
+                const checkedBoxes = document.querySelectorAll('.transaction-checkbox:checked');
+                const count = checkedBoxes.length;
+                selectedCountSpan.textContent = count;
+                if (count > 0) {
+                    bulkDeleteBtn.classList.remove('d-none');
+                } else {
+                    bulkDeleteBtn.classList.add('d-none');
+                }
+                selectAllCheckbox.checked = count === checkboxes.length && count > 0;
+                selectAllCheckbox.indeterminate = count > 0 && count < checkboxes.length;
+            }
+
+            selectAllCheckbox.addEventListener('change', function() {
+                checkboxes.forEach(cb => cb.checked = this.checked);
+                updateBulkDeleteButton();
+            });
+
+            checkboxes.forEach(cb => {
+                cb.addEventListener('change', updateBulkDeleteButton);
+            });
+
+            bulkDeleteBtn.addEventListener('click', function() {
+                const checkedBoxes = document.querySelectorAll('.transaction-checkbox:checked');
+                const ids = Array.from(checkedBoxes).map(cb => cb.value);
+
+                if (ids.length === 0) return;
+
+                Swal.fire({
+                    title: 'Konfirmasi Hapus',
+                    html: `Apakah Anda yakin ingin menghapus <strong>${ids.length}</strong> transaksi?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Ya, Hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                        
+                        fetch("{{ route('admins.manajemen-keuangan.bulk-delete') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken
+                            },
+                            body: JSON.stringify({ ids: ids })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil!',
+                                    text: data.message,
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gagal',
+                                    text: data.message || 'Gagal menghapus transaksi.',
+                                    background: '#f8f9fa'
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Bulk delete error:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Kesalahan',
+                                text: 'Terjadi kesalahan saat menghapus transaksi.',
+                                background: '#f8f9fa'
+                            });
+                        });
+                    }
+                });
             });
 
             // Import functionality

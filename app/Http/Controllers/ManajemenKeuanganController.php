@@ -22,7 +22,24 @@ class ManajemenKeuanganController extends Controller
             $bulan = $request->input('bulan');
             $tahun = $request->input('tahun');
             $jenis = $request->input('jenis');
-            $aliran = $request->input('aliran'); // Tambahkan filter aliran jika diperlukan
+            $aliran = $request->input('aliran');
+            $filter = $request->input('filter');
+
+            // Handle quick filters
+            if ($filter === 'today') {
+                $bulan = date('m');
+                $tahun = date('Y');
+                $tanggal = date('Y-m-d');
+            } elseif ($filter === 'week') {
+                $bulan = date('m');
+                $tahun = date('Y');
+            } elseif ($filter === 'month') {
+                $bulan = date('m');
+                $tahun = date('Y');
+            } elseif ($filter === 'year') {
+                $bulan = '';
+                $tahun = date('Y');
+            }
 
             // Start query
             $query = Transaksi::query();
@@ -34,12 +51,24 @@ class ManajemenKeuanganController extends Controller
                         ->orWhere('keterangan', 'like', "%{$search}%");
                 });
             }
-            if ($bulan && $tahun) {
+
+            // Apply quick filter for today
+            if ($filter === 'today') {
+                $query->whereDate('tanggal', $tanggal);
+            }
+            // Apply quick filter for week (current week)
+            elseif ($filter === 'week') {
+                $startOfWeek = Carbon::now()->startOfWeek()->format('Y-m-d');
+                $endOfWeek = Carbon::now()->endOfWeek()->format('Y-m-d');
+                $query->whereBetween('tanggal', [$startOfWeek, $endOfWeek]);
+            }
+            elseif ($bulan && $tahun) {
                 $query->whereYear('tanggal', $tahun)
                     ->whereMonth('tanggal', $bulan);
             } elseif ($tahun) {
                 $query->whereYear('tanggal', $tahun);
             }
+
             if ($jenis && in_array($jenis, ['pemasukan', 'pengeluaran'])) {
                 $query->where('jenis_transaksi', $jenis);
             }
@@ -810,6 +839,58 @@ class ManajemenKeuanganController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat preview: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Bulk delete transactions.
+     */
+    public function bulkDelete(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($request->all(), [
+                'ids' => 'required|array|min:1',
+                'ids.*' => 'integer|exists:transaksis,id'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validasi gagal',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $ids = $request->input('ids');
+            $count = count($ids);
+
+            // Get the earliest transaction to recalculate saldo after delete
+            $transactions = Transaksi::whereIn('id', $ids)->orderBy('tanggal', 'asc')->orderBy('id', 'asc')->get();
+            $earliestTransaction = $transactions->first();
+
+            // Delete transactions
+            Transaksi::whereIn('id', $ids)->delete();
+
+            // Recalculate saldo after deletion
+            if ($earliestTransaction) {
+                $this->recalculateSaldoAfterDelete($earliestTransaction->tanggal, $earliestTransaction->id);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => "Berhasil menghapus {$count} transaksi!"
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::error('Error bulk delete: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus transaksi: ' . $e->getMessage()
             ], 500);
         }
     }
