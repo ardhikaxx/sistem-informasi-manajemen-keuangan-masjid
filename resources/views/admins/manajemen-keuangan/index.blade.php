@@ -13,10 +13,10 @@
                         <p class="text-muted mb-0">Kelola pemasukan dan pengeluaran keuangan masjid</p>
                     </div>
                     <div class="d-flex flex-wrap gap-2">
-                        <button class="btn btn-purple" data-bs-toggle="modal" data-bs-target="#importModal">
+                        <button class="btn btn-import" data-bs-toggle="modal" data-bs-target="#importModal">
                             <i class="fas fa-file-import me-2"></i>Import
                         </button>
-                        <button class="btn btn-teal" id="exportBtn">
+                        <button class="btn btn-export" id="exportBtn">
                             <i class="fas fa-file-export me-2"></i>Export
                         </button>
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambahPemasukanModal">
@@ -635,29 +635,29 @@
             box-shadow: 0 5px 15px rgba(255, 193, 7, 0.3);
         }
 
-        .btn-purple {
-            background: linear-gradient(135deg, #6f42c1, #8b5cf6);
+        .btn-import {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
             border: none;
             color: white;
             transition: all 0.3s ease;
         }
 
-        .btn-purple:hover {
+        .btn-import:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(111, 66, 193, 0.4);
+            box-shadow: 0 5px 15px rgba(29, 138, 78, 0.4);
             color: white;
         }
 
-        .btn-teal {
-            background: linear-gradient(135deg, #0d9488, #14b8a6);
+        .btn-export {
+            background: linear-gradient(135deg, var(--secondary-color), var(--success-color));
             border: none;
             color: white;
             transition: all 0.3s ease;
         }
 
-        .btn-teal:hover {
+        .btn-export:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(13, 148, 136, 0.4);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
             color: white;
         }
 
