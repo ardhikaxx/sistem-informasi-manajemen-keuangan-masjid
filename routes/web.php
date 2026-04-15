@@ -84,6 +84,9 @@ Route::prefix('admin')->group(function () {
 
             Route::get('/print/{id}', [ManajemenKeuanganController::class, 'print'])
                 ->name('admins.manajemen-keuangan.print');
+
+            Route::get('/history/{id}', [ManajemenKeuanganController::class, 'history'])
+                ->name('admins.manajemen-keuangan.history');
         });
 
         Route::prefix('manajemen-laporan')->group(function () {

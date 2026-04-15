@@ -225,6 +225,10 @@
                                     </td>
                                     <td> <!-- Kolom Aksi -->
                                         <div class="d-flex gap-1 justify-content-center">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary history-btn"
+                                                data-id="{{ $transaksi->id }}" data-bs-toggle="tooltip" title="Riwayat">
+                                                <i class="fas fa-history"></i>
+                                            </button>
                                             <a href="{{ route('admins.manajemen-keuangan.print', $transaksi->id) }}" 
                                                 class="btn btn-sm btn-outline-info" 
                                                 target="_blank"
@@ -607,6 +611,42 @@
                     <button type="button" class="btn btn-info text-white" id="importBtn" disabled>
                         <i class="fas fa-upload me-2"></i>Import
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- History Modal -->
+    <div class="modal fade" id="historyModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content glass-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title text-secondary">
+                        <i class="fas fa-history me-2"></i>Riwayat Transaksi
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive" style="max-height: 400px;">
+                        <table class="table table-sm table-bordered" id="historyTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Aksi</th>
+                                    <th>Admin</th>
+                                    <th>Keterangan</th>
+                                    <th>Detail</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">Memuat riwayat...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
                 </div>
             </div>
         </div>
@@ -1221,6 +1261,81 @@
                 
                 window.location.href = url.toString();
             });
+
+            // History functionality
+            const historyModalEl = document.getElementById('historyModal');
+            const historyModalInstance = new bootstrap.Modal(historyModalEl);
+
+            document.querySelectorAll('.history-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    loadHistory(id);
+                });
+            });
+
+            function loadHistory(id) {
+                const tbody = document.getElementById('historyTableBody');
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Memuat riwayat...</td></tr>';
+                historyModalInstance.show();
+
+                fetch(`/admin/manajemen-keuangan/history/${id}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const histories = data.data;
+                            if (histories.length === 0) {
+                                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Tidak ada riwayat</td></tr>';
+                                return;
+                            }
+
+                            tbody.innerHTML = '';
+                            histories.forEach(history => {
+                                const actionLabel = {
+                                    'create': 'Dibuat',
+                                    'update': 'Diperbarui',
+                                    'delete': 'Dihapus'
+                                }[history.action] || history.action;
+
+                                const badgeClass = {
+                                    'create': 'success',
+                                    'update': 'warning',
+                                    'delete': 'danger'
+                                }[history.action] || 'secondary';
+
+                                let detailHtml = '';
+                                if (history.action === 'update' && history.data_lama && history.data_baru) {
+                                    const changes = [];
+                                    for (const [key, value] of Object.entries(history.data_baru)) {
+                                        if (history.data_lama[key] !== value) {
+                                            changes.push(`<strong>${key}</strong>: ${history.data_lama[key] || '-'} → ${value || '-'}`);
+                                        }
+                                    }
+                                    detailHtml = changes.join('<br>') || '-';
+                                } else if (history.action === 'create') {
+                                    detailHtml = Object.entries(history.data_baru || {}).map(([k, v]) => `<strong>${k}</strong>: ${v}`).join('<br>') || '-';
+                                } else if (history.action === 'delete') {
+                                    detailHtml = Object.entries(history.data_lama || {}).map(([k, v]) => `<strong>${k}</strong>: ${v}`).join('<br>') || '-';
+                                }
+
+                                const tr = document.createElement('tr');
+                                tr.innerHTML = `
+                                    <td>${new Date(history.created_at).toLocaleString('id-ID')}</td>
+                                    <td><span class="badge bg-${badgeClass}">${actionLabel}</span></td>
+                                    <td>${history.admin_id || 'System'}</td>
+                                    <td>${history.keterangan || '-'}</td>
+                                    <td class="small">${detailHtml}</td>
+                                `;
+                                tbody.appendChild(tr);
+                            });
+                        } else {
+                            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Gagal memuat riwayat</td></tr>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading history:', error);
+                        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Terjadi kesalahan</td></tr>';
+                    });
+            }
 
             // Bulk delete functionality
             const selectAllCheckbox = document.getElementById('selectAll');

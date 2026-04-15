@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 use App\Models\Transaksi;
+use App\Models\TransaksiHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
@@ -161,6 +162,9 @@ class ManajemenKeuanganController extends Controller
             $transaksi->aliran = $request->aliran;
             $transaksi->save();
 
+            // Record history
+            $this->recordHistory($transaksi->id, 'create', null, $transaksi->toArray(), 'Transaksi baru ditambahkan');
+
             DB::commit();
 
             return response()->json([
@@ -227,6 +231,9 @@ class ManajemenKeuanganController extends Controller
         DB::beginTransaction();
         try {
             $transaksi = Transaksi::findOrFail($id);
+            
+            // Store old data for history
+            $oldData = $transaksi->toArray();
 
             $validator = Validator::make($request->all(), [
                 'tanggal' => 'required|date',
@@ -257,6 +264,9 @@ class ManajemenKeuanganController extends Controller
             $transaksi->keterangan = $request->keterangan;
             $transaksi->aliran = $request->aliran;
             $transaksi->save();
+
+            // Record history
+            $this->recordHistory($transaksi->id, 'update', $oldData, $transaksi->toArray(), 'Transaksi diperbarui');
 
             DB::commit();
 
@@ -296,6 +306,9 @@ class ManajemenKeuanganController extends Controller
 
             // Hapus transaksi
             $transaksi->delete();
+
+            // Record history
+            $this->recordHistory($transaksiId, 'delete', $transaksi->toArray(), null, 'Transaksi dihapus');
 
             // Hitung ulang saldo untuk transaksi setelah yang dihapus
             $this->recalculateSaldoAfterDelete($transaksiTanggal, $transaksiId);
@@ -911,6 +924,49 @@ class ManajemenKeuanganController extends Controller
         } catch (\Exception $e) {
             Log::error('Error print transaksi: ' . $e->getMessage());
             return back()->with('error', 'Gagal mencetak struk transaksi.');
+        }
+    }
+
+    /**
+     * Get transaction history.
+     */
+    public function history($id)
+    {
+        try {
+            $transaksi = Transaksi::findOrFail($id);
+            $histories = TransaksiHistory::where('transaksi_id', $id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $histories
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error getting history: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil riwayat transaksi.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Record transaction history.
+     */
+    private function recordHistory($transaksiId, $action, $dataLama, $dataBaru, $keterangan = null)
+    {
+        try {
+            TransaksiHistory::create([
+                'transaksi_id' => $transaksiId,
+                'admin_id' => auth('admin')->id() ?? null,
+                'action' => $action,
+                'data_lama' => $dataLama,
+                'data_baru' => $dataBaru,
+                'keterangan' => $keterangan
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error recording history: ' . $e->getMessage());
         }
     }
 }
