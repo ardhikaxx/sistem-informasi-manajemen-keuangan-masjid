@@ -1278,9 +1278,15 @@
                 tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Memuat riwayat...</td></tr>';
                 historyModalInstance.show();
 
+                console.log('Loading history for ID:', id);
+
                 fetch(`/admin/manajemen-keuangan/history/${id}`)
-                    .then(response => response.json())
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        return response.json();
+                    })
                     .then(data => {
+                        console.log('Response data:', data);
                         if (data.success) {
                             const histories = data.data;
                             if (histories.length === 0) {
