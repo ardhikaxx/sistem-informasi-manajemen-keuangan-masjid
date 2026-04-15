@@ -19,11 +19,10 @@
                         <button class="btn btn-export" id="exportBtn">
                             <i class="fas fa-file-export me-2"></i>Export
                         </button>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambahPemasukanModal">
+                        <button class="btn btn-add-income" data-bs-toggle="modal" data-bs-target="#tambahPemasukanModal">
                             <i class="fas fa-plus-circle me-2"></i>Tambah Pemasukan
                         </button>
-                        <button class="btn btn-secondary text-white" data-bs-toggle="modal"
-                            data-bs-target="#tambahPengeluaranModal">
+                        <button class="btn btn-add-expense" data-bs-toggle="modal" data-bs-target="#tambahPengeluaranModal">
                             <i class="fas fa-minus-circle me-2"></i>Tambah Pengeluaran
                         </button>
                     </div>
@@ -658,6 +657,32 @@
         .btn-export:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+            color: white;
+        }
+
+        .btn-add-income {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .btn-add-income:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(29, 138, 78, 0.4);
+            color: white;
+        }
+
+        .btn-add-expense {
+            background: linear-gradient(135deg, #6c757d, #868e96);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .btn-add-expense:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
             color: white;
         }
 
