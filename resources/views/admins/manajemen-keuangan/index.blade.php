@@ -116,7 +116,7 @@
         </div>
     </div>
     <!-- Summary Cards -->
-    <div class="row mb-4">
+    <div class="row mb-4 gy-3">
         <div class="col-md-4">
             <div class="glass-effect p-4 text-center">
                 <h6 class="text-muted mb-2">Total Pemasukan</h6>

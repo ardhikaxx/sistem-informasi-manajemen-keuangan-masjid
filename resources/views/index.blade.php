@@ -1627,6 +1627,7 @@
 
             .modal-footer {
                 padding: 15px 20px;
+                text-align: center;
             }
 
             .donation-info {
@@ -1641,12 +1642,15 @@
 
             .modal-actions {
                 flex-direction: row;
+                justify-content: center;
                 gap: 10px;
+                width: 100%;
             }
 
             .modal-btn {
-                padding: 10px 20px;
-                font-size: 0.9rem;
+                flex: 1;
+                max-width: 150px;
+                justify-content: center;
             }
         }
 
@@ -1925,6 +1929,7 @@
 
             .modal-footer {
                 padding: 12px 15px;
+                text-align: center;
             }
 
             .donation-info {
@@ -1938,14 +1943,15 @@
             }
 
             .modal-actions {
-                flex-direction: row;
-                gap: 8px;
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                width: 100%;
             }
 
             .modal-btn {
-                flex: 1;
-                padding: 10px 15px;
-                font-size: 0.9rem;
+                width: 100%;
+                max-width: 200px;
                 justify-content: center;
             }
 
@@ -2109,7 +2115,6 @@
                 </button>
                 <div class="d-flex flex-column justify-content-center align-items-center">
                     <h2><i class="fas fa-donate"></i> Donasi via QRIS</h2>
-                    <p class="w-75">Scan QR Code dibawah berikut untuk berdonasi ke Masjid Jami' Al-Muttaqiin</p>
                 </div>
             </div>
 
@@ -2142,13 +2147,6 @@
             </div>
 
             <div class="modal-footer">
-                <div class="donation-info">
-                    <div class="donation-item">
-                        <i class="fas fa-shield-alt"></i>
-                        <span>Transaksi Aman & Terjamin</span>
-                    </div>
-                </div>
-
                 <div class="modal-actions">
                     <button class="modal-btn download" id="downloadQR">
                         <i class="fas fa-download"></i>

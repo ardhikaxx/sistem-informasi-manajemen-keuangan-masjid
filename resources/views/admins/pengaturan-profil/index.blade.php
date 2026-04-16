@@ -92,12 +92,15 @@
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-end gap-3 pt-3 border-top">
+                    <div class="d-flex flex-column flex-md-row justify-content-end gap-2 pt-3 border-top">
+                        <button type="submit" class="btn btn-primary px-4" id="submitBtn">
+                            <i class="fas fa-save me-2"></i>Simpan Perubahan
+                        </button>
                         <button type="reset" class="btn btn-secondary px-4" id="resetBtn">
                             <i class="fas fa-times me-2"></i>Reset
                         </button>
-                        <button type="submit" class="btn btn-primary px-4" id="submitBtn">
-                            <i class="fas fa-save me-2"></i>Simpan Perubahan
+                        <button type="button" class="btn btn-outline-danger px-4" onclick="confirmLogout(event)">
+                            <i class="fas fa-sign-out-alt me-2"></i>Keluar
                         </button>
                     </div>
                 </form>
