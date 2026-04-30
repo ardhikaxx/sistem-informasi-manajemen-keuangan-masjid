@@ -35,4 +35,14 @@ class Transaksi extends Model
     {
         return $this->hasMany(TransaksiHistory::class, 'transaksi_id');
     }
+
+    public function scopePemasukan($query)
+    {
+        return $query->where('aliran', 'pemasukan');
+    }
+
+    public function scopePengeluaran($query)
+    {
+        return $query->where('aliran', 'pengeluaran');
+    }
 }
