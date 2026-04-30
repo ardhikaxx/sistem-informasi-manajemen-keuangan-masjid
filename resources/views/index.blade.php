@@ -543,6 +543,116 @@
 
         /* =================== END MODAL QRIS STYLES =================== */
 
+        /* =================== BERAMAL ONLINE STYLES =================== */
+        .bank-info-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .bank-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .bank-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .bank-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .account-number-wrapper {
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 1px;
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px dashed var(--primary-color);
+            width: 100%;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .account-number {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--primary-dark);
+        }
+
+        .copy-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+
+        .copy-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Toast Styles */
+        .toast-container {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3000;
+            pointer-events: none;
+        }
+
+        .toast-message {
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .toast-message.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        /* =================== END BERAMAL ONLINE STYLES =================== */
+
         .background-animation {
             position: fixed;
             top: 0;
@@ -2097,16 +2207,24 @@
                 <span>Login Admin</span>
             </a>
 
+            {{-- 
             <button class="menu-item" id="qrcodeAmal">
                 <i class="fas fa-qrcode"></i>
                 <span>Amal QR Code</span>
+            </button> 
+            --}}
+
+            <button class="menu-item" id="beramalOnline">
+                <i class="fas fa-hand-holding-heart"></i>
+                <span>Beramal Online</span>
             </button>
         </div>
 
         <div class="menu-overlay" id="menuOverlay"></div>
     </div>
 
-    <!-- QRIS Modal -->
+    <!-- QRIS Modal (Hidden) -->
+    {{-- 
     <div class="modal-overlay" id="qrisModal">
         <div class="modal-container">
             <div class="modal-header">
@@ -2158,6 +2276,84 @@
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+    --}}
+
+    <!-- Beramal Online Modal -->
+    <div class="modal-overlay" id="beramalModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <button class="modal-close" id="closeBeramalModal">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="d-flex flex-column justify-content-center align-items-center">
+                    <h2><i class="fas fa-hand-holding-heart"></i> Beramal Online</h2>
+                    <p>Transfer melalui rekening bank</p>
+                </div>
+            </div>
+
+            <div class="modal-content">
+                <div class="bank-info-container">
+                    <div class="bank-item">
+                        <span class="bank-label">Nama Bank</span>
+                        <div class="bank-value">Bank Syariah Indonesia (BSI)</div>
+                    </div>
+                    <div class="bank-item">
+                        <span class="bank-label">Atas Nama</span>
+                        <div class="bank-value">MASJID AL MUTTAQIN</div>
+                    </div>
+                    <div class="bank-item">
+                        <span class="bank-label">Nomor Rekening</span>
+                        <div class="account-number-wrapper">
+                            <span class="account-number" id="accountNumber">7210764997</span>
+                            <button class="copy-btn" id="copyAccBtn">
+                                <i class="fas fa-copy"></i>
+                                <span>Salin</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="qris-instructions">
+                    <h4><i class="fas fa-info-circle"></i> Cara Berdonasi:</h4>
+                    <ul class="instructions-list">
+                        <li>
+                            <i class="fas fa-mobile-alt"></i>
+                            <span>Buka aplikasi mobile banking atau ATM Anda</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-exchange-alt"></i>
+                            <span>Pilih menu transfer ke bank lain (jika bukan BSI)</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-university"></i>
+                            <span>Masukkan kode bank BSI (451) dan nomor rekening di atas</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Pastikan nama penerima sesuai (MASJID AL MUTTAQIN)</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <div class="modal-actions">
+                    <button class="modal-btn close" id="closeBeramalBtn">
+                        <i class="fas fa-times"></i>
+                        <span>Tutup</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container">
+        <div class="toast-message" id="copyToast">
+            <i class="fas fa-check-circle"></i>
+            <span>Nomor rekening berhasil disalin!</span>
         </div>
     </div>
 
@@ -2353,13 +2549,22 @@
         const menuItems = document.getElementById('menuItems');
         const menuOverlay = document.getElementById('menuOverlay');
         const qrcodeAmal = document.getElementById('qrcodeAmal');
+        const beramalOnline = document.getElementById('beramalOnline');
 
-        // QRIS Modal Elements
+        // QRIS Modal Elements (Commented out logic)
         const qrisModal = document.getElementById('qrisModal');
         const modalClose = document.getElementById('modalClose');
         const closeModalBtn = document.getElementById('closeModalBtn');
         const downloadQR = document.getElementById('downloadQR');
         const qrisImage = document.getElementById('qrisImage');
+
+        // Beramal Online Modal Elements
+        const beramalModal = document.getElementById('beramalModal');
+        const closeBeramalModal = document.getElementById('closeBeramalModal');
+        const closeBeramalBtn = document.getElementById('closeBeramalBtn');
+        const copyAccBtn = document.getElementById('copyAccBtn');
+        const accountNumber = document.getElementById('accountNumber');
+        const copyToast = document.getElementById('copyToast');
 
         // Toggle menu open/close
         function toggleMenu() {
@@ -2386,89 +2591,163 @@
             menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
         }
 
-        // Open QRIS Modal
+        // Open QRIS Modal (Commented out)
+        /*
         function openQRISModal() {
-            qrisModal.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Prevent scrolling
+            if (qrisModal) {
+                qrisModal.classList.add('active');
+                document.body.style.overflow = 'hidden'; 
+            }
         }
+        */
 
-        // Close QRIS Modal
+        // Close QRIS Modal (Commented out)
+        /*
         function closeQRISModal() {
-            qrisModal.classList.remove('active');
-            document.body.style.overflow = ''; // Restore scrolling
+            if (qrisModal) {
+                qrisModal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+        */
+
+        // Open Beramal Modal
+        function openBeramalModal() {
+            if (beramalModal) {
+                beramalModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
         }
 
-        // Download QR Image
+        // Close Beramal Modal
+        function closeBeramalModalFunc() {
+            if (beramalModal) {
+                beramalModal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Copy Account Number
+        function copyToClipboard() {
+            const textToCopy = accountNumber.textContent;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast('Nomor rekening berhasil disalin!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                const textArea = document.createElement("textarea");
+                textArea.value = textToCopy;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showToast('Nomor rekening berhasil disalin!');
+                } catch (err) {
+                    alert('Gagal menyalin nomor rekening.');
+                }
+                document.body.removeChild(textArea);
+            });
+        }
+
+        // Helper: Show toast
+        function showToast(message) {
+            const toast = document.getElementById('copyToast');
+            toast.querySelector('span').textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Download QR Image (Commented out)
+        /*
         function downloadQRImage() {
-            const imageUrl = qrisImage.src;
-            const link = document.createElement('a');
-            link.href = imageUrl;
-            link.download = 'QRIS_Donasi_Masjid_Jami_Al-Muttaqiin.jpg';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            // Show success message
-            alert('QR Code berhasil diunduh!');
+            if (qrisImage) {
+                const imageUrl = qrisImage.src;
+                const link = document.createElement('a');
+                link.href = imageUrl;
+                link.download = 'QRIS_Donasi_Masjid_Jami_Al-Muttaqiin.jpg';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                alert('QR Code berhasil diunduh!');
+            }
         }
+        */
 
         // Event listeners for menu
         menuToggle.addEventListener('click', toggleMenu);
         menuOverlay.addEventListener('click', closeMenu);
 
-        qrcodeAmal.addEventListener('click', function(e) {
-            e.preventDefault();
-            openQRISModal();
-            closeMenu();
-        });
+        if (qrcodeAmal) {
+            qrcodeAmal.addEventListener('click', function(e) {
+                e.preventDefault();
+                // openQRISModal();
+                closeMenu();
+            });
+        }
 
-        // QRIS Modal event listeners
-        modalClose.addEventListener('click', closeQRISModal);
-        closeModalBtn.addEventListener('click', closeQRISModal);
-        downloadQR.addEventListener('click', downloadQRImage);
+        if (beramalOnline) {
+            beramalOnline.addEventListener('click', function(e) {
+                e.preventDefault();
+                openBeramalModal();
+                closeMenu();
+            });
+        }
+
+        // Beramal Modal event listeners
+        if (closeBeramalModal) closeBeramalModal.addEventListener('click', closeBeramalModalFunc);
+        if (closeBeramalBtn) closeBeramalBtn.addEventListener('click', closeBeramalModalFunc);
+        if (copyAccBtn) copyAccBtn.addEventListener('click', copyToClipboard);
 
         // Close modal when clicking outside
-        qrisModal.addEventListener('click', function(e) {
-            if (e.target === qrisModal) {
-                closeQRISModal();
-            }
-        });
+        if (beramalModal) {
+            beramalModal.addEventListener('click', function(e) {
+                if (e.target === beramalModal) {
+                    closeBeramalModalFunc();
+                }
+            });
+        }
 
         // Close menu and modal on escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeMenu();
-                closeQRISModal();
+                // closeQRISModal();
+                closeBeramalModalFunc();
             }
         });
 
-        // Handle image loading and error
-        qrisImage.addEventListener('load', function() {
-            console.log('QRIS image loaded successfully');
-            // Remove loading animation after image loads
-            setTimeout(() => {
-                document.querySelector('.qris-image-container').classList.remove('qris-loading');
-            }, 500);
-        });
+        // Handle image loading and error (Commented out logic)
+        /*
+        if (qrisImage) {
+            qrisImage.addEventListener('load', function() {
+                console.log('QRIS image loaded successfully');
+                setTimeout(() => {
+                    const container = document.querySelector('.qris-image-container');
+                    if (container) container.classList.remove('qris-loading');
+                }, 500);
+            });
 
-        qrisImage.addEventListener('error', function() {
-            console.error('Failed to load QRIS image');
-            // Show placeholder if image fails to load
-            qrisImage.src = 'https://via.placeholder.com/300x300/1D8A4E/FFFFFF?text=QRIS+Donasi';
-            qrisImage.alt = 'QRIS placeholder - image not found';
+            qrisImage.addEventListener('error', function() {
+                console.error('Failed to load QRIS image');
+                qrisImage.src = 'https://via.placeholder.com/300x300/1D8A4E/FFFFFF?text=QRIS+Donasi';
+                qrisImage.alt = 'QRIS placeholder - image not found';
 
-            // Show error message
-            const content = document.querySelector('.modal-content');
-            const errorMsg = document.createElement('div');
-            errorMsg.style.background = '#FFE5E5';
-            errorMsg.style.color = '#D32F2F';
-            errorMsg.style.padding = '10px';
-            errorMsg.style.borderRadius = '5px';
-            errorMsg.style.marginTop = '10px';
-            errorMsg.innerHTML =
-                '<i class="fas fa-exclamation-triangle"></i> Gambar QRIS tidak ditemukan. Pastikan file qris.jpg ada di folder assets.';
-            content.appendChild(errorMsg);
-        });
+                const content = document.querySelector('.modal-content');
+                if (content) {
+                    const errorMsg = document.createElement('div');
+                    errorMsg.style.background = '#FFE5E5';
+                    errorMsg.style.color = '#D32F2F';
+                    errorMsg.style.padding = '10px';
+                    errorMsg.style.borderRadius = '5px';
+                    errorMsg.style.marginTop = '10px';
+                    errorMsg.innerHTML =
+                        '<i class="fas fa-exclamation-triangle"></i> Gambar QRIS tidak ditemukan. Pastikan file qris.jpg ada di folder assets.';
+                    content.appendChild(errorMsg);
+                }
+            });
+        }
+        */
 
         // Update totals with animation
         document.addEventListener('DOMContentLoaded', function() {
